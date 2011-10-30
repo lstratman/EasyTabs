@@ -1,20 +1,3 @@
-#region Revision History
-//**********************************************************************//
-// CtrlSoft, Copyright ©2001-2007, All rights reserved.
-// 
-// ListModification.cs
-//
-// Description:
-//   - [TODO: Write the purpose of ListModification.cs.]
-//
-// Created On: 13/07/2007 07:10:21 PM
-// Created By: Igor V. Velikorossov <mailto:igor@ctrlsoft.net> 
-//**********************************************************************//
-
-#endregion
-
-using System;
-
 namespace Stratman.Windows.Forms.TitleBarTabs
 {
 	/// <summary>
@@ -25,7 +8,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		/// <summary>
 		/// The list has been cleared.
 		/// </summary>
-		Cleared			= 0,
+		Cleared = 0,
 		/// <summary>
 		/// A new item has been added.
 		/// </summary>

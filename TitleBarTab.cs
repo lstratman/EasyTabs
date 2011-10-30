@@ -1,30 +1,52 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
+﻿using System.Drawing;
 using System.Windows.Forms;
 
 namespace Stratman.Windows.Forms.TitleBarTabs
 {
+    /// <summary>
+    ///   Wraps a <see cref = "Form" /> instance (<see cref = "_content" />), that represents the content that should be
+    ///   displayed within a tab instance.
+    /// </summary>
     public class TitleBarTab
     {
-        protected bool _active = false;
-        protected TitleBarTabs _parent = null;
-        protected Form _content = null;
+        /// <summary>
+        ///   Flag indicating whether or not this tab is active.
+        /// </summary>
+        protected bool _active;
 
+        /// <summary>
+        ///   Content that should be displayed within the tab.
+        /// </summary>
+        protected Form _content;
+
+        /// <summary>
+        ///   Parent window that contains this tab.
+        /// </summary>
+        protected TitleBarTabs _parent;
+
+        /// <summary>
+        ///   Default constructor that initializes the various properties.
+        /// </summary>
+        /// <param name = "parent">Parent window that contains this tab.</param>
         public TitleBarTab(TitleBarTabs parent)
         {
             ShowCloseButton = true;
             _parent = parent;
         }
 
+        /// <summary>
+        ///   Flag indicating whether or not we should display the close button for this tab.
+        /// </summary>
         public bool ShowCloseButton
         {
             get;
             set;
         }
 
+        /// <summary>
+        ///   The caption that's displayed in the tab's title (simply uses the <see cref = "Form.Text" /> of
+        ///   <see cref = "Content" />).
+        /// </summary>
         public string Caption
         {
             get
@@ -38,6 +60,9 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             }
         }
 
+        /// <summary>
+        ///   Flag indicating whether or not this tab is active.
+        /// </summary>
         public bool Active
         {
             get
@@ -47,12 +72,18 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
             internal set
             {
+                // When the status of the tab changes, we null out the TabImage property so that it's recreated in
+                // the next rendering pass
                 _active = value;
                 TabImage = null;
                 Content.Visible = value;
             }
         }
 
+        /// <summary>
+        ///   The icon that's displayed in the tab's title (simply uses the <see cref = "Form.Icon" /> of 
+        ///   <see cref = "Content" />).
+        /// </summary>
         public Icon Icon
         {
             get
@@ -66,24 +97,36 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             }
         }
 
+        /// <summary>
+        ///   The area in which the tab is rendered in the client window.
+        /// </summary>
         internal Rectangle Area
         {
             get;
             set;
         }
 
+        /// <summary>
+        ///   The area of the close button for this tab in the client window.
+        /// </summary>
         internal Rectangle CloseButtonArea
         {
             get;
             set;
         }
 
+        /// <summary>
+        ///   Pre-rendered image of the tab's background.
+        /// </summary>
         internal Bitmap TabImage
         {
             get;
             set;
         }
 
+        /// <summary>
+        ///   The content that should be displayed for this tab.
+        /// </summary>
         public Form Content
         {
             get
@@ -95,6 +138,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             {
                 _content = value;
 
+                // We set the content form to a non-top-level child of the parent form.
                 Content.FormBorderStyle = FormBorderStyle.None;
                 Content.TopLevel = false;
                 Content.Parent = _parent;

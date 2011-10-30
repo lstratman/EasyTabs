@@ -1,32 +1,60 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
 namespace Stratman.Windows.Forms.TitleBarTabs
 {
-  [StructLayout(LayoutKind.Sequential)]
-  internal struct MARGINS
-  {
-    public int cxLeftWidth;
-    public int cxRightWidth;
-    public int cyTopHeight;
-    public int cyBottomHeight;
-  }
+    // ReSharper disable InconsistentNaming
+    /// <summary>
+    ///   Returned by the GetThemeMargins function to define the margins of windows that have visual styles applied.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct MARGINS
+    {
+        /// <summary>
+        ///   Width of the left border that retains its size.
+        /// </summary>
+        public int cxLeftWidth;
 
-  [StructLayout(LayoutKind.Sequential)]
-  internal struct RECT
-  {
-    public int left;
-    public int top;
-    public int right;
-    public int bottom;
-  }
+        /// <summary>
+        ///   Width of the right border that retains its size.
+        /// </summary>
+        public int cxRightWidth;
 
-  [StructLayout(LayoutKind.Sequential)]
-  internal struct NCCALCSIZE_PARAMS
-  {
-    public RECT rgrc0;
-    public RECT rgrc1;
-    public RECT rgrc2;
-    public IntPtr lppos;
-  }
+        /// <summary>
+        ///   Height of the top border that retains its size.
+        /// </summary>
+        public int cyTopHeight;
+
+        /// <summary>
+        ///   Height of the bottom border that retains its size.
+        /// </summary>
+        public int cyBottomHeight;
+    }
+
+    /// <summary>
+    ///   The RECT structure defines the coordinates of the upper-left and lower-right corners of a rectangle.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct RECT
+    {
+        /// <summary>
+        ///   The x-coordinate of the upper-left corner of the rectangle.
+        /// </summary>
+        public int left;
+
+        /// <summary>
+        ///   The y-coordinate of the upper-left corner of the rectangle.
+        /// </summary>
+        public int top;
+
+        /// <summary>
+        ///   The x-coordinate of the lower-right corner of the rectangle.
+        /// </summary>
+        public int right;
+
+        /// <summary>
+        ///   The y-coordinate of the lower-right corner of the rectangle.
+        /// </summary>
+        public int bottom;
+    }
+    // ReSharper restore InconsistentNaming
 }
