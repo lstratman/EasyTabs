@@ -538,7 +538,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             // Render the icon for the tab's content, if any
             if (tab.Content.ShowIcon)
             {
-                graphicsContext.DrawIcon(tab.Content.Icon,
+                graphicsContext.DrawIcon(new Icon(tab.Content.Icon, 16, 16),
                                          new Rectangle(area.X + OverlapWidth + IconMarginLeft,
                                                        (_parentWindow.WindowState != FormWindowState.Maximized
                                                             ? 21
