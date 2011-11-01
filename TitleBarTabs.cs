@@ -214,11 +214,10 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         {
             get
             {
-                CreateParams cp = base.CreateParams;
+                CreateParams createParams = base.CreateParams;
+                createParams.ExStyle |= Win32Constants.WS_EX_COMPOSITED | Win32Constants.WS_EX_TRANSPARENT;
 
-                // 0x20 is the transparent background flag
-                cp.ExStyle |= 0x20;
-                return cp;
+                return createParams;
             }
         }
 

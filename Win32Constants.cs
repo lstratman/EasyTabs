@@ -114,6 +114,17 @@
         /// Retrieves the extended window styles.
         /// </summary>
         public static int GWL_EXSTYLE = -20;
+        /// <summary>
+        /// All descendants of a window get bottom-to-top painting order using double-buffering. Bottom-to-top painting
+        /// order allows a descendent window to have translucency (alpha) and transparency (color-key) effects.
+        /// </summary>
+        public static int WS_EX_COMPOSITED = 0x02000000;
+        /// <summary>
+        /// Specifies that a window created with this style is to be transparent. That is, any windows that are beneath 
+        /// the window are not obscured by the window. A window created with this style receives WM_PAINT messages only 
+        /// after all sibling windows beneath it have been updated.
+        /// </summary>
+        public static int WS_EX_TRANSPARENT = 0x20;
         // ReSharper restore InconsistentNaming
     }
 }
