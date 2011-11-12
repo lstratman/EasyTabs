@@ -216,8 +216,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             get
             {
                 CreateParams createParams = base.CreateParams;
+                createParams.ExStyle |= Win32Constants.WS_EX_COMPOSITED | Win32Constants.WS_EX_TRANSPARENT;
 
-                createParams.ExStyle |= Win32Constants.WS_EX_TRANSPARENT;
                 return createParams;
             }
         }

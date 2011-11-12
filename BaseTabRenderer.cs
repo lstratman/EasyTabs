@@ -100,6 +100,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         {
             _parentWindow = parentWindow;
             ShowAddButton = true;
+
+            parentWindow.Tabs.CollectionModified += Tabs_CollectionModified;
         }
 
         /// <summary>
@@ -246,6 +248,33 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             {
                 return 0;
             }
+        }
+
+        /// <summary>
+        ///   When items are added to the tabs collection, we need to ensure that the <see cref = "_parentWindow" />'s 
+        ///   minimum width is set so that we can display at least each tab and its close buttons.
+        /// </summary>
+        /// <param name = "sender">List of tabs in the <see cref = "_parentWindow" />.</param>
+        /// <param name = "e">Arguments associated with the event.</param>
+        private void Tabs_CollectionModified(object sender, ListModificationEventArgs e)
+        {
+            ListWithEvents<TitleBarTab> tabs = (ListWithEvents<TitleBarTab>) sender;
+
+            int minimumWidth = tabs.Sum(tab => (tab.Active
+                                                    ? _activeLeftSideImage.Width
+                                                    : _inactiveLeftSideImage.Width) + (tab.Active
+                                                                                           ? _activeRightSideImage
+                                                                                                 .Width
+                                                                                           : _inactiveRightSideImage
+                                                                                                 .Width) +
+                                               (tab.ShowCloseButton
+                                                    ? tab.CloseButtonArea.Width + CloseButtonMarginTop
+                                                    : 0) - OverlapWidth);
+
+            if (tabs.Count > 0)
+                minimumWidth += OverlapWidth;
+
+            _parentWindow.MinimumSize = new Size(minimumWidth, 0);
         }
 
         /// <summary>
@@ -535,37 +564,47 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             graphicsContext.DrawImage(tab.TabImage, area, 0, 0, tab.TabImage.Width, tab.TabImage.Height,
                                       GraphicsUnit.Pixel);
 
-            // Render the icon for the tab's content, if any
-            if (tab.Content.ShowIcon)
-            {
+            // Render the icon for the tab's content, if it exists and there's room for it in the tab's content area
+            if (tab.Content.ShowIcon && _tabContentWidth > 16 + IconMarginLeft + (tab.ShowCloseButton
+                                                                                      ? CloseButtonMarginLeft +
+                                                                                        tab.CloseButtonArea.Width +
+                                                                                        CloseButtonMarginRight
+                                                                                      : 0))
                 graphicsContext.DrawIcon(new Icon(tab.Content.Icon, 16, 16),
                                          new Rectangle(area.X + OverlapWidth + IconMarginLeft,
                                                        (_parentWindow.WindowState != FormWindowState.Maximized
                                                             ? 21
                                                             : 8) + IconMarginTop, 16, 16));
-            }
 
-            // Render the caption for the tab's content
-            graphicsContext.DrawString(tab.Caption, SystemFonts.CaptionFont, Brushes.Black,
-                                       new Rectangle(area.X + OverlapWidth + CaptionMarginLeft + (tab.Content.ShowIcon
-                                                                                                      ? IconMarginLeft +
-                                                                                                        16 +
-                                                                                                        IconMarginRight
-                                                                                                      : 0),
-                                                     (_parentWindow.WindowState != FormWindowState.Maximized
-                                                          ? 21
-                                                          : 8) + CaptionMarginTop,
-                                                     _tabContentWidth - (tab.Content.ShowIcon
-                                                                             ? IconMarginLeft + 16 + IconMarginRight
-                                                                             : 0) - (tab.ShowCloseButton
-                                                                                         ? _closeButtonImage.Width +
-                                                                                           CloseButtonMarginRight +
-                                                                                           CloseButtonMarginLeft
-                                                                                         : 0), tab.TabImage.Height),
-                                       new StringFormat(StringFormatFlags.NoWrap)
-                                           {
-                                               Trimming = StringTrimming.EllipsisCharacter
-                                           });
+            // Render the caption for the tab's content if there's room for it in the tab's content area
+            if (_tabContentWidth > (tab.Content.ShowIcon
+                                        ? 16 + IconMarginLeft + IconMarginRight
+                                        : 0) + CaptionMarginLeft + CaptionMarginRight + (tab.ShowCloseButton
+                                                                                             ? CloseButtonMarginLeft +
+                                                                                               tab.CloseButtonArea.Width +
+                                                                                               CloseButtonMarginRight
+                                                                                             : 0))
+                graphicsContext.DrawString(tab.Caption, SystemFonts.CaptionFont, Brushes.Black,
+                                           new Rectangle(
+                                               area.X + OverlapWidth + CaptionMarginLeft + (tab.Content.ShowIcon
+                                                                                                ? IconMarginLeft +
+                                                                                                  16 +
+                                                                                                  IconMarginRight
+                                                                                                : 0),
+                                               (_parentWindow.WindowState != FormWindowState.Maximized
+                                                    ? 21
+                                                    : 8) + CaptionMarginTop,
+                                               _tabContentWidth - (tab.Content.ShowIcon
+                                                                       ? IconMarginLeft + 16 + IconMarginRight
+                                                                       : 0) - (tab.ShowCloseButton
+                                                                                   ? _closeButtonImage.Width +
+                                                                                     CloseButtonMarginRight +
+                                                                                     CloseButtonMarginLeft
+                                                                                   : 0), tab.TabImage.Height),
+                                           new StringFormat(StringFormatFlags.NoWrap)
+                                               {
+                                                   Trimming = StringTrimming.EllipsisCharacter
+                                               });
         }
     }
 }
