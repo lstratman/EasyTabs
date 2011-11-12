@@ -114,6 +114,10 @@
         /// Retrieves the extended window styles.
         /// </summary>
         public static int GWL_EXSTYLE = -20;
+        /// <summary>
+        /// Transparent control background is allowed.
+        /// </summary>
+        public static int WS_EX_TRANSPARENT = 0x20;
         // ReSharper restore InconsistentNaming
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.ComponentModel;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace Stratman.Windows.Forms.TitleBarTabs
@@ -23,6 +24,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         ///   Parent window that contains this tab.
         /// </summary>
         protected TitleBarTabs _parent;
+
+        public event CancelEventHandler Closing;
 
         /// <summary>
         ///   Default constructor that initializes the various properties.
@@ -142,7 +145,14 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                 Content.FormBorderStyle = FormBorderStyle.None;
                 Content.TopLevel = false;
                 Content.Parent = _parent;
+                Content.FormClosing += Content_Closing;
             }
+        }
+
+        protected void Content_Closing(object sender, CancelEventArgs e)
+        {
+            if (Closing != null)
+                Closing(this, e);
         }
     }
 }

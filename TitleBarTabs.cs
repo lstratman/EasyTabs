@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -214,11 +215,10 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         {
             get
             {
-                CreateParams cp = base.CreateParams;
+                CreateParams createParams = base.CreateParams;
 
-                // 0x20 is the transparent background flag
-                cp.ExStyle |= 0x20;
-                return cp;
+                createParams.ExStyle |= Win32Constants.WS_EX_TRANSPARENT;
+                return createParams;
             }
         }
 
@@ -336,6 +336,18 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         /// <param name = "e">Arguments associated with the event.</param>
         private void _tabs_CollectionModified(object sender, ListModificationEventArgs e)
         {
+            if (e.Modification == ListModification.ItemAdded || e.Modification == ListModification.RangeAdded)
+            {
+                for (int i = 0; i < e.Count; i++)
+                    Tabs[i + e.StartIndex].Closing += TitleBarTabs_Closing; 
+            }
+
+            Refresh();
+        }
+
+        void TitleBarTabs_Closing(object sender, CancelEventArgs e)
+        {
+            CloseTab((TitleBarTab)sender);
             Refresh();
         }
 
@@ -440,6 +452,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                         result = IntPtr.Zero;
                         callDwp = false;
                     }
+
                     break;
 
                 case Win32Messages.WM_NCLBUTTONDOWN:
@@ -473,23 +486,9 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
                         // If the user clicked the close button, remove the tab from the list
                         if (absoluteCloseButtonArea.Contains(PointToClient(Cursor.Position)))
-                        {
-                            int removeIndex = Tabs.IndexOf(_clickedTab);
-                            int selectedTabIndex = SelectedTabIndex;
+                            _clickedTab.Content.Close();
 
-                            Tabs.Remove(_clickedTab);
-
-                            if (selectedTabIndex > removeIndex)
-                                SelectedTabIndex = selectedTabIndex - 1;
-
-                            else if (selectedTabIndex == removeIndex)
-                                SelectedTabIndex = Math.Min(selectedTabIndex, Tabs.Count - 1);
-
-                            else
-                                SelectedTabIndex = selectedTabIndex;
-                        }
-
-                            // Otherwise, select the tab that was clicked
+                        // Otherwise, select the tab that was clicked
                         else
                         {
                             ResizeTabContents(_clickedTab);
@@ -549,6 +548,23 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
             if (callDwp)
                 base.WndProc(ref m);
+        }
+
+        private void CloseTab(TitleBarTab clickedTab)
+        {
+            int removeIndex = Tabs.IndexOf(clickedTab);
+            int selectedTabIndex = SelectedTabIndex;
+
+            Tabs.Remove(clickedTab);
+
+            if (selectedTabIndex > removeIndex)
+                SelectedTabIndex = selectedTabIndex - 1;
+
+            else if (selectedTabIndex == removeIndex)
+                SelectedTabIndex = Math.Min(selectedTabIndex, Tabs.Count - 1);
+
+            else
+                SelectedTabIndex = selectedTabIndex;
         }
 
         /// <summary>
