@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -216,7 +217,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             get
             {
                 CreateParams createParams = base.CreateParams;
-                createParams.ExStyle |= Win32Constants.WS_EX_COMPOSITED | Win32Constants.WS_EX_TRANSPARENT;
+                createParams.ExStyle |= Win32Constants.WS_EX_TRANSPARENT;
 
                 return createParams;
             }
@@ -409,8 +410,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         /// <param name = "m">Message received by the pump.</param>
         protected override void WndProc(ref Message m)
         {
-            IntPtr result;
-            bool callDwp = !Win32Interop.DwmDefWindowProc(m.HWnd, m.Msg, m.WParam, m.LParam, out result);
+            bool callDwp = true;//!Win32Interop.DwmDefWindowProc(m.HWnd, m.Msg, m.WParam, m.LParam, out result);
 
             switch (m.Msg)
             {
@@ -442,14 +442,14 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                     Win32Interop.DwmExtendFrameIntoClientArea(m.HWnd, ref margins);
 
                     ResizeTabContents();
-                    result = IntPtr.Zero;
+                    m.Result = IntPtr.Zero;
 
                     break;
 
                 case Win32Messages.WM_NCCALCSIZE:
                     if (m.WParam != IntPtr.Zero)
                     {
-                        result = IntPtr.Zero;
+                        m.Result = IntPtr.Zero;
                         callDwp = false;
                     }
 
@@ -521,30 +521,20 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                     base.WndProc(ref m);
 
                     // If they were over the minimize/maximize/close buttons or the system menu, let the message pass
-                    if (m.Result.ToInt32() == Win32Constants.HTCLOSE ||
-                        m.Result.ToInt32() == Win32Constants.HTMINBUTTON ||
-                        m.Result.ToInt32() == Win32Constants.HTMAXBUTTON ||
-                        m.Result.ToInt32() == Win32Constants.HTMENU ||
-                        m.Result.ToInt32() == Win32Constants.HTSYSMENU)
-                    {
-                        result = m.Result;
-                        callDwp = false;
-                    }
-
-                    // Otherwise, see where the user clicked; if it was HTNOWHERE, let the base message handler take 
-                    // care of it
-                    else
+                    if (!(m.Result.ToInt32() == Win32Constants.HTCLOSE ||
+                          m.Result.ToInt32() == Win32Constants.HTMINBUTTON ||
+                          m.Result.ToInt32() == Win32Constants.HTMAXBUTTON ||
+                          m.Result.ToInt32() == Win32Constants.HTMENU ||
+                          m.Result.ToInt32() == Win32Constants.HTSYSMENU))
                     {
                         int hitResult = HitTest(m);
-
-                        callDwp = (hitResult == Win32Constants.HTNOWHERE);
-                        result = new IntPtr(hitResult);
+                        m.Result = new IntPtr(hitResult);
                     }
+
+                    callDwp = false;
 
                     break;
             }
-
-            m.Result = result;
 
             if (callDwp)
                 base.WndProc(ref m);
