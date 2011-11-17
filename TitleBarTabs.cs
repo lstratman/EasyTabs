@@ -392,9 +392,9 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             // Set the margins and extend the frame into the client area
             MARGINS margins = new MARGINS
                                   {
-                                      cxLeftWidth = Math.Abs(BorderLeft),
-                                      cxRightWidth = Math.Abs(BorderRight),
-                                      cyBottomHeight = Math.Abs(BorderBottom),
+                                      cxLeftWidth = Math.Abs(WindowState == FormWindowState.Maximized ? 0 : BorderLeft),
+                                      cxRightWidth = Math.Abs(WindowState == FormWindowState.Maximized ? 0 : BorderRight),
+                                      cyBottomHeight = Math.Abs(WindowState == FormWindowState.Maximized ? 0 : BorderBottom),
                                       cyTopHeight = Math.Abs(BorderTop)
                                   };
 
@@ -433,9 +433,9 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                 case Win32Messages.WM_ACTIVATE:
                     MARGINS margins = new MARGINS
                                           {
-                                              cxLeftWidth = Math.Abs(BorderLeft),
-                                              cxRightWidth = Math.Abs(BorderRight),
-                                              cyBottomHeight = Math.Abs(BorderBottom),
+                                              cxLeftWidth = Math.Abs(WindowState == FormWindowState.Maximized ? 0 : BorderLeft),
+                                              cxRightWidth = Math.Abs(WindowState == FormWindowState.Maximized ? 0 : BorderRight),
+                                              cyBottomHeight = Math.Abs(WindowState == FormWindowState.Maximized ? 0 : BorderBottom),
                                               cyTopHeight = Math.Abs(BorderTop)
                                           };
 
