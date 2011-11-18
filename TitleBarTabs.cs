@@ -503,12 +503,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                     // and select it
                     else if (TabRenderer.IsOverAddButton(PointToClient(Cursor.Position)))
                     {
-                        TitleBarTab newTab = CreateTab();
-
-                        Tabs.Add(newTab);
-                        ResizeTabContents(newTab);
-
-                        SelectedTabIndex = _tabs.Count - 1;
+                        AddNewTab();
 
                         // Release the mouse capture
                         Win32Interop.ReleaseCapture();
@@ -538,6 +533,16 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
             if (callDwp)
                 base.WndProc(ref m);
+        }
+
+        public void AddNewTab()
+        {
+            TitleBarTab newTab = CreateTab();
+
+            Tabs.Add(newTab);
+            ResizeTabContents(newTab);
+
+            SelectedTabIndex = _tabs.Count - 1;
         }
 
         private void CloseTab(TitleBarTab clickedTab)
