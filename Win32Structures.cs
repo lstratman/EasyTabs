@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 
 namespace Stratman.Windows.Forms.TitleBarTabs
 {
@@ -55,6 +56,41 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         ///   The y-coordinate of the lower-right corner of the rectangle.
         /// </summary>
         public int bottom;
+    }
+
+    internal struct NCCALCSIZE_PARAMS
+    {
+        public RECT rcNewWindow;
+        public RECT rcOldWindow;
+        public RECT rcClient;
+        IntPtr lppos;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct POINT
+    {
+        public Int32 x;
+        public Int32 y;
+
+        public POINT(Int32 x, Int32 y) { this.x = x; this.y = y; }
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct SIZE
+    {
+        public Int32 cx;
+        public Int32 cy;
+
+        public SIZE(Int32 cx, Int32 cy) { this.cx = cx; this.cy = cy; }
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct BLENDFUNCTION
+    {
+        public byte BlendOp;
+        public byte BlendFlags;
+        public byte SourceConstantAlpha;
+        public byte AlphaFormat;
     }
     // ReSharper restore InconsistentNaming
 }

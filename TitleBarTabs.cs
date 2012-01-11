@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace Stratman.Windows.Forms.TitleBarTabs
@@ -33,13 +34,6 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         public delegate void TitleBarTabEventHandler(object sender, TitleBarTabEventArgs e);
 
         /// <summary>
-        ///   State information representing a tab that was clicked during a 
-        ///   <see cref = "Win32Messages.WM_LBUTTONDOWN" /> message so that we can respond properly during the 
-        ///   <see cref = "Win32Messages.WM_LBUTTONUP" /> message.
-        /// </summary>
-        protected TitleBarTab _clickedTab;
-
-        /// <summary>
         ///   Maintains the previous window state so that we can respond properly to maximize/restore events in
         ///   <see cref = "OnSizeChanged" />.
         /// </summary>
@@ -49,6 +43,11 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         ///   List of tabs to display for this window.
         /// </summary>
         protected ListWithEvents<TitleBarTab> _tabs = new ListWithEvents<TitleBarTab>();
+
+        protected BaseTabRenderer _tabRenderer;
+
+        protected int _nonClientAreaHeight;
+        internal TitleBarTabsOverlay _overlay;
 
         /// <summary>
         ///   Default constructor.
@@ -64,44 +63,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             // the size of the window changes, and the window itself has a transparent background color (otherwise the
             // non-client area will simply be black when the window is maximized)
             SetStyle(
-                ControlStyles.AllPaintingInWmPaint | ControlStyles.ResizeRedraw | ControlStyles.UserPaint |
-                ControlStyles.OptimizedDoubleBuffer | ControlStyles.SupportsTransparentBackColor, true);
-        }
-
-        /// <summary>
-        ///   Width of the area between the outside of the window border and the top of the client area.
-        /// </summary>
-        public int BorderTop
-        {
-            get;
-            protected set;
-        }
-
-        /// <summary>
-        ///   Width of the area between the outside of the window border and the left side of the client area.
-        /// </summary>
-        public int BorderLeft
-        {
-            get;
-            protected set;
-        }
-
-        /// <summary>
-        ///   Width of the area between the outside of the window border and the right side of the client area.
-        /// </summary>
-        public int BorderRight
-        {
-            get;
-            protected set;
-        }
-
-        /// <summary>
-        ///   Width of the area between the outside of the window border and the bottom of the client area.
-        /// </summary>
-        public int BorderBottom
-        {
-            get;
-            protected set;
+                ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw, true);
         }
 
         /// <summary>
@@ -120,8 +82,54 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         /// </summary>
         public BaseTabRenderer TabRenderer
         {
-            get;
-            set;
+            get
+            {
+                return _tabRenderer;
+            }
+
+            set
+            {
+                _tabRenderer = value;
+                SetFrameSize();
+            }
+        }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+
+            _overlay = TitleBarTabsOverlay.GetInstance(this);
+            Text = "";
+        }
+
+        protected void SetFrameSize()
+        {
+            if (TabRenderer == null)
+                return;
+
+            int topPadding = TabRenderer.TabHeight - SystemInformation.VerticalResizeBorderThickness;
+
+            if (WindowState == FormWindowState.Maximized)
+                topPadding -= SystemInformation.CaptionHeight - SystemInformation.VerticalResizeBorderThickness - SystemInformation.BorderSize.Width;
+
+            Padding = new Padding(Padding.Left, topPadding > 0 ? topPadding : 0, Padding.Right, Padding.Bottom);
+
+            // Set the margins and extend the frame into the client area
+            MARGINS margins = new MARGINS
+                                  {
+                                      cxLeftWidth = 0,
+                                      cxRightWidth = 0,
+                                      cyBottomHeight = 0,
+                                      cyTopHeight = topPadding > 0
+                                                        ? topPadding
+                                                        : 0
+                                  };
+
+            Win32Interop.DwmExtendFrameIntoClientArea(Handle, ref margins);
+
+            _nonClientAreaHeight = SystemInformation.CaptionHeight + (topPadding > 0
+                                                                          ? topPadding
+                                                                          : 0);
         }
 
         /// <summary>
@@ -204,7 +212,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                                         });
                 }
 
-                Refresh();
+                if (_overlay != null)
+                    _overlay.Render();
             }
         }
 
@@ -308,16 +317,16 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         /// </summary>
         /// <param name = "tab">Tab whose <see cref = "TitleBarTab.Content" /> form we should resize; if not specified, 
         ///   we default to <see cref = "SelectedTab" />.</param>
-        protected void ResizeTabContents(TitleBarTab tab = null)
+        public void ResizeTabContents(TitleBarTab tab = null)
         {
             if (tab == null)
                 tab = SelectedTab;
 
             if (tab != null)
             {
-                tab.Content.Location = new Point(BorderLeft - 2, BorderTop - 2);
-                tab.Content.Size = new Size(ClientRectangle.Width - BorderLeft - BorderRight + 4,
-                                            ClientRectangle.Height - BorderTop - BorderBottom + 4);
+                tab.Content.Location = new Point(0, Padding.Top - 1);
+                tab.Content.Size = new Size(ClientRectangle.Width,
+                                            ClientRectangle.Height - Padding.Top + 1);
             }
         }
 
@@ -343,32 +352,16 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                     Tabs[i + e.StartIndex].Closing += TitleBarTabs_Closing; 
             }
 
-            Refresh();
+            if (_overlay != null)
+                _overlay.Render();
         }
 
         void TitleBarTabs_Closing(object sender, CancelEventArgs e)
         {
             CloseTab((TitleBarTab)sender);
-            Refresh();
-        }
 
-        /// <summary>
-        ///   Overrides the <see cref = "Control.Paint" /> handler so that we can render the tabs in the client area.
-        /// </summary>
-        /// <param name = "e">Arguments associated with the event.</param>
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            // Use double buffering to prevent flicker during resize; this does not eliminate tearing during resize,
-            // but everything that I've read indicates that's impossible for WinForms apps
-            using (BufferedGraphics graphics = BufferedGraphicsManager.Current.Allocate(e.Graphics, e.ClipRectangle))
-            {
-                base.OnPaint(new PaintEventArgs(graphics.Graphics, e.ClipRectangle));
-
-                if (TabRenderer != null)
-                    TabRenderer.Render(Tabs, graphics.Graphics, PointToClient(Cursor.Position));
-
-                graphics.Render();
-            }
+            if (_overlay != null)
+                _overlay.Render();
         }
 
         /// <summary>
@@ -381,24 +374,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             base.OnSizeChanged(e);
 
             // If no tab renderer has been set yet or the window state hasn't changed, don't do anything
-            if (TabRenderer == null || (_previousWindowState != null && WindowState == _previousWindowState.Value))
-                return;
-
-            // Set the height of the non-client area using the window state and the tab height for the current renderer
-            BorderTop = TabRenderer.TabHeight + 10 + (WindowState != FormWindowState.Maximized
-                                                          ? 13
-                                                          : 0);
-
-            // Set the margins and extend the frame into the client area
-            MARGINS margins = new MARGINS
-                                  {
-                                      cxLeftWidth = Math.Abs(WindowState == FormWindowState.Maximized ? 0 : BorderLeft),
-                                      cxRightWidth = Math.Abs(WindowState == FormWindowState.Maximized ? 0 : BorderRight),
-                                      cyBottomHeight = Math.Abs(WindowState == FormWindowState.Maximized ? 0 : BorderBottom),
-                                      cyTopHeight = Math.Abs(BorderTop)
-                                  };
-
-            Win32Interop.DwmExtendFrameIntoClientArea(Handle, ref margins);
+            if (_previousWindowState != null && WindowState != _previousWindowState.Value)
+                SetFrameSize();
 
             _previousWindowState = WindowState;
         }
@@ -410,104 +387,15 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         /// <param name = "m">Message received by the pump.</param>
         protected override void WndProc(ref Message m)
         {
-            bool callDwp = true;//!Win32Interop.DwmDefWindowProc(m.HWnd, m.Msg, m.WParam, m.LParam, out result);
+            bool callDwp = true;
 
             switch (m.Msg)
             {
-                case Win32Messages.WM_CREATE:
-                    RECT area;
-                    int style = Win32Interop.GetWindowLong(m.HWnd, Win32Constants.GWL_STYLE);
-                    int styleEx = Win32Interop.GetWindowLong(m.HWnd, Win32Constants.GWL_EXSTYLE);
-
-                    Win32Interop.AdjustWindowRectEx(out area, style, false, styleEx);
-
-                    // Initialize the various border properties to the size of the non-client area for the window
-                    BorderTop = Math.Abs(area.top);
-                    BorderLeft = Math.Abs(area.left);
-                    BorderRight = Math.Abs(area.right);
-                    BorderBottom = Math.Abs(area.bottom);
-
-                    break;
-
                 // When the window is activated, set the size of the non-client area appropriately
                 case Win32Messages.WM_ACTIVATE:
-                    MARGINS margins = new MARGINS
-                                          {
-                                              cxLeftWidth = Math.Abs(WindowState == FormWindowState.Maximized ? 0 : BorderLeft),
-                                              cxRightWidth = Math.Abs(WindowState == FormWindowState.Maximized ? 0 : BorderRight),
-                                              cyBottomHeight = Math.Abs(WindowState == FormWindowState.Maximized ? 0 : BorderBottom),
-                                              cyTopHeight = Math.Abs(BorderTop)
-                                          };
-
-                    Win32Interop.DwmExtendFrameIntoClientArea(m.HWnd, ref margins);
-
+                    SetFrameSize();
                     ResizeTabContents();
                     m.Result = IntPtr.Zero;
-
-                    break;
-
-                case Win32Messages.WM_NCCALCSIZE:
-                    if (m.WParam != IntPtr.Zero)
-                    {
-                        m.Result = IntPtr.Zero;
-                        callDwp = false;
-                    }
-
-                    break;
-
-                case Win32Messages.WM_NCLBUTTONDOWN:
-                case Win32Messages.WM_LBUTTONDOWN:
-                    // When the user clicks a mouse button, save the tab that the user was over so we can respond
-                    // properly when the mouse button is released
-                    _clickedTab = TabRenderer.OverTab(Tabs,
-                                                      new Point(Cursor.Position.X - Location.X,
-                                                                Cursor.Position.Y - Location.Y));
-
-                    // If we were over a tab, set the capture state for the window so that we'll actually receive
-                    // a WM_LBUTTONUP message
-                    if (_clickedTab != null || TabRenderer.IsOverAddButton(PointToClient(Cursor.Position)))
-                        Win32Interop.SetCapture(m.HWnd);
-
-                    break;
-
-                case Win32Messages.WM_LBUTTONUP:
-                case Win32Messages.WM_NCLBUTTONUP:
-                    if (_clickedTab != null)
-                    {
-                        Rectangle absoluteCloseButtonArea = new Rectangle();
-
-                        if (_clickedTab.ShowCloseButton)
-                        {
-                            absoluteCloseButtonArea = new Rectangle(_clickedTab.Area.X + _clickedTab.CloseButtonArea.X,
-                                                                    _clickedTab.Area.Y + _clickedTab.CloseButtonArea.Y,
-                                                                    _clickedTab.CloseButtonArea.Width,
-                                                                    _clickedTab.CloseButtonArea.Height);
-                        }
-
-                        // If the user clicked the close button, remove the tab from the list
-                        if (absoluteCloseButtonArea.Contains(PointToClient(Cursor.Position)))
-                            _clickedTab.Content.Close();
-
-                        // Otherwise, select the tab that was clicked
-                        else
-                        {
-                            ResizeTabContents(_clickedTab);
-                            SelectedTabIndex = Tabs.IndexOf(_clickedTab);
-                        }
-
-                        // Release the mouse capture
-                        Win32Interop.ReleaseCapture();
-                    }
-
-                    // Otherwise, if the user clicked the add button, call CreateTab to add a new tab to the list
-                    // and select it
-                    else if (TabRenderer.IsOverAddButton(PointToClient(Cursor.Position)))
-                    {
-                        AddNewTab();
-
-                        // Release the mouse capture
-                        Win32Interop.ReleaseCapture();
-                    }
 
                     break;
 
@@ -574,27 +462,29 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             // Get the point that the user clicked
             int lParam = (int) m.LParam;
             Point point = new Point(lParam & 0xffff, lParam >> 16);
+            RECT rect;
 
-            Rectangle area = new Rectangle(Location, ClientRectangle.Size);
+            Win32Interop.GetWindowRect(m.HWnd, out rect);
+            Rectangle area = new Rectangle(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top);
 
             int row = 1;
             int column = 1;
             bool onResizeBorder = false;
 
             // Determine if we are on the top or bottom border
-            if (point.Y >= area.Top && point.Y < area.Top + BorderTop)
+            if (point.Y >= area.Top && point.Y < area.Top + SystemInformation.VerticalResizeBorderThickness + _nonClientAreaHeight - 2)
             {
-                onResizeBorder = point.Y < (area.Top + BorderBottom);
+                onResizeBorder = point.Y < (area.Top + SystemInformation.VerticalResizeBorderThickness);
                 row = 0;
             }
-            else if (point.Y < area.Bottom && point.Y > area.Bottom - BorderBottom)
+            else if (point.Y < area.Bottom && point.Y > area.Bottom - SystemInformation.VerticalResizeBorderThickness)
                 row = 2;
 
             // Determine if we are on the left border or the right border
-            if (point.X >= area.Left && point.X < area.Left + BorderLeft)
+            if (point.X >= area.Left && point.X < area.Left + SystemInformation.HorizontalResizeBorderThickness)
                 column = 0;
 
-            else if (point.X < area.Right && point.X >= area.Right - BorderRight)
+            else if (point.X < area.Right && point.X >= area.Right - SystemInformation.HorizontalResizeBorderThickness)
                 column = 2;
 
             int[,] hitTests = new[,]

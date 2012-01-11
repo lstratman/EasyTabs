@@ -90,5 +90,39 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         /// <returns>If this function succeeds, it returns S_OK. Otherwise, it returns an HRESULT error code.</returns>
         [DllImport("dwmapi", SetLastError = true)]
         public static extern int DwmExtendFrameIntoClientArea(IntPtr hWnd, ref MARGINS pMarInset);
+
+        [DllImport("user32")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+
+        [DllImport("user32")]
+        public static extern IntPtr GetDesktopWindow();
+
+        [DllImport("dwmapi")]
+        public static extern int DwmIsCompositionEnabled(out bool enabled);
+
+        [DllImport("user32", ExactSpelling = true, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool UpdateLayeredWindow(IntPtr hwnd, IntPtr hdcDst, ref POINT pptDst, ref SIZE psize, IntPtr hdcSrc, ref POINT pprSrc, Int32 crKey, ref BLENDFUNCTION pblend, Int32 dwFlags);
+
+        [DllImport("gdi32", ExactSpelling = true)]
+        public static extern IntPtr SelectObject(IntPtr hDC, IntPtr hObject);
+
+        [DllImport("gdi32", ExactSpelling = true, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool DeleteObject(IntPtr hObject);
+
+        [DllImport("user32", ExactSpelling = true, SetLastError = true)]
+        public static extern IntPtr GetDC(IntPtr hWnd);
+
+        [DllImport("user32", ExactSpelling = true)]
+        public static extern int ReleaseDC(IntPtr hWnd, IntPtr hDC);
+
+        [DllImport("gdi32", ExactSpelling = true, SetLastError = true)]
+        public static extern IntPtr CreateCompatibleDC(IntPtr hDC);
+
+        [DllImport("gdi32", ExactSpelling = true, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool DeleteDC(IntPtr hdc);
     }
 }

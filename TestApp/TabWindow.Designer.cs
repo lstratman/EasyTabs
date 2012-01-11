@@ -29,43 +29,18 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TabWindow));
-            this.borderLeft = new System.Windows.Forms.Panel();
-            this.borderRight = new System.Windows.Forms.Panel();
             this.toolbarBackground = new System.Windows.Forms.Panel();
             this.forwardButton = new System.Windows.Forms.PictureBox();
             this.backButton = new System.Windows.Forms.PictureBox();
             this.urlTextBox = new System.Windows.Forms.TextBox();
             this.urlBorder = new System.Windows.Forms.Panel();
             this.urlBackground = new System.Windows.Forms.Panel();
-            this.borderBottom = new System.Windows.Forms.Panel();
             this.webBrowser = new System.Windows.Forms.WebBrowser();
             this.toolbarBackground.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.forwardButton)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.backButton)).BeginInit();
             this.urlBorder.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // borderLeft
-            // 
-            this.borderLeft.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)));
-            this.borderLeft.BackColor = System.Drawing.Color.Transparent;
-            this.borderLeft.BackgroundImage = global::TestApp.Resources.Border;
-            this.borderLeft.Location = new System.Drawing.Point(0, 0);
-            this.borderLeft.Name = "borderLeft";
-            this.borderLeft.Size = new System.Drawing.Size(2, 289);
-            this.borderLeft.TabIndex = 3;
-            // 
-            // borderRight
-            // 
-            this.borderRight.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.borderRight.BackColor = System.Drawing.Color.Transparent;
-            this.borderRight.BackgroundImage = global::TestApp.Resources.Border;
-            this.borderRight.Location = new System.Drawing.Point(324, 0);
-            this.borderRight.Name = "borderRight";
-            this.borderRight.Size = new System.Drawing.Size(2, 289);
-            this.borderRight.TabIndex = 4;
             // 
             // toolbarBackground
             // 
@@ -110,8 +85,8 @@
             // 
             // urlTextBox
             // 
-            this.urlTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.urlTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.urlTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.urlTextBox.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.urlTextBox.Location = new System.Drawing.Point(79, 8);
@@ -125,47 +100,36 @@
             // 
             // urlBorder
             // 
-            this.urlBorder.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.urlBorder.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.urlBorder.BackColor = System.Drawing.Color.Silver;
             this.urlBorder.Controls.Add(this.urlBackground);
             this.urlBorder.ForeColor = System.Drawing.Color.Silver;
             this.urlBorder.Location = new System.Drawing.Point(69, 5);
             this.urlBorder.Name = "urlBorder";
-            this.urlBorder.Size = new System.Drawing.Size(251, 26);
+            this.urlBorder.Size = new System.Drawing.Size(253, 26);
             this.urlBorder.TabIndex = 1;
             // 
             // urlBackground
             // 
-            this.urlBackground.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.urlBackground.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.urlBackground.BackColor = System.Drawing.Color.White;
             this.urlBackground.ForeColor = System.Drawing.Color.Silver;
             this.urlBackground.Location = new System.Drawing.Point(1, 1);
             this.urlBackground.Name = "urlBackground";
-            this.urlBackground.Size = new System.Drawing.Size(249, 24);
+            this.urlBackground.Size = new System.Drawing.Size(251, 24);
             this.urlBackground.TabIndex = 2;
-            // 
-            // borderBottom
-            // 
-            this.borderBottom.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.borderBottom.BackColor = System.Drawing.Color.Transparent;
-            this.borderBottom.BackgroundImage = global::TestApp.Resources.Border;
-            this.borderBottom.Location = new System.Drawing.Point(0, 287);
-            this.borderBottom.Name = "borderBottom";
-            this.borderBottom.Size = new System.Drawing.Size(326, 2);
-            this.borderBottom.TabIndex = 5;
             // 
             // webBrowser
             // 
-            this.webBrowser.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.webBrowser.Location = new System.Drawing.Point(4, 38);
+            this.webBrowser.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.webBrowser.Location = new System.Drawing.Point(0, 36);
             this.webBrowser.MinimumSize = new System.Drawing.Size(20, 20);
             this.webBrowser.Name = "webBrowser";
-            this.webBrowser.Size = new System.Drawing.Size(318, 247);
+            this.webBrowser.Size = new System.Drawing.Size(326, 253);
             this.webBrowser.TabIndex = 6;
             // 
             // TabWindow
@@ -175,9 +139,6 @@
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(326, 289);
             this.Controls.Add(this.webBrowser);
-            this.Controls.Add(this.borderBottom);
-            this.Controls.Add(this.borderRight);
-            this.Controls.Add(this.borderLeft);
             this.Controls.Add(this.toolbarBackground);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "TabWindow";
@@ -198,9 +159,6 @@
         private System.Windows.Forms.Panel urlBorder;
         private System.Windows.Forms.Panel urlBackground;
         private System.Windows.Forms.PictureBox backButton;
-        private System.Windows.Forms.Panel borderLeft;
-        private System.Windows.Forms.Panel borderRight;
-        private System.Windows.Forms.Panel borderBottom;
         private System.Windows.Forms.WebBrowser webBrowser;
         private System.Windows.Forms.PictureBox forwardButton;
     }

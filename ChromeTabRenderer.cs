@@ -33,7 +33,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             AddButtonMarginTop = 5;
             AddButtonMarginLeft = -3;
             CaptionMarginTop = 5;
-            IconMarginTop = 5;
+            IconMarginTop = 6;
             IconMarginRight = 5;
         }
 

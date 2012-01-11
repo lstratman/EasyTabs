@@ -125,6 +125,15 @@
         /// after all sibling windows beneath it have been updated.
         /// </summary>
         public static int WS_EX_TRANSPARENT = 0x20;
+        public static int WS_EX_LAYERED = 0x00080000;
+        public static int WS_EX_NOACTIVATE = 0x08000000;
+        public static int WS_CHILD = 0x40000000;
+        public static int WS_CLIPSIBLINGS = 0x04000000;
+        public const byte AC_SRC_OVER = 0x00;
+        public const byte AC_SRC_ALPHA = 0x01;
+        public const int ULW_COLORKEY = 0x00000001;
+        public const int ULW_ALPHA = 0x00000002;
+        public const int ULW_OPAQUE = 0x00000004;
         // ReSharper restore InconsistentNaming
     }
 }
