@@ -349,9 +349,18 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             if (e.Modification == ListModification.ItemAdded || e.Modification == ListModification.RangeAdded)
             {
                 for (int i = 0; i < e.Count; i++)
-                    Tabs[i + e.StartIndex].Closing += TitleBarTabs_Closing; 
+                {
+                    Tabs[i + e.StartIndex].Content.TextChanged += Content_TextChanged;
+                    Tabs[i + e.StartIndex].Closing += TitleBarTabs_Closing;
+                }
             }
 
+            if (_overlay != null)
+                _overlay.Render();
+        }
+
+        void Content_TextChanged(object sender, EventArgs e)
+        {
             if (_overlay != null)
                 _overlay.Render();
         }
@@ -477,6 +486,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                 onResizeBorder = point.Y < (area.Top + SystemInformation.VerticalResizeBorderThickness);
                 row = 0;
             }
+
             else if (point.Y < area.Bottom && point.Y > area.Bottom - SystemInformation.VerticalResizeBorderThickness)
                 row = 2;
 
@@ -490,11 +500,11 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             int[,] hitTests = new[,]
                                   {
                                       {
-                                          Win32Constants.HTTOPLEFT,
+                                          onResizeBorder ? Win32Constants.HTTOPLEFT : Win32Constants.HTLEFT,
                                           onResizeBorder
                                               ? Win32Constants.HTTOP
                                               : Win32Constants.HTCAPTION,
-                                          Win32Constants.HTTOPRIGHT
+                                          onResizeBorder ? Win32Constants.HTTOPRIGHT : Win32Constants.HTRIGHT
                                       },
                                       {
                                           Win32Constants.HTLEFT, Win32Constants.HTNOWHERE, Win32Constants.HTRIGHT
