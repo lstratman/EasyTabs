@@ -134,6 +134,8 @@
         public const int ULW_COLORKEY = 0x00000001;
         public const int ULW_ALPHA = 0x00000002;
         public const int ULW_OPAQUE = 0x00000004;
+        public const int WS_THICKFRAME = 0x00040000;
+        public const int WS_EX_TOOLWINDOW = 0x00000080;
         // ReSharper restore InconsistentNaming
     }
 }
