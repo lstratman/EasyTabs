@@ -8,95 +8,95 @@ using System.Windows.Forms;
 namespace Stratman.Windows.Forms.TitleBarTabs
 {
     /// <summary>
-    ///   Provides the base functionality for any tab renderer, taking care of actually rendering and detecting whether 
-    ///   the cursor is over a tab.  Any custom tab renderer needs to inherit from this class, just as 
-    ///   <see cref = "ChromeTabRenderer" /> does.
+    /// Provides the base functionality for any tab renderer, taking care of actually rendering and detecting whether 
+    /// the cursor is over a tab.  Any custom tab renderer needs to inherit from this class, just as 
+    /// <see cref="ChromeTabRenderer" /> does.
     /// </summary>
     public abstract class BaseTabRenderer
     {
         /// <summary>
-        ///   Background of the content area for the tab when the tab is active; its width also determines how wide the
-        ///   default content area for the tab is.
+        /// Background of the content area for the tab when the tab is active; its width also determines how wide the
+        /// default content area for the tab is.
         /// </summary>
         protected Image _activeCenterImage;
 
         /// <summary>
-        ///   Image to display on the left side of an active tab.
+        /// Image to display on the left side of an active tab.
         /// </summary>
         protected Image _activeLeftSideImage;
 
         /// <summary>
-        ///   Image to display on the right side of an active tab.
+        /// Image to display on the right side of an active tab.
         /// </summary>
         protected Image _activeRightSideImage;
 
         /// <summary>
-        ///   Area on the screen where the add button is located.
+        /// Area on the screen where the add button is located.
         /// </summary>
         protected Rectangle _addButtonArea;
 
         /// <summary>
-        ///   Image to display when the user hovers over the add button.
+        /// Image to display when the user hovers over the add button.
         /// </summary>
         protected Bitmap _addButtonHoverImage;
 
         /// <summary>
-        ///   Image to display for the add button when the user is not hovering over it.
+        /// Image to display for the add button when the user is not hovering over it.
         /// </summary>
         protected Bitmap _addButtonImage;
 
         /// <summary>
-        ///   The background, if any, that should be displayed in the non-client area behind the actual tabs.
+        /// The background, if any, that should be displayed in the non-client area behind the actual tabs.
         /// </summary>
         protected Image _background;
 
         /// <summary>
-        ///   The hover-over image that should be displayed on each tab to close that tab.
+        /// The hover-over image that should be displayed on each tab to close that tab.
         /// </summary>
         protected Image _closeButtonHoverImage;
 
         /// <summary>
-        ///   The image that should be displayed on each tab to close that tab.
+        /// The image that should be displayed on each tab to close that tab.
         /// </summary>
         protected Image _closeButtonImage;
 
         /// <summary>
-        ///   Background of the content area for the tab when the tab is inactive; its width also determines how wide
-        ///   the default content area for the tab is.
+        /// Background of the content area for the tab when the tab is inactive; its width also determines how wide
+        /// the default content area for the tab is.
         /// </summary>
         protected Image _inactiveCenterImage;
 
         /// <summary>
-        ///   Image to display on the left side of an inactive tab.
+        /// Image to display on the left side of an inactive tab.
         /// </summary>
         protected Image _inactiveLeftSideImage;
 
         /// <summary>
-        ///   Image to display on the right side of an inactive tab.
+        /// Image to display on the right side of an inactive tab.
         /// </summary>
         protected Image _inactiveRightSideImage;
 
         /// <summary>
-        ///   The parent window that this renderer instance belongs to.
+        /// The parent window that this renderer instance belongs to.
         /// </summary>
         protected TitleBarTabs _parentWindow;
 
         /// <summary>
-        ///   The number of tabs that were present when we last rendered; used to determine whether or not we need to
-        ///   redraw tab instances.
+        /// The number of tabs that were present when we last rendered; used to determine whether or not we need to
+        /// redraw tab instances.
         /// </summary>
         protected int _previousTabCount;
 
         /// <summary>
-        ///   The width of the content area that we should use for each tab.
+        /// The width of the content area that we should use for each tab.
         /// </summary>
         protected int _tabContentWidth;
 
         /// <summary>
-        ///   Default constructor that initializes the <see cref = "_parentWindow" /> and <see cref = "ShowAddButton" />
-        ///   properties.
+        /// Default constructor that initializes the <see cref="_parentWindow" /> and <see cref="ShowAddButton" />
+        /// properties.
         /// </summary>
-        /// <param name = "parentWindow">The parent window that this renderer instance belongs to.</param>
+        /// <param name="parentWindow">The parent window that this renderer instance belongs to.</param>
         protected BaseTabRenderer(TitleBarTabs parentWindow)
         {
             _parentWindow = parentWindow;
@@ -106,7 +106,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         }
 
         /// <summary>
-        ///   Height of the tab content area; derived from the height of <see cref = "_activeCenterImage" />.
+        /// Height of the tab content area; derived from the height of <see cref="_activeCenterImage" />.
         /// </summary>
         public virtual int TabHeight
         {
@@ -117,7 +117,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         }
 
         /// <summary>
-        ///   Flag indicating whether or not we should display the add button.
+        /// Flag indicating whether or not we should display the add button.
         /// </summary>
         public bool ShowAddButton
         {
@@ -126,7 +126,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         }
 
         /// <summary>
-        ///   Amount of space we should put to the left of the caption when rendering the content area of the tab.
+        /// Amount of space we should put to the left of the caption when rendering the content area of the tab.
         /// </summary>
         public int CaptionMarginLeft
         {
@@ -135,8 +135,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         }
 
         /// <summary>
-        ///   Amount of space that we should leave to the right of the caption when rendering the content area of the
-        ///   tab.
+        /// Amount of space that we should leave to the right of the caption when rendering the content area of the
+        /// tab.
         /// </summary>
         public int CaptionMarginRight
         {
@@ -145,7 +145,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         }
 
         /// <summary>
-        ///   Amount of space that we should leave between the top of the content area and the top of the caption text.
+        /// Amount of space that we should leave between the top of the content area and the top of the caption text.
         /// </summary>
         public int CaptionMarginTop
         {
@@ -154,7 +154,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         }
 
         /// <summary>
-        ///   Amount of space we should put to the left of the tab icon when rendering the content area of the tab.
+        /// Amount of space we should put to the left of the tab icon when rendering the content area of the tab.
         /// </summary>
         public int IconMarginLeft
         {
@@ -163,7 +163,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         }
 
         /// <summary>
-        ///   Amount of space that we should leave to the right of the icon when rendering the content area of the tab.
+        /// Amount of space that we should leave to the right of the icon when rendering the content area of the tab.
         /// </summary>
         public int IconMarginRight
         {
@@ -172,7 +172,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         }
 
         /// <summary>
-        ///   Amount of space that we should leave between the top of the content area and the top of the icon.
+        /// Amount of space that we should leave between the top of the content area and the top of the icon.
         /// </summary>
         public int IconMarginTop
         {
@@ -181,8 +181,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         }
 
         /// <summary>
-        ///   Amount of space that we should put to the left of the close button when rendering the content area of the
-        ///   tab.
+        /// Amount of space that we should put to the left of the close button when rendering the content area of the
+        /// tab.
         /// </summary>
         public int CloseButtonMarginLeft
         {
@@ -191,8 +191,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         }
 
         /// <summary>
-        ///   Amount of space that we should leave to the right of the close button when rendering the content area of
-        ///   the tab.
+        /// Amount of space that we should leave to the right of the close button when rendering the content area of
+        /// the tab.
         /// </summary>
         public int CloseButtonMarginRight
         {
@@ -201,7 +201,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         }
 
         /// <summary>
-        ///   Amount of space that we should leave between the top of the content area and the top of the close button.
+        /// Amount of space that we should leave between the top of the content area and the top of the close button.
         /// </summary>
         public int CloseButtonMarginTop
         {
@@ -210,8 +210,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         }
 
         /// <summary>
-        ///   Amount of space that we should put to the left of the add tab button when rendering the content area of
-        ///   the tab.
+        /// Amount of space that we should put to the left of the add tab button when rendering the content area of
+        /// the tab.
         /// </summary>
         public int AddButtonMarginLeft
         {
@@ -220,8 +220,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         }
 
         /// <summary>
-        ///   Amount of space that we should leave to the right of the add tab button when rendering the content area of
-        ///   the tab.
+        /// Amount of space that we should leave to the right of the add tab button when rendering the content area of
+        /// the tab.
         /// </summary>
         public int AddButtonMarginRight
         {
@@ -230,8 +230,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         }
 
         /// <summary>
-        ///   Amount of space that we should leave between the top of the content area and the top of the add tab
-        ///   button.
+        /// Amount of space that we should leave between the top of the content area and the top of the add tab button.
         /// </summary>
         public int AddButtonMarginTop
         {
@@ -240,8 +239,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         }
 
         /// <summary>
-        ///   If the renderer overlaps the tabs (like Chrome), this is the width that the tabs should overlap by.  For 
-        ///   renderers that do not overlap tabs (like Firefox), this should be left at 0.
+        /// If the renderer overlaps the tabs (like Chrome), this is the width that the tabs should overlap by.  For 
+        /// renderers that do not overlap tabs (like Firefox), this should be left at 0.
         /// </summary>
         public virtual int OverlapWidth
         {
@@ -252,11 +251,11 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         }
 
         /// <summary>
-        ///   When items are added to the tabs collection, we need to ensure that the <see cref = "_parentWindow" />'s 
-        ///   minimum width is set so that we can display at least each tab and its close buttons.
+        /// When items are added to the tabs collection, we need to ensure that the <see cref="_parentWindow" />'s 
+        /// minimum width is set so that we can display at least each tab and its close buttons.
         /// </summary>
-        /// <param name = "sender">List of tabs in the <see cref = "_parentWindow" />.</param>
-        /// <param name = "e">Arguments associated with the event.</param>
+        /// <param name="sender">List of tabs in the <see cref="_parentWindow" />.</param>
+        /// <param name="e">Arguments associated with the event.</param>
         private void Tabs_CollectionModified(object sender, ListModificationEventArgs e)
         {
             ListWithEvents<TitleBarTab> tabs = (ListWithEvents<TitleBarTab>) sender;
@@ -279,13 +278,13 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         }
 
         /// <summary>
-        ///   Called from the <see cref = "_parentWindow" /> to determine which, if any, of the <see cref = "tabs" />
-        ///   the <see cref = "cursor" /> is over.
+        /// Called from the <see cref="_parentWindow" /> to determine which, if any, of the <see cref="tabs" /> the 
+        /// <see cref="cursor" /> is over.
         /// </summary>
-        /// <param name = "tabs">The list of tabs that we should check.</param>
-        /// <param name = "cursor">The relative position of the cursor within the window.</param>
-        /// <returns>The tab within <see cref = "tabs" /> that the <see cref = "cursor" /> is over; if none, then null
-        ///   is returned.</returns>
+        /// <param name="tabs">The list of tabs that we should check.</param>
+        /// <param name="cursor">The relative position of the cursor within the window.</param>
+        /// <returns>The tab within <see cref="tabs" /> that the <see cref="cursor" /> is over; if none, then null is 
+        /// returned.</returns>
         public virtual TitleBarTab OverTab(IEnumerable<TitleBarTab> tabs, Point cursor)
         {
             TitleBarTab overTab = null;
@@ -301,7 +300,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                 // precedence.
                 if (tab.Active && IsOverTab(tab, cursor))
                 {
-                    Debug.WriteLine("Over " + tab.Content.Text + " which has an area of " + tab.Area.ToString() + " " + cursor.ToString());
+                    Debug.WriteLine("Over " + tab.Content.Text + " which has an area of " + tab.Area.ToString() + " " +
+                                    cursor.ToString());
 
                     overTab = tab;
                     break;
@@ -309,28 +309,31 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
                 if (IsOverTab(tab, cursor))
                 {
-                    Debug.WriteLine("Over " + tab.Content.Text + " which has an area of " + tab.Area.ToString() + " " + cursor.ToString());
+                    Debug.WriteLine("Over " + tab.Content.Text + " which has an area of " + tab.Area.ToString() + " " +
+                                    cursor.ToString());
                     overTab = tab;
                 }
 
                 if (overTab == null)
-                    Debug.WriteLine("Not over " + tab.Content.Text + " which has an area of " + tab.Area.ToString() + " " + cursor.ToString());
+                {
+                    Debug.WriteLine("Not over " + tab.Content.Text + " which has an area of " + tab.Area.ToString() +
+                                    " " + cursor.ToString());
+                }
             }
 
             return overTab;
         }
 
         /// <summary>
-        ///   Helper method to detect whether the <see cref = "cursor" /> is within the given <see cref = "area" /> and, 
-        ///   if it is, whether it is over a non-transparent pixel in the given <see cref = "image" />.
+        /// Helper method to detect whether the <see cref="cursor" /> is within the given <see cref="area" /> and, if 
+        /// it is, whether it is over a non-transparent pixel in the given <see cref="image" />.
         /// </summary>
-        /// <param name = "area">Screen area that we should check to see if the <see cref = "cursor" /> is 
-        ///   within.</param>
-        /// <param name = "image">Image contained within <see cref = "area" /> that we should check to see if the
-        ///   <see cref = "cursor" /> is over a non-transparent pixel.</param>
-        /// <param name = "cursor">Current location of the cursor.</param>
-        /// <returns>True if the <see cref = "cursor" /> is within the given <see cref = "area" /> and is over a
-        ///   non-transparent pixel in the <see cref = "Image" />.</returns>
+        /// <param name="area">Screen area that we should check to see if the <see cref="cursor" /> is within.</param>
+        /// <param name="image">Image contained within <see cref="area" /> that we should check to see if the
+        /// <see cref="cursor" /> is over a non-transparent pixel.</param>
+        /// <param name="cursor">Current location of the cursor.</param>
+        /// <returns>True if the <see cref="cursor" /> is within the given <see cref="area" /> and is over a
+        /// non-transparent pixel in the <see cref="Image" />.</returns>
         protected bool IsOverNonTransparentArea(Rectangle area, Bitmap image, Point cursor)
         {
             if (!area.Contains(cursor))
@@ -345,35 +348,35 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         }
 
         /// <summary>
-        ///   Tests whether the <see cref = "cursor" /> is hovering over the add tab button.
+        /// Tests whether the <see cref="cursor" /> is hovering over the add tab button.
         /// </summary>
-        /// <param name = "cursor">Current location of the cursor.</param>
-        /// <returns>True if the <see cref = "cursor" /> is within <see cref = "_addButtonArea" /> and is over a
-        ///   non-transparent pixel of <see cref = "_addButtonHoverImage" />, false otherwise.</returns>
+        /// <param name="cursor">Current location of the cursor.</param>
+        /// <returns>True if the <see cref="cursor" /> is within <see cref="_addButtonArea" /> and is over a
+        /// non-transparent pixel of <see cref="_addButtonHoverImage" />, false otherwise.</returns>
         public virtual bool IsOverAddButton(Point cursor)
         {
             return IsOverNonTransparentArea(_addButtonArea, _addButtonHoverImage, cursor);
         }
 
         /// <summary>
-        ///   Tests whether the <see cref = "cursor" /> is hovering over the given <see cref = "tab" />.
+        /// Tests whether the <see cref="cursor" /> is hovering over the given <see cref="tab" />.
         /// </summary>
-        /// <param name = "tab">Tab that we are to see if the cursor is hovering over.</param>
-        /// <param name = "cursor">Current location of the cursor.</param>
-        /// <returns>True if the <see cref = "cursor" /> is within the <see cref = "TitleBarTab.Area" /> of the
-        ///   <see cref = "tab" /> and is over a non-transparent pixel of <see cref = "TitleBarTab.TabImage" />,
-        ///   false otherwise.</returns>
+        /// <param name="tab">Tab that we are to see if the cursor is hovering over.</param>
+        /// <param name="cursor">Current location of the cursor.</param>
+        /// <returns>True if the <see cref="cursor" /> is within the <see cref="TitleBarTab.Area" /> of the
+        /// <see cref="tab" /> and is over a non-transparent pixel of <see cref="TitleBarTab.TabImage" />, false 
+        /// otherwise.</returns>
         protected virtual bool IsOverTab(TitleBarTab tab, Point cursor)
         {
             return IsOverNonTransparentArea(tab.Area, tab.TabImage, cursor);
         }
 
         /// <summary>
-        ///   Renders the list of <see cref = "tabs" /> to the screen using the given <see cref = "graphicsContext" />.
+        /// Renders the list of <see cref="tabs" /> to the screen using the given <see cref="graphicsContext" />.
         /// </summary>
-        /// <param name = "tabs">List of tabs that we are to render.</param>
-        /// <param name = "graphicsContext">Graphics context that we should use while rendering.</param>
-        /// <param name = "cursor">Current location of the cursor on the screen.</param>
+        /// <param name="tabs">List of tabs that we are to render.</param>
+        /// <param name="graphicsContext">Graphics context that we should use while rendering.</param>
+        /// <param name="cursor">Current location of the cursor on the screen.</param>
         public virtual void Render(List<TitleBarTab> tabs, Graphics graphicsContext, Point cursor)
         {
             // Get the width of the content area for each tab by taking the parent window's client width, subtracting
@@ -461,11 +464,11 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         }
 
         /// <summary>
-        ///   Internal method for rendering an individual <see cref = "tab" /> to the screen.
+        /// Internal method for rendering an individual <see cref="tab" /> to the screen.
         /// </summary>
-        /// <param name = "graphicsContext">Graphics context to use when rendering the tab.</param>
-        /// <param name = "tab">Individual tab that we are to render.</param>
-        /// <param name = "area">Area of the screen that the tab should be rendered to.</param>
+        /// <param name="graphicsContext">Graphics context to use when rendering the tab.</param>
+        /// <param name="tab">Individual tab that we are to render.</param>
+        /// <param name="area">Area of the screen that the tab should be rendered to.</param>
         protected virtual void Render(Graphics graphicsContext, TitleBarTab tab, Rectangle area)
         {
             // If we need to redraw the tab image

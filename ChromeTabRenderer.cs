@@ -3,14 +3,14 @@
 namespace Stratman.Windows.Forms.TitleBarTabs
 {
     /// <summary>
-    ///   Renderer that produces tabs that mimic the appearance of the Chrome browser.
+    /// Renderer that produces tabs that mimic the appearance of the Chrome browser.
     /// </summary>
     public class ChromeTabRenderer : BaseTabRenderer
     {
         /// <summary>
-        ///   Constructor that initializes the various resources that we use in rendering.
+        /// Constructor that initializes the various resources that we use in rendering.
         /// </summary>
-        /// <param name = "parentWindow">Parent window that this renderer belongs to.</param>
+        /// <param name="parentWindow">Parent window that this renderer belongs to.</param>
         public ChromeTabRenderer(TitleBarTabs parentWindow)
             : base(parentWindow)
         {
@@ -38,7 +38,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         }
 
         /// <summary>
-        ///   Since Chrome tabs overlap, we set this property to the amount that they overlap by.
+        /// Since Chrome tabs overlap, we set this property to the amount that they overlap by.
         /// </summary>
         public override int OverlapWidth
         {

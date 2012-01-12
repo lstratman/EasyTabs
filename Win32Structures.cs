@@ -5,91 +5,181 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 {
     // ReSharper disable InconsistentNaming
     /// <summary>
-    ///   Returned by the GetThemeMargins function to define the margins of windows that have visual styles applied.
+    /// Returned by the GetThemeMargins function to define the margins of windows that have visual styles applied.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     internal struct MARGINS
     {
         /// <summary>
-        ///   Width of the left border that retains its size.
+        /// Width of the left border that retains its size.
         /// </summary>
         public int cxLeftWidth;
 
         /// <summary>
-        ///   Width of the right border that retains its size.
+        /// Width of the right border that retains its size.
         /// </summary>
         public int cxRightWidth;
 
         /// <summary>
-        ///   Height of the top border that retains its size.
+        /// Height of the top border that retains its size.
         /// </summary>
         public int cyTopHeight;
 
         /// <summary>
-        ///   Height of the bottom border that retains its size.
+        /// Height of the bottom border that retains its size.
         /// </summary>
         public int cyBottomHeight;
     }
 
     /// <summary>
-    ///   The RECT structure defines the coordinates of the upper-left and lower-right corners of a rectangle.
+    /// The RECT structure defines the coordinates of the upper-left and lower-right corners of a rectangle.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     internal struct RECT
     {
         /// <summary>
-        ///   The x-coordinate of the upper-left corner of the rectangle.
+        /// The x-coordinate of the upper-left corner of the rectangle.
         /// </summary>
         public int left;
 
         /// <summary>
-        ///   The y-coordinate of the upper-left corner of the rectangle.
+        /// The y-coordinate of the upper-left corner of the rectangle.
         /// </summary>
         public int top;
 
         /// <summary>
-        ///   The x-coordinate of the lower-right corner of the rectangle.
+        /// The x-coordinate of the lower-right corner of the rectangle.
         /// </summary>
         public int right;
 
         /// <summary>
-        ///   The y-coordinate of the lower-right corner of the rectangle.
+        /// The y-coordinate of the lower-right corner of the rectangle.
         /// </summary>
         public int bottom;
     }
 
+    /// <summary>
+    /// Contains information that an application can use while processing the WM_NCCALCSIZE message to calculate the 
+    /// size, position, and valid contents of the client area of a window.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
     internal struct NCCALCSIZE_PARAMS
     {
+        /// <summary>
+        /// When the window procedure receives the WM_NCCALCSIZE message, this contains the new coordinates of a window 
+        /// that has been moved or resized, that is, it is the proposed new window coordinates. When the window 
+        /// procedure returns, the first rectangle contains the coordinates of the new client rectangle resulting from 
+        /// the move or resize.
+        /// </summary>
         public RECT rcNewWindow;
+
+        /// <summary>
+        /// When the window procedure receives the WM_NCCALCSIZE message, this contains the coordinates of the window 
+        /// before it was moved or resized.  When the window procedure returns, this contains the valid destination 
+        /// rectangle.
+        /// </summary>
         public RECT rcOldWindow;
+
+        /// <summary>
+        /// When the window procedure receives the WM_NCCALCSIZE message, this contains the coordinates of the window's 
+        /// client area before the window was moved or resized.  When the window procedure returns, this contains the 
+        /// valid source rectangle.
+        /// </summary>
         public RECT rcClient;
-        IntPtr lppos;
+
+        /// <summary>
+        /// A pointer to a WINDOWPOS structure that contains the size and position values specified in the operation 
+        /// that moved or resized the window.
+        /// </summary>
+        // ReSharper disable FieldCanBeMadeReadOnly.Local
+        private IntPtr lppos;
+        // ReSharper restore FieldCanBeMadeReadOnly.Local
     }
 
+    /// <summary>
+    /// The POINT structure defines the x- and y-coordinates of a point.
+    /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     public struct POINT
     {
+        /// <summary>
+        /// Specifies the x-coordinate of a point.
+        /// </summary>
         public Int32 x;
+
+        /// <summary>
+        /// Specifies the y-coordinate of a point.
+        /// </summary>
         public Int32 y;
 
-        public POINT(Int32 x, Int32 y) { this.x = x; this.y = y; }
+        /// <summary>
+        /// Constructor that initializes the structure.
+        /// </summary>
+        /// <param name="x">Specifies the x-coordinate of a point.</param>
+        /// <param name="y">Specifies the y-coordinate of a point.</param>
+        public POINT(Int32 x, Int32 y)
+        {
+            this.x = x;
+            this.y = y;
+        }
     }
 
+    /// <summary>
+    /// The SIZE structure specifies the width and height of a rectangle.
+    /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     public struct SIZE
     {
+        /// <summary>
+        /// Specifies the rectangle's width. The units depend on which function uses this.
+        /// </summary>
         public Int32 cx;
+
+        /// <summary>
+        /// Specifies the rectangle's height. The units depend on which function uses this.
+        /// </summary>
         public Int32 cy;
 
-        public SIZE(Int32 cx, Int32 cy) { this.cx = cx; this.cy = cy; }
+        /// <summary>
+        /// Constructor that initializes the structure.
+        /// </summary>
+        /// <param name="cx">Specifies the rectangle's width. The units depend on which function uses this.</param>
+        /// <param name="cy">Specifies the rectangle's height. The units depend on which function uses this.</param>
+        public SIZE(Int32 cx, Int32 cy)
+        {
+            this.cx = cx;
+            this.cy = cy;
+        }
     }
 
+    /// <summary>
+    /// The BLENDFUNCTION structure controls blending by specifying the blending functions for source and destination bitmaps.
+    /// </summary>
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct BLENDFUNCTION
     {
+        /// <summary>
+        /// The source blend operation. Currently, the only source and destination blend operation that has been 
+        /// defined is AC_SRC_OVER.
+        /// </summary>
         public byte BlendOp;
+
+        /// <summary>
+        /// Must be zero.
+        /// </summary>
         public byte BlendFlags;
+
+        /// <summary>
+        /// Specifies an alpha transparency value to be used on the entire source bitmap. The SourceConstantAlpha value 
+        /// is combined with any per-pixel alpha values in the source bitmap. If you set SourceConstantAlpha to 0, it 
+        /// is assumed that your image is transparent. Set the SourceConstantAlpha value to 255 (opaque) when you only 
+        /// want to use per-pixel alpha values.
+        /// </summary>
         public byte SourceConstantAlpha;
+
+        /// <summary>
+        /// This member controls the way the source and destination bitmaps are interpreted.
+        /// </summary>
         public byte AlphaFormat;
     }
     // ReSharper restore InconsistentNaming

@@ -4,13 +4,13 @@ using System.Windows.Forms;
 namespace Stratman.Windows.Forms.TitleBarTabs
 {
     /// <summary>
-    ///   Event arguments class for a cancelable event that occurs on a collection of collection of 
-    ///   <see cref = "TitleBarTab" />s.
+    /// Event arguments class for a cancelable event that occurs on a collection of collection of 
+    /// <see cref="TitleBarTab" />s.
     /// </summary>
     public class TitleBarTabCancelEventArgs : CancelEventArgs
     {
         /// <summary>
-        ///   Action that is being performed.
+        /// Action that is being performed.
         /// </summary>
         public TabControlAction Action
         {
@@ -19,7 +19,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         }
 
         /// <summary>
-        ///   The tab that the <see cref = "Action" /> is being performed on.
+        /// The tab that the <see cref="Action" /> is being performed on.
         /// </summary>
         public TitleBarTab Tab
         {
@@ -28,7 +28,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         }
 
         /// <summary>
-        ///   Index of the tab within the collection.
+        /// Index of the tab within the collection.
         /// </summary>
         public int TabIndex
         {
