@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace Stratman.Windows.Forms.TitleBarTabs
@@ -64,6 +65,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         {
             _previousWindowState = null;
             InitializeComponent();
+            SetWindowThemeAttributes(WTNCA.NODRAWCAPTION | WTNCA.NODRAWICON);
 
             _tabs.CollectionModified += _tabs_CollectionModified;
 
@@ -73,6 +75,31 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             SetStyle(
                 ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw,
                 true);
+        }
+
+        /// <summary>
+        /// Calls <see cref="Win32Interop.SetWindowThemeAttribute"/> to set various attributes on the window.
+        /// </summary>
+        /// <param name="attributes">Attributes to set on the window.</param>
+        private void SetWindowThemeAttributes(WTNCA attributes)
+        {
+            // This tests that the OS will support what we want to do. Will be false on Windows XP and earlier, as well 
+            // as on Vista and 7 with Aero Glass disabled.
+            bool hasComposition;
+            Win32Interop.DwmIsCompositionEnabled(out hasComposition);
+
+            if (!hasComposition)
+                return;
+
+            WTA_OPTIONS options = new WTA_OPTIONS
+                                      {
+                                          dwFlags = attributes,
+                                          dwMask = WTNCA.VALIDBITS
+                                      };
+
+            // The SetWindowThemeAttribute API call takes care of everything
+            Win32Interop.SetWindowThemeAttribute(Handle, WINDOWTHEMEATTRIBUTETYPE.WTA_NONCLIENT, ref options,
+                                                 (uint) Marshal.SizeOf(typeof (WTA_OPTIONS)));
         }
 
         /// <summary>
@@ -211,9 +238,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-
             Overlay = TitleBarTabsOverlay.GetInstance(this);
-            Text = "";
         }
 
         /// <summary>

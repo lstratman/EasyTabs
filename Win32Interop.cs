@@ -218,6 +218,21 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         [DllImport("gdi32", ExactSpelling = true, SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool DeleteDC(IntPtr hdc);
+
+        /// <summary>
+        /// Sets attributes to control how visual styles are applied to a specified window.
+        /// </summary>
+        /// <param name="hWnd">Handle to a window to apply changes to.</param>
+        /// <param name="wtype">Value of type WINDOWTHEMEATTRIBUTETYPE that specifies the type of attribute to set. The 
+        /// value of this parameter determines the type of data that should be passed in the pvAttribute 
+        /// parameter.</param>
+        /// <param name="attributes">A pointer that specifies attributes to set. Type is determined by the value of the 
+        /// eAttribute value.</param>
+        /// <param name="size">Specifies the size, in bytes, of the data pointed to by pvAttribute.</param>
+        /// <returns>If this function succeeds, it returns S_OK. Otherwise, it returns an HRESULT error code.</returns>
+        [DllImport("uxtheme")]
+        public static extern int SetWindowThemeAttribute(IntPtr hWnd, WINDOWTHEMEATTRIBUTETYPE wtype,
+                                                         ref WTA_OPTIONS attributes, uint size);
         // ReSharper restore InconsistentNaming
     }
 }

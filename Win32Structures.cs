@@ -182,5 +182,62 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         /// </summary>
         public byte AlphaFormat;
     }
+
+    /// <summary>
+    /// Specifies flags that modify window visual style attributes.
+    /// </summary>
+    [Flags]
+    public enum WTNCA : uint
+    {
+        /// <summary>
+        /// Prevents the window caption from being drawn.
+        /// </summary>
+        NODRAWCAPTION = 1,
+        /// <summary>
+        /// Prevents the system icon from being drawn.
+        /// </summary>
+        NODRAWICON = 2,
+        /// <summary>
+        /// Prevents the system icon menu from appearing.
+        /// </summary>
+        NOSYSMENU = 4,
+        /// <summary>
+        /// Prevents mirroring of the question mark, even in right-to-left (RTL) layout.
+        /// </summary>
+        NOMIRRORHELP = 8,
+        /// <summary>
+        /// A mask that contains all the valid bits.
+        /// </summary>
+        VALIDBITS = NODRAWCAPTION | NODRAWICON | NOSYSMENU | NOMIRRORHELP
+    }
+
+    /// <summary>
+    /// Specifies the type of visual style attribute to set on a window.
+    /// </summary>
+    public enum WINDOWTHEMEATTRIBUTETYPE : uint
+    {
+        /// <summary>
+        /// Non-client area window attributes will be set.
+        /// </summary>
+        WTA_NONCLIENT = 1,
+    }
+
+    /// <summary>
+    /// Defines options that are used to set window visual style attributes.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct WTA_OPTIONS
+    {
+        /// <summary>
+        /// A combination of flags that modify window visual style attributes. Can be a combination of the WTNCA 
+        /// constants.
+        /// </summary>
+        public WTNCA dwFlags;
+        /// <summary>
+        /// A bitmask that describes how the values specified in dwFlags should be applied. If the bit corresponding to 
+        /// a value in dwFlags is 0, that flag will be removed. If the bit is 1, the flag will be added.
+        /// </summary>
+        public WTNCA dwMask;
+    }
     // ReSharper restore InconsistentNaming
 }

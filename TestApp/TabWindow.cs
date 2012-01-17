@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
@@ -36,18 +31,21 @@ namespace TestApp
                         WebResponse response = webRequest.GetResponse();
                         Stream stream = response.GetResponseStream();
 
-                        byte[] buffer = new byte[1024];
-
-                        using (MemoryStream ms = new MemoryStream())
+                        if (stream != null)
                         {
-                            int read;
+                            byte[] buffer = new byte[1024];
 
-                            while ((read = stream.Read(buffer, 0, buffer.Length)) > 0)
-                                ms.Write(buffer, 0, read);
+                            using (MemoryStream ms = new MemoryStream())
+                            {
+                                int read;
 
-                            ms.Seek(0, SeekOrigin.Begin);
+                                while ((read = stream.Read(buffer, 0, buffer.Length)) > 0)
+                                    ms.Write(buffer, 0, read);
 
-                            Icon = new Icon(ms);
+                                ms.Seek(0, SeekOrigin.Begin);
+
+                                Icon = new Icon(ms);
+                            }
                         }
                     }
 
