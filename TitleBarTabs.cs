@@ -139,6 +139,11 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             {
                 return Tabs.FirstOrDefault((TitleBarTab t) => t.Active);
             }
+
+            set
+            {
+                SelectedTabIndex = Tabs.IndexOf(value);
+            }
         }
 
         /// <summary>
