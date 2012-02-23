@@ -64,6 +64,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         protected TitleBarTabs()
         {
             _previousWindowState = null;
+            ExitOnLastTabClose = true;
             InitializeComponent();
             SetWindowThemeAttributes(WTNCA.NODRAWCAPTION | WTNCA.NODRAWICON);
 
@@ -233,6 +234,12 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
                 return createParams;
             }
+        }
+
+        public bool ExitOnLastTabClose
+        {
+            get;
+            set;
         }
 
         /// <summary>
@@ -530,6 +537,9 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
             else
                 SelectedTabIndex = selectedTabIndex;
+
+            if (Tabs.Count == 0 && ExitOnLastTabClose)
+                Close();
         }
 
         /// <summary>

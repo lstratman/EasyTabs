@@ -379,6 +379,9 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         /// <param name="cursor">Current location of the cursor on the screen.</param>
         public virtual void Render(List<TitleBarTab> tabs, Graphics graphicsContext, Point cursor)
         {
+            if (tabs == null || tabs.Count == 0)
+                return;
+
             // Get the width of the content area for each tab by taking the parent window's client width, subtracting
             // the left and right border widths and the add button area (if applicable) and then dividing by the number
             // of tabs
