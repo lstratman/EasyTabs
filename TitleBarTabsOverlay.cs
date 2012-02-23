@@ -97,6 +97,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             _parentForm.Deactivate += _parentForm_Deactivate;
             _parentForm.Activated += _parentForm_FormActivated;
             _parentForm.SizeChanged += _parentForm_Refresh;
+            _parentForm.Shown += _parentForm_Refresh;
             _parentForm.VisibleChanged += _parentForm_Refresh;
             _parentForm.Move += _parentForm_Refresh;
             _parentForm.SystemColorsChanged += _parentForm_SystemColorsChanged;
