@@ -221,21 +221,6 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             }
         }
 
-        /// <summary>
-        /// Overridden method that allows us to specify a transparent background for the window, meaning that the
-        /// title bar won't show up as black when we maximize the window.
-        /// </summary>
-        protected override CreateParams CreateParams
-        {
-            get
-            {
-                CreateParams createParams = base.CreateParams;
-                createParams.ExStyle |= Win32Constants.WS_EX_TRANSPARENT;
-
-                return createParams;
-            }
-        }
-
         public bool ExitOnLastTabClose
         {
             get;
