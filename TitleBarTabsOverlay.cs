@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
@@ -29,9 +30,25 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         protected TitleBarTab _clickedTab;
 
         /// <summary>
+        /// Pointer to the low-level mouse hook callback (<see cref="MouseHookCallback"/>).
+        /// </summary>
+        protected IntPtr _hookId;
+
+        /// <summary>
+        /// Delegate of <see cref="MouseHookCallback"/>; declared as a member variable to keep it from being garbage
+        /// collected.
+        /// </summary>
+        protected HOOKPROC _hookproc = null;
+
+        /// <summary>
         /// Parent form for the overlay.
         /// </summary>
         protected TitleBarTabs _parentForm;
+
+        /// <summary>
+        /// Index of the tab, if any, whose close button is being hovered over.
+        /// </summary>
+        protected int _isOverCloseButtonForTab = -1;
 
         /// <summary>
         /// Blank default constructor to ensure that the overlays are only initialized through 
@@ -48,7 +65,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         protected TitleBarTabsOverlay(TitleBarTabs parentForm)
         {
             _parentForm = parentForm;
-            
+
             // We don't want this window visible in the taskbar
             ShowInTaskbar = false;
             FormBorderStyle = FormBorderStyle.FixedToolWindow;
@@ -101,6 +118,67 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             _parentForm.VisibleChanged += _parentForm_Refresh;
             _parentForm.Move += _parentForm_Refresh;
             _parentForm.SystemColorsChanged += _parentForm_SystemColorsChanged;
+
+            using (Process curProcess = Process.GetCurrentProcess())
+            using (ProcessModule curModule = curProcess.MainModule)
+            {
+                _hookproc = MouseHookCallback;
+                _hookId = Win32Interop.SetWindowsHookEx(
+                    Win32Messages.WH_MOUSE_LL, _hookproc, Win32Interop.GetModuleHandle(curModule.ModuleName), 0);
+            }
+        }
+
+        /// <summary>
+        /// Hook callback to process <see cref="Win32Messages.WM_MOUSEMOVE"/> messages to highlight/un-highlight the
+        /// close button on each tab.
+        /// </summary>
+        /// <param name="nCode">The message being received.</param>
+        /// <param name="wParam">Additional information about the message.</param>
+        /// <param name="lParam">Additional information about the message.</param>
+        /// <returns>A zero value if the procedure processes the message; a nonzero value if the procedure ignores the 
+        /// message.</returns>
+        protected IntPtr MouseHookCallback(int nCode, IntPtr wParam, IntPtr lParam)
+        {
+            if (nCode >= 0 && Win32Messages.WM_MOUSEMOVE == (int) wParam)
+            {
+                MSLLHOOKSTRUCT hookStruct = (MSLLHOOKSTRUCT) Marshal.PtrToStructure(lParam, typeof (MSLLHOOKSTRUCT));
+                Point cursorPosition = new Point(hookStruct.pt.x, hookStruct.pt.y);
+                bool reRender = false;
+
+                // If we were over a close button previously, check to see if the cursor is still over that tab's
+                // close button; if not, re-render
+                if (_isOverCloseButtonForTab != -1 &&
+                    (_isOverCloseButtonForTab >= _parentForm.Tabs.Count ||
+                     !_parentForm.TabRenderer.IsOverCloseButton(
+                         _parentForm.Tabs[_isOverCloseButtonForTab], GetRelativeCursorPosition(cursorPosition))))
+                {
+                    reRender = true;
+                    _isOverCloseButtonForTab = -1;
+                }
+
+                // Otherwise, see if any tabs' close button is being hovered over
+                else
+                {
+                    // ReSharper disable ForCanBeConvertedToForeach
+                    for (int i = 0; i < _parentForm.Tabs.Count; i++)
+                        // ReSharper restore ForCanBeConvertedToForeach
+                    {
+                        if (_parentForm.TabRenderer.IsOverCloseButton(
+                            _parentForm.Tabs[i], GetRelativeCursorPosition(cursorPosition)))
+                        {
+                            _isOverCloseButtonForTab = i;
+                            reRender = true;
+
+                            break;
+                        }
+                    }
+                }
+
+                if (reRender)
+                    Render(cursorPosition, true);
+            }
+
+            return Win32Interop.CallNextHookEx(_hookId, nCode, wParam, lParam);
         }
 
         /// <summary>
@@ -155,18 +233,31 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         /// Renders the tabs and then calls <see cref="Win32Interop.UpdateLayeredWindow"/> to blend the tab content
         /// with the underlying window (<see cref="_parentForm"/>).
         /// </summary>
-        public void Render()
+        /// <param name="forceRedraw">Flag indicating whether a full render should be forced.</param>
+        public void Render(bool forceRedraw = false)
+        {
+            Render(Cursor.Position, forceRedraw);
+        }
+
+        /// <summary>
+        /// Renders the tabs and then calls <see cref="Win32Interop.UpdateLayeredWindow"/> to blend the tab content
+        /// with the underlying window (<see cref="_parentForm"/>).
+        /// </summary>
+        /// <param name="cursorPosition">Current position of the cursor.</param>
+        /// <param name="forceRedraw">Flag indicating whether a full render should be forced.</param>
+        public void Render(Point cursorPosition, bool forceRedraw = false)
         {
             if (!IsDisposed && _parentForm.TabRenderer != null)
             {
                 Height = _parentForm.TabRenderer.TabHeight;
+                cursorPosition = GetRelativeCursorPosition(cursorPosition);
 
                 using (Bitmap bitmap = new Bitmap(Width, Height, PixelFormat.Format32bppArgb))
                 using (Graphics graphics = Graphics.FromImage(bitmap))
                 {
                     // Render the tabs into the bitmap
                     graphics.FillRectangle(new SolidBrush(Color.Transparent), new Rectangle(0, 0, Width, Height));
-                    _parentForm.TabRenderer.Render(_parentForm.Tabs, graphics, PointToClient(Cursor.Position));
+                    _parentForm.TabRenderer.Render(_parentForm.Tabs, graphics, cursorPosition, forceRedraw);
 
                     IntPtr screenDc = Win32Interop.GetDC(IntPtr.Zero);
                     IntPtr memDc = Win32Interop.CreateCompatibleDC(screenDc);
@@ -196,16 +287,16 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
                         // Blend the tab content with the underlying content
                         if (
-                            !Win32Interop.UpdateLayeredWindow(Handle, screenDc, ref topPos, ref size, memDc,
-                                                              ref pointSource,
-                                                              0, ref blend, Win32Constants.ULW_ALPHA))
+                            !Win32Interop.UpdateLayeredWindow(
+                                Handle, screenDc, ref topPos, ref size, memDc, ref pointSource, 0, ref blend,
+                                Win32Constants.ULW_ALPHA))
                         {
                             int error = Marshal.GetLastWin32Error();
                             throw new Win32Exception(error, "Error while calling UpdateLayeredWindow().");
                         }
                     }
 
-                    // Clean up after ourselves
+                        // Clean up after ourselves
                     finally
                     {
                         Win32Interop.ReleaseDC(IntPtr.Zero, screenDc);
@@ -223,6 +314,17 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         }
 
         /// <summary>
+        /// Gets the relative location of the cursor within the overlay.
+        /// </summary>
+        /// <param name="cursorPosition">Cursor position that represents the absolute position of the cursor on the
+        /// screen.</param>
+        /// <returns>The relative location of the cursor within the overlay.</returns>
+        protected Point GetRelativeCursorPosition(Point cursorPosition)
+        {
+            return new Point(cursorPosition.X - Location.X, cursorPosition.Y - Location.Y);
+        }
+
+        /// <summary>
         /// Overrides the message pump for the window so that we can respond to click events on the tabs themselves.
         /// </summary>
         /// <param name="m">Message received by the pump.</param>
@@ -232,8 +334,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             {
                 case Win32Messages.WM_NCLBUTTONDOWN:
                 case Win32Messages.WM_LBUTTONDOWN:
-                    Point relativeCursorPosition = new Point(Cursor.Position.X - Location.X,
-                                                             Cursor.Position.Y - Location.Y);
+                    Point relativeCursorPosition = GetRelativeCursorPosition(Cursor.Position);
 
                     // When the user clicks a mouse button, save the tab that the user was over so we can respond
                     // properly when the mouse button is released
@@ -248,21 +349,12 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
                 case Win32Messages.WM_LBUTTONUP:
                 case Win32Messages.WM_NCLBUTTONUP:
-                    Point relativeCursorPosition2 = new Point(Cursor.Position.X - Location.X,
-                                                              Cursor.Position.Y - Location.Y);
+                    Point relativeCursorPosition2 = GetRelativeCursorPosition(Cursor.Position);
 
                     if (_clickedTab != null)
                     {
-                        Rectangle absoluteCloseButtonArea = new Rectangle();
-
-                        if (_clickedTab.ShowCloseButton)
-                            absoluteCloseButtonArea = new Rectangle(_clickedTab.Area.X + _clickedTab.CloseButtonArea.X,
-                                                                    _clickedTab.Area.Y + _clickedTab.CloseButtonArea.Y,
-                                                                    _clickedTab.CloseButtonArea.Width,
-                                                                    _clickedTab.CloseButtonArea.Height);
-
                         // If the user clicked the close button, remove the tab from the list
-                        if (absoluteCloseButtonArea.Contains(relativeCursorPosition2))
+                        if (_parentForm.TabRenderer.IsOverCloseButton(_clickedTab, relativeCursorPosition2))
                         {
                             _clickedTab.Content.Close();
                             Render();
@@ -281,8 +373,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                         Win32Interop.ReleaseCapture();
                     }
 
-                    // Otherwise, if the user clicked the add button, call CreateTab to add a new tab to the list and 
-                    // select it
+                        // Otherwise, if the user clicked the add button, call CreateTab to add a new tab to the list and 
+                        // select it
                     else if (_parentForm.TabRenderer.IsOverAddButton(relativeCursorPosition2))
                     {
                         _parentForm.AddNewTab();
@@ -332,6 +424,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
             if (_parents.ContainsKey(form))
                 _parents.Remove(form);
+
+            Win32Interop.UnhookWindowsHookEx(_hookId);
         }
     }
 }

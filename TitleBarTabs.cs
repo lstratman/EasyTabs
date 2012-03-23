@@ -96,26 +96,6 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         }
 
         /// <summary>
-        /// Calls <see cref="Win32Interop.SetWindowThemeAttribute"/> to set various attributes on the window.
-        /// </summary>
-        /// <param name="attributes">Attributes to set on the window.</param>
-        private void SetWindowThemeAttributes(WTNCA attributes)
-        {
-            if (!IsCompositionEnabled)
-                return;
-
-            WTA_OPTIONS options = new WTA_OPTIONS
-                                      {
-                                          dwFlags = attributes,
-                                          dwMask = WTNCA.VALIDBITS
-                                      };
-
-            // The SetWindowThemeAttribute API call takes care of everything
-            Win32Interop.SetWindowThemeAttribute(Handle, WINDOWTHEMEATTRIBUTETYPE.WTA_NONCLIENT, ref options,
-                                                 (uint) Marshal.SizeOf(typeof (WTA_OPTIONS)));
-        }
-
-        /// <summary>
         /// List of tabs to display for this window.
         /// </summary>
         public ListWithEvents<TitleBarTab> Tabs
@@ -193,7 +173,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                     selectedTab.Active = false;
 
                     // Raise the TabDeselected event
-                    OnTabDeselected(new TitleBarTabEventArgs
+                    OnTabDeselected(
+                        new TitleBarTabEventArgs
                                         {
                                             Tab = selectedTab,
                                             TabIndex = selectedTabIndex,
@@ -220,7 +201,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                     Tabs[value].Active = true;
 
                     // Raise the TabSelected event
-                    OnTabDeselected(new TitleBarTabEventArgs
+                    OnTabDeselected(
+                        new TitleBarTabEventArgs
                                         {
                                             Tab = Tabs[value],
                                             TabIndex = value,
@@ -233,10 +215,38 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             }
         }
 
+        /// <summary>
+        /// Flag indicating whether the application itself should exit when the last tab is closed.
+        /// </summary>
         public bool ExitOnLastTabClose
         {
             get;
             set;
+        }
+
+        /// <summary>
+        /// Calls <see cref="Win32Interop.SetWindowThemeAttribute"/> to set various attributes on the window.
+        /// </summary>
+        /// <param name="attributes">Attributes to set on the window.</param>
+        private void SetWindowThemeAttributes(WTNCA attributes)
+        {
+            // This tests that the OS will support what we want to do. Will be false on Windows XP and earlier, as well 
+            // as on Vista and 7 with Aero Glass disabled.
+            bool hasComposition;
+            Win32Interop.DwmIsCompositionEnabled(out hasComposition);
+
+            if (!hasComposition)
+                return;
+
+            WTA_OPTIONS options = new WTA_OPTIONS
+                                      {
+                                          dwFlags = attributes,
+                                          dwMask = WTNCA.VALIDBITS
+                                      };
+
+            // The SetWindowThemeAttribute API call takes care of everything
+            Win32Interop.SetWindowThemeAttribute(
+                Handle, WINDOWTHEMEATTRIBUTETYPE.WTA_NONCLIENT, ref options, (uint) Marshal.SizeOf(typeof (WTA_OPTIONS)));
         }
 
         /// <summary>
@@ -265,7 +275,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                 topPadding -= SystemInformation.CaptionHeight - SystemInformation.VerticalResizeBorderThickness -
                               SystemInformation.BorderSize.Width;
 
-            Padding = new Padding(Padding.Left, topPadding > 0
+            Padding = new Padding(
+                Padding.Left, topPadding > 0
                                                     ? topPadding
                                                     : 0, Padding.Right, Padding.Bottom);
 
@@ -381,7 +392,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             if (tab != null)
             {
                 tab.Content.Location = new Point(0, Padding.Top - 1);
-                tab.Content.Size = new Size(ClientRectangle.Width,
+                tab.Content.Size = new Size(
+                    ClientRectangle.Width,
                                             ClientRectangle.Height - Padding.Top + 1);
             }
         }

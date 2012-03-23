@@ -82,6 +82,36 @@
         /// mouse, this message is not posted.
         /// </summary>
         public const int WM_NCLBUTTONDOWN = 0x00A1;
+
+        /// <summary>
+        /// Posted to a window when the cursor moves. If the mouse is not captured, the message is posted to the window 
+        /// that contains the cursor. Otherwise, the message is posted to the window that has captured the mouse.
+        /// </summary>
+        public const int WM_MOUSEMOVE = 0x0200;
+
+        /// <summary>
+        /// Sent to the focus window when the mouse wheel is rotated. 
+        /// </summary>
+        public const int WM_MOUSEWHEEL = 0x020A;
+
+        /// <summary>
+        /// Posted when the user presses the right mouse button while the cursor is in the client area of a window. If 
+        /// the mouse is not captured, the message is posted to the window beneath the cursor. Otherwise, the message is 
+        /// posted to the window that has captured the mouse.
+        /// </summary>
+        public const int WM_RBUTTONDOWN = 0x0204;
+
+        /// <summary>
+        /// Posted when the user releases the right mouse button while the cursor is in the client area of a window. If 
+        /// the mouse is not captured, the message is posted to the window beneath the cursor. Otherwise, the message is 
+        /// posted to the window that has captured the mouse.
+        /// </summary>
+        public const int WM_RBUTTONUP = 0x0205;
+
+        /// <summary>
+        /// Capture low-level mouse events.
+        /// </summary>
+        public const int WH_MOUSE_LL = 14;
         // ReSharper restore InconsistentNaming
     }
 }

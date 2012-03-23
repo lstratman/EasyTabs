@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -300,25 +299,12 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                 // precedence.
                 if (tab.Active && IsOverTab(tab, cursor))
                 {
-                    Debug.WriteLine("Over " + tab.Content.Text + " which has an area of " + tab.Area.ToString() + " " +
-                                    cursor.ToString());
-
                     overTab = tab;
                     break;
                 }
 
                 if (IsOverTab(tab, cursor))
-                {
-                    Debug.WriteLine("Over " + tab.Content.Text + " which has an area of " + tab.Area.ToString() + " " +
-                                    cursor.ToString());
                     overTab = tab;
-                }
-
-                if (overTab == null)
-                {
-                    Debug.WriteLine("Not over " + tab.Content.Text + " which has an area of " + tab.Area.ToString() +
-                                    " " + cursor.ToString());
-                }
             }
 
             return overTab;
@@ -372,12 +358,34 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         }
 
         /// <summary>
+        /// Checks to see if the <paramref name="cursor"/> is over the <see cref="TitleBarTab.CloseButtonArea"/> of the
+        /// given <paramref name="tab"/>.
+        /// </summary>
+        /// <param name="tab">The tab whose <see cref="TitleBarTab.CloseButtonArea"/> we are to check to see if it
+        /// contains <paramref name="cursor"/>.</param>
+        /// <param name="cursor">Current position of the cursor.</param>
+        /// <returns>True if the <paramref name="tab"/>'s <see cref="TitleBarTab.CloseButtonArea"/> contains
+        /// <paramref name="cursor"/>, false otherwise.</returns>
+        public virtual bool IsOverCloseButton(TitleBarTab tab, Point cursor)
+        {
+            if (!tab.ShowCloseButton)
+                return false;
+
+            Rectangle absoluteCloseButtonArea = new Rectangle(tab.Area.X + tab.CloseButtonArea.X,
+                                                              tab.Area.Y + tab.CloseButtonArea.Y,
+                                                              tab.CloseButtonArea.Width, tab.CloseButtonArea.Height);
+
+            return absoluteCloseButtonArea.Contains(cursor);
+        }
+
+        /// <summary>
         /// Renders the list of <see cref="tabs" /> to the screen using the given <see cref="graphicsContext" />.
         /// </summary>
         /// <param name="tabs">List of tabs that we are to render.</param>
         /// <param name="graphicsContext">Graphics context that we should use while rendering.</param>
         /// <param name="cursor">Current location of the cursor on the screen.</param>
-        public virtual void Render(List<TitleBarTab> tabs, Graphics graphicsContext, Point cursor)
+        /// <param name="forceRedraw">Flag indicating whether or not the redraw should be forced.</param>
+        public virtual void Render(List<TitleBarTab> tabs, Graphics graphicsContext, Point cursor, bool forceRedraw = false)
         {
             if (tabs == null || tabs.Count == 0)
                 return;
@@ -398,7 +406,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
             // Determine if we need to redraw the TabImage properties for each tab by seeing if the content width that
             // we calculated above is equal to content width we had in the previous rendering pass
-            bool redraw = (tabContentWidth != _tabContentWidth);
+            bool redraw = (tabContentWidth != _tabContentWidth || forceRedraw);
 
             if (redraw)
                 _tabContentWidth = tabContentWidth;
@@ -429,7 +437,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                 // In this first pass, we only render the inactive tabs since we need the active tabs to show up on top
                 // of everything else
                 if (!tab.Active)
-                    Render(graphicsContext, tab, tabArea);
+                    Render(graphicsContext, tab, tabArea, cursor);
 
                 else
                     activeTabs.Add(new Tuple<TitleBarTab, Rectangle>(tab, tabArea));
@@ -439,7 +447,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
             // In the second pass, render all of the active tabs identified in the previous pass
             foreach (Tuple<TitleBarTab, Rectangle> tab in activeTabs)
-                Render(graphicsContext, tab.Item1, tab.Item2);
+                Render(graphicsContext, tab.Item1, tab.Item2, cursor);
 
             _previousTabCount = tabs.Count;
 
@@ -472,7 +480,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         /// <param name="graphicsContext">Graphics context to use when rendering the tab.</param>
         /// <param name="tab">Individual tab that we are to render.</param>
         /// <param name="area">Area of the screen that the tab should be rendered to.</param>
-        protected virtual void Render(Graphics graphicsContext, TitleBarTab tab, Rectangle area)
+        /// <param name="cursor">Current position of the cursor.</param>
+        protected virtual void Render(Graphics graphicsContext, TitleBarTab tab, Rectangle area, Point cursor)
         {
             // If we need to redraw the tab image
             if (tab.TabImage == null)
@@ -551,14 +560,19 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                     // Draw the close button
                     if (tab.ShowCloseButton)
                     {
+                        Image closeButtonImage = IsOverCloseButton(tab, cursor)
+                                                     ? _closeButtonHoverImage
+                                                     : _closeButtonImage;
+
                         tab.CloseButtonArea = new Rectangle(area.Width - (tab.Active
                                                                               ? _activeRightSideImage.Width
                                                                               : _inactiveRightSideImage.Width) -
-                                                            CloseButtonMarginRight - _closeButtonImage.Width,
-                                                            CloseButtonMarginTop, _closeButtonImage.Width,
-                                                            _closeButtonImage.Height);
-                        tabGraphicsContext.DrawImage(_closeButtonImage, tab.CloseButtonArea, 0, 0,
-                                                     _closeButtonImage.Width, _closeButtonImage.Height,
+                                                            CloseButtonMarginRight - closeButtonImage.Width,
+                                                            CloseButtonMarginTop, closeButtonImage.Width,
+                                                            closeButtonImage.Height);
+
+                        tabGraphicsContext.DrawImage(closeButtonImage, tab.CloseButtonArea, 0, 0,
+                                                     closeButtonImage.Width, closeButtonImage.Height,
                                                      GraphicsUnit.Pixel);
                     }
                 }
