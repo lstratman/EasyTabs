@@ -233,6 +233,9 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         [DllImport("uxtheme")]
         public static extern int SetWindowThemeAttribute(IntPtr hWnd, WINDOWTHEMEATTRIBUTETYPE wtype,
                                                          ref WTA_OPTIONS attributes, uint size);
+
+        [DllImport("user32")]
+        public static extern IntPtr GetWindowDC(IntPtr hWnd);
         // ReSharper restore InconsistentNaming
     }
 }

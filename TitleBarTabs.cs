@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
@@ -58,12 +59,15 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         /// </summary>
         protected ListWithEvents<TitleBarTab> _tabs = new ListWithEvents<TitleBarTab>();
 
+        protected bool _drawGradient = false;
+
         /// <summary>
         /// Default constructor.
         /// </summary>
         protected TitleBarTabs()
         {
             _previousWindowState = null;
+            _drawGradient = !IsCompositionEnabled;
             ExitOnLastTabClose = true;
             InitializeComponent();
             SetWindowThemeAttributes(WTNCA.NODRAWCAPTION | WTNCA.NODRAWICON);
@@ -78,18 +82,26 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                 true);
         }
 
+        protected bool IsCompositionEnabled
+        {
+            get
+            {
+                // This tests that the OS will support what we want to do. Will be false on Windows XP and earlier, as well 
+                // as on Vista and 7 with Aero Glass disabled.
+                bool hasComposition;
+                Win32Interop.DwmIsCompositionEnabled(out hasComposition);
+
+                return hasComposition;
+            }
+        }
+
         /// <summary>
         /// Calls <see cref="Win32Interop.SetWindowThemeAttribute"/> to set various attributes on the window.
         /// </summary>
         /// <param name="attributes">Attributes to set on the window.</param>
         private void SetWindowThemeAttributes(WTNCA attributes)
         {
-            // This tests that the OS will support what we want to do. Will be false on Windows XP and earlier, as well 
-            // as on Vista and 7 with Aero Glass disabled.
-            bool hasComposition;
-            Win32Interop.DwmIsCompositionEnabled(out hasComposition);
-
-            if (!hasComposition)
+            if (!IsCompositionEnabled)
                 return;
 
             WTA_OPTIONS options = new WTA_OPTIONS
@@ -351,6 +363,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         protected override void OnClientSizeChanged(EventArgs e)
         {
             base.OnClientSizeChanged(e);
+            
             ResizeTabContents();
         }
 
@@ -379,6 +392,43 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         /// <param name="e">Arguments associated with the event.</param>
         protected override void OnPaintBackground(PaintEventArgs e)
         {
+        }
+
+        protected virtual void DrawTitleBarGradient(Rectangle fillArea)
+        {
+            if (_drawGradient)
+            {
+                using (Graphics graphics = Graphics.FromHdc(Win32Interop.GetWindowDC(Handle)))
+                {
+                    DrawTitleBarGradient(graphics, fillArea);
+                }
+            }
+        }
+
+        protected virtual void DrawTitleBarGradient(Graphics graphics, Rectangle fillArea)
+        {
+            if (_drawGradient && Padding.Top > 0)
+            {
+                LinearGradientBrush gradient = new LinearGradientBrush(
+                    new Point(0, 0), new Point(fillArea.Width - 50, 0), ContainsFocus
+                                                              ? SystemColors.ActiveCaption
+                                                              : SystemColors.InactiveCaption, ContainsFocus
+                                                                                                  ? SystemColors.GradientActiveCaption
+                                                                                                  : SystemColors.GradientInactiveCaption);
+
+                graphics.FillRectangle(
+                    new SolidBrush(
+                        ContainsFocus
+                            ? SystemColors.GradientActiveCaption
+                            : SystemColors.GradientInactiveCaption), fillArea);
+                graphics.FillRectangle(gradient, new Rectangle(fillArea.Location, new Size(fillArea.Width - 50, fillArea.Height)));
+            }
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            base.OnPaint(e);
+            DrawTitleBarGradient(e.Graphics, e.ClipRectangle);
         }
 
         /// <summary>
@@ -462,6 +512,21 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                     SetFrameSize();
                     ResizeTabContents();
                     m.Result = IntPtr.Zero;
+
+                    break;
+
+                case Win32Messages.WM_NCPAINT:
+                    if (_drawGradient)
+                    {
+                        base.WndProc(ref m);
+                        DrawTitleBarGradient(
+                            new Rectangle(
+                                new Point(
+                                    SystemInformation.HorizontalResizeBorderThickness,
+                                    SystemInformation.VerticalResizeBorderThickness + SystemInformation.CaptionHeight - 1),
+                                new Size(ClientRectangle.Width, 1)));
+                        callDwp = false;
+                    }
 
                     break;
 
