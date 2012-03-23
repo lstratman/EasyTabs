@@ -89,8 +89,9 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         /// <returns>TRUE if DwmDefWindowProc handled the message; otherwise, FALSE.</returns>
         [DllImport("dwmapi", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool DwmDefWindowProc(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam,
-                                                   out IntPtr plResult);
+        public static extern bool DwmDefWindowProc(
+            IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam,
+            out IntPtr plResult);
 
         /// <summary>
         /// Extends the window frame into the client area.
@@ -159,9 +160,10 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         /// zero. To get extended error information, call GetLastError.</returns>
         [DllImport("user32", ExactSpelling = true, SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool UpdateLayeredWindow(IntPtr hwnd, IntPtr hdcDst, ref POINT pptDst, ref SIZE psize,
-                                                      IntPtr hdcSrc, ref POINT pprSrc, Int32 crKey,
-                                                      ref BLENDFUNCTION pblend, Int32 dwFlags);
+        public static extern bool UpdateLayeredWindow(
+            IntPtr hwnd, IntPtr hdcDst, ref POINT pptDst, ref SIZE psize,
+            IntPtr hdcSrc, ref POINT pprSrc, Int32 crKey,
+            ref BLENDFUNCTION pblend, Int32 dwFlags);
 
         /// <summary>
         /// Selects an object into the specified device context (DC). The new object replaces the previous object of 
@@ -241,8 +243,9 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         /// <param name="size">Specifies the size, in bytes, of the data pointed to by pvAttribute.</param>
         /// <returns>If this function succeeds, it returns S_OK. Otherwise, it returns an HRESULT error code.</returns>
         [DllImport("uxtheme")]
-        public static extern int SetWindowThemeAttribute(IntPtr hWnd, WINDOWTHEMEATTRIBUTETYPE wtype,
-                                                         ref WTA_OPTIONS attributes, uint size);
+        public static extern int SetWindowThemeAttribute(
+            IntPtr hWnd, WINDOWTHEMEATTRIBUTETYPE wtype,
+            ref WTA_OPTIONS attributes, uint size);
 
         /// <summary>
         /// Installs an application-defined hook procedure into a hook chain. You would install a hook procedure to 
@@ -306,9 +309,9 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         /// fails, the return value is NULL.</returns>
         [DllImport("kernel32", CharSet = CharSet.Auto, SetLastError = true)]
         public static extern IntPtr GetModuleHandle(string lpModuleName);
-    }
 
         [DllImport("user32")]
         public static extern IntPtr GetWindowDC(IntPtr hWnd);
         // ReSharper restore InconsistentNaming
+    }
 }
