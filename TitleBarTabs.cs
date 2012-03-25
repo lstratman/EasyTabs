@@ -73,6 +73,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             SetWindowThemeAttributes(WTNCA.NODRAWCAPTION | WTNCA.NODRAWICON);
 
             _tabs.CollectionModified += _tabs_CollectionModified;
+            SystemColorsChanged += TitleBarTabs_SystemColorsChanged;
 
             // Set the window style so that we take care of painting the non-client area, a redraw is triggered when
             // the size of the window changes, and the window itself has a transparent background color (otherwise the
@@ -80,6 +81,12 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             SetStyle(
                 ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw,
                 true);
+        }
+
+        void TitleBarTabs_SystemColorsChanged(object sender, EventArgs e)
+        {
+            _drawGradient = !IsCompositionEnabled;
+            Invalidate();
         }
 
         protected bool IsCompositionEnabled
@@ -230,14 +237,6 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         /// <param name="attributes">Attributes to set on the window.</param>
         private void SetWindowThemeAttributes(WTNCA attributes)
         {
-            // This tests that the OS will support what we want to do. Will be false on Windows XP and earlier, as well 
-            // as on Vista and 7 with Aero Glass disabled.
-            bool hasComposition;
-            Win32Interop.DwmIsCompositionEnabled(out hasComposition);
-
-            if (!hasComposition)
-                return;
-
             WTA_OPTIONS options = new WTA_OPTIONS
                                       {
                                           dwFlags = attributes,
@@ -417,24 +416,53 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             }
         }
 
+        protected Color TitleBarColor
+        {
+            get
+            {
+                if (Application.RenderWithVisualStyles && Environment.OSVersion.Version.Major >= 6)
+                    return ContainsFocus
+                               ? SystemColors.GradientActiveCaption
+                               : SystemColors.GradientInactiveCaption;
+
+                return ContainsFocus
+                           ? SystemColors.ActiveCaption
+                           : SystemColors.InactiveCaption;
+            }
+        }
+
+        protected Color TitleBarGradientColor
+        {
+            get
+            {
+                return ContainsFocus
+                           ? SystemInformation.IsTitleBarGradientEnabled
+                                 ? SystemColors.GradientActiveCaption
+                                 : SystemColors.ActiveCaption
+                           : SystemInformation.IsTitleBarGradientEnabled
+                                 ? SystemColors.GradientInactiveCaption
+                                 : SystemColors.InactiveCaption;
+            }
+        }
+
         protected virtual void DrawTitleBarGradient(Graphics graphics, Rectangle fillArea)
         {
-            if (_drawGradient && Padding.Top > 0)
-            {
-                LinearGradientBrush gradient = new LinearGradientBrush(
-                    new Point(0, 0), new Point(fillArea.Width - 50, 0), ContainsFocus
-                                                              ? SystemColors.ActiveCaption
-                                                              : SystemColors.InactiveCaption, ContainsFocus
-                                                                                                  ? SystemColors.GradientActiveCaption
-                                                                                                  : SystemColors.GradientInactiveCaption);
+            if (!_drawGradient || Padding.Top <= 0)
+                return;
 
-                graphics.FillRectangle(
-                    new SolidBrush(
-                        ContainsFocus
-                            ? SystemColors.GradientActiveCaption
-                            : SystemColors.GradientInactiveCaption), fillArea);
-                graphics.FillRectangle(gradient, new Rectangle(fillArea.Location, new Size(fillArea.Width - 50, fillArea.Height)));
-            }
+            int rightMargin = (MinimizeBox
+                                   ? SystemInformation.CaptionButtonSize.Width
+                                   : 0) + (MaximizeBox
+                                               ? SystemInformation.CaptionButtonSize.Width
+                                               : 0) +
+                              SystemInformation.CaptionButtonSize.Width;
+
+            LinearGradientBrush gradient = new LinearGradientBrush(
+                new Point(0, 0), new Point(fillArea.Width - rightMargin, 0), TitleBarColor, TitleBarGradientColor);
+
+            graphics.FillRectangle(new SolidBrush(TitleBarGradientColor), fillArea);
+            graphics.FillRectangle(
+                gradient, new Rectangle(fillArea.Location, new Size(fillArea.Width - rightMargin, fillArea.Height)));
         }
 
         protected override void OnPaint(PaintEventArgs e)
