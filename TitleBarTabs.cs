@@ -59,7 +59,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         /// </summary>
         protected ListWithEvents<TitleBarTab> _tabs = new ListWithEvents<TitleBarTab>();
 
-        protected bool _drawGradient = false;
+        protected bool _drawTitlebarBackground = false;
 
         /// <summary>
         /// Default constructor.
@@ -67,7 +67,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         protected TitleBarTabs()
         {
             _previousWindowState = null;
-            _drawGradient = !IsCompositionEnabled;
+            _drawTitlebarBackground = !IsCompositionEnabled;
             ExitOnLastTabClose = true;
             InitializeComponent();
             SetWindowThemeAttributes(WTNCA.NODRAWCAPTION | WTNCA.NODRAWICON);
@@ -83,18 +83,26 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                 true);
         }
 
+        /// <summary>
+        /// Called when the OS changes display resolution or themes, which triggers a repaint.
+        /// </summary>
+        /// <param name="sender">Object from which this event originated.</param>
+        /// <param name="e">Arguments associated with the event.</param>
         void TitleBarTabs_SystemColorsChanged(object sender, EventArgs e)
         {
-            _drawGradient = !IsCompositionEnabled;
+            _drawTitlebarBackground = !IsCompositionEnabled;
             Invalidate();
         }
 
+        /// <summary>
+        /// Flag indicating whether composition is enabled on the desktop.
+        /// </summary>
         protected bool IsCompositionEnabled
         {
             get
             {
-                // This tests that the OS will support what we want to do. Will be false on Windows XP and earlier, as well 
-                // as on Vista and 7 with Aero Glass disabled.
+                // This tests that the OS will support what we want to do. Will be false on Windows XP and earlier, as 
+                // well as on Vista and 7 with Aero Glass disabled.
                 bool hasComposition;
                 Win32Interop.DwmIsCompositionEnabled(out hasComposition);
 
@@ -405,17 +413,24 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         {
         }
 
-        protected virtual void DrawTitleBarGradient(Rectangle fillArea)
+        /// <summary>
+        /// Draws the titlebar background behind the tabs if Aero glass is not enabled.
+        /// </summary>
+        /// <param name="fillArea">Area to fill in with the titlebar background.</param>
+        protected virtual void DrawTitleBarBackground(Rectangle fillArea)
         {
-            if (_drawGradient)
+            if (_drawTitlebarBackground)
             {
                 using (Graphics graphics = Graphics.FromHdc(Win32Interop.GetWindowDC(Handle)))
                 {
-                    DrawTitleBarGradient(graphics, fillArea);
+                    DrawTitleBarBackground(graphics, fillArea);
                 }
             }
         }
 
+        /// <summary>
+        /// Primary color for the titlebar background.
+        /// </summary>
         protected Color TitleBarColor
         {
             get
@@ -431,6 +446,9 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             }
         }
 
+        /// <summary>
+        /// Gradient color for the titlebar background.
+        /// </summary>
         protected Color TitleBarGradientColor
         {
             get
@@ -445,17 +463,17 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             }
         }
 
-        protected virtual void DrawTitleBarGradient(Graphics graphics, Rectangle fillArea)
+        /// <summary>
+        /// Draws the titlebar background behind the tabs if Aero glass is not enabled.
+        /// </summary>
+        /// <param name="graphics">Graphics context with which to draw the background.</param>
+        /// <param name="fillArea">Area to fill in with the titlebar background.</param>
+        protected virtual void DrawTitleBarBackground(Graphics graphics, Rectangle fillArea)
         {
-            if (!_drawGradient || Padding.Top <= 0)
+            if (!_drawTitlebarBackground || Padding.Top <= 0)
                 return;
 
-            int rightMargin = (MinimizeBox
-                                   ? SystemInformation.CaptionButtonSize.Width
-                                   : 0) + (MaximizeBox
-                                               ? SystemInformation.CaptionButtonSize.Width
-                                               : 0) +
-                              SystemInformation.CaptionButtonSize.Width;
+            int rightMargin = SystemInformation.CaptionButtonSize.Width * 2;
 
             LinearGradientBrush gradient = new LinearGradientBrush(
                 new Point(0, 0), new Point(fillArea.Width - rightMargin, 0), TitleBarColor, TitleBarGradientColor);
@@ -465,10 +483,14 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                 gradient, new Rectangle(fillArea.Location, new Size(fillArea.Width - rightMargin, fillArea.Height)));
         }
 
+        /// <summary>
+        /// Paints the titlebar background.
+        /// </summary>
+        /// <param name="e">Arguments associated with the event.</param>
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            DrawTitleBarGradient(e.Graphics, e.ClipRectangle);
+            DrawTitleBarBackground(e.Graphics, e.ClipRectangle);
         }
 
         /// <summary>
@@ -556,10 +578,10 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                     break;
 
                 case Win32Messages.WM_NCPAINT:
-                    if (_drawGradient)
+                    if (_drawTitlebarBackground)
                     {
                         base.WndProc(ref m);
-                        DrawTitleBarGradient(
+                        DrawTitleBarBackground(
                             new Rectangle(
                                 new Point(
                                     SystemInformation.HorizontalResizeBorderThickness,
