@@ -84,6 +84,28 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         }
 
         /// <summary>
+        /// Repaints the window to update the background color for the titlebar via 
+        /// <see cref="DrawTitleBarBackground(System.Drawing.Rectangle)"/>.
+        /// </summary>
+        /// <param name="e">Arguments associated with the event.</param>
+        protected override void OnDeactivate(EventArgs e)
+        {
+            base.OnDeactivate(e);
+            Invalidate();
+        }
+
+        /// <summary>
+        /// Repaints the window to update the background color for the titlebar via 
+        /// <see cref="DrawTitleBarBackground(System.Drawing.Rectangle)"/>.
+        /// </summary>
+        /// <param name="e">Arguments associated with the event.</param>
+        protected override void OnActivated(EventArgs e)
+        {
+            base.OnActivated(e);
+            Invalidate();
+        }
+
+        /// <summary>
         /// Called when the OS changes display resolution or themes, which triggers a repaint.
         /// </summary>
         /// <param name="sender">Object from which this event originated.</param>
