@@ -58,21 +58,17 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         /// </summary>
         protected ListWithEvents<TitleBarTab> _tabs = new ListWithEvents<TitleBarTab>();
 
-        protected bool _drawTitlebarBackground = false;
-
         /// <summary>
         /// Default constructor.
         /// </summary>
         protected TitleBarTabs()
         {
             _previousWindowState = null;
-            _drawTitlebarBackground = !IsCompositionEnabled;
             ExitOnLastTabClose = true;
             InitializeComponent();
             SetWindowThemeAttributes(WTNCA.NODRAWCAPTION | WTNCA.NODRAWICON);
 
             _tabs.CollectionModified += _tabs_CollectionModified;
-            SystemColorsChanged += TitleBarTabs_SystemColorsChanged;
 
             // Set the window style so that we take care of painting the non-client area, a redraw is triggered when
             // the size of the window changes, and the window itself has a transparent background color (otherwise the
@@ -80,17 +76,6 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             SetStyle(
                 ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw,
                 true);
-        }
-
-        /// <summary>
-        /// Called when the OS changes display resolution or themes, which triggers a repaint.
-        /// </summary>
-        /// <param name="sender">Object from which this event originated.</param>
-        /// <param name="e">Arguments associated with the event.</param>
-        void TitleBarTabs_SystemColorsChanged(object sender, EventArgs e)
-        {
-            _drawTitlebarBackground = !IsCompositionEnabled;
-            Invalidate();
         }
 
         /// <summary>
