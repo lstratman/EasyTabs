@@ -412,6 +412,10 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         {
         }
 
+		/// <summary>
+		/// Forwards a message received by <see cref="TitleBarTabsOverlay"/> to the underlying window.
+		/// </summary>
+		/// <param name="m">Message received by the overlay.</param>
 		internal void ForwardMessage(ref Message m)
 		{
 			m.HWnd = Handle;
