@@ -108,6 +108,13 @@
         /// </summary>
         public const int WM_RBUTTONUP = 0x0205;
 
+		/// <summary>
+		/// Posted when the user double-clicks the left mouse button while the cursor is within the nonclient area of a 
+		/// window. This message is posted to the window that contains the cursor. If a window has captured the mouse, this 
+		/// message is not posted.
+		/// </summary>
+    	public const int WM_LBUTTONDBLCLK = 0x00A3;
+
         /// <summary>
         /// Capture low-level mouse events.
         /// </summary>

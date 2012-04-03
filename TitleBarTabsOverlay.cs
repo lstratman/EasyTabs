@@ -424,7 +424,14 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                     if (_clickedTab != null || _parentForm.TabRenderer.IsOverAddButton(relativeCursorPosition))
                         Win32Interop.SetCapture(m.HWnd);
 
+					else
+						_parentForm.ForwardMessage(ref m);
+
                     break;
+
+				case Win32Messages.WM_LBUTTONDBLCLK:
+					_parentForm.ForwardMessage(ref m);
+            		break;
 
                 case Win32Messages.WM_LBUTTONUP:
                 case Win32Messages.WM_NCLBUTTONUP:
@@ -461,6 +468,9 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                         // Release the mouse capture
                         Win32Interop.ReleaseCapture();
                     }
+
+                    else
+						_parentForm.ForwardMessage(ref m);
 
                     break;
 

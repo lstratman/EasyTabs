@@ -304,10 +304,10 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                 topPadding -= SystemInformation.CaptionHeight - SystemInformation.VerticalResizeBorderThickness -
                               SystemInformation.BorderSize.Width;
 
-            Padding = new Padding(
-                Padding.Left, topPadding > 0
-                                                    ? topPadding
-                                                    : 0, Padding.Right, Padding.Bottom);
+        	Padding = new Padding(
+        		Padding.Left, topPadding > 0
+        		              	? topPadding
+        		              	: 0, Padding.Right, Padding.Bottom);
 
             // Set the margins and extend the frame into the client area
             MARGINS margins = new MARGINS
@@ -435,75 +435,11 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         {
         }
 
-        /// <summary>
-        /// Draws the titlebar background behind the tabs if Aero glass is not enabled.
-        /// </summary>
-        /// <param name="fillArea">Area to fill in with the titlebar background.</param>
-        protected virtual void DrawTitleBarBackground(Rectangle fillArea)
-        {
-            if (_drawTitlebarBackground)
-            {
-                using (Graphics graphics = Graphics.FromHdc(Win32Interop.GetWindowDC(Handle)))
-                {
-                    DrawTitleBarBackground(graphics, fillArea);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Primary color for the titlebar background.
-        /// </summary>
-        protected Color TitleBarColor
-        {
-            get
-            {
-                if (Application.RenderWithVisualStyles && Environment.OSVersion.Version.Major >= 6)
-                    return ContainsFocus
-                               ? SystemColors.GradientActiveCaption
-                               : SystemColors.GradientInactiveCaption;
-
-                return ContainsFocus
-                           ? SystemColors.ActiveCaption
-                           : SystemColors.InactiveCaption;
-            }
-        }
-
-        /// <summary>
-        /// Gradient color for the titlebar background.
-        /// </summary>
-        protected Color TitleBarGradientColor
-        {
-            get
-            {
-                return ContainsFocus
-                           ? SystemInformation.IsTitleBarGradientEnabled
-                                 ? SystemColors.GradientActiveCaption
-                                 : SystemColors.ActiveCaption
-                           : SystemInformation.IsTitleBarGradientEnabled
-                                 ? SystemColors.GradientInactiveCaption
-                                 : SystemColors.InactiveCaption;
-            }
-        }
-
-        /// <summary>
-        /// Draws the titlebar background behind the tabs if Aero glass is not enabled.
-        /// </summary>
-        /// <param name="graphics">Graphics context with which to draw the background.</param>
-        /// <param name="fillArea">Area to fill in with the titlebar background.</param>
-        protected virtual void DrawTitleBarBackground(Graphics graphics, Rectangle fillArea)
-        {
-            if (!_drawTitlebarBackground || Padding.Top <= 0)
-                return;
-
-            int rightMargin = SystemInformation.CaptionButtonSize.Width * 2;
-
-            LinearGradientBrush gradient = new LinearGradientBrush(
-                new Point(0, 0), new Point(fillArea.Width - rightMargin, 0), TitleBarColor, TitleBarGradientColor);
-
-            graphics.FillRectangle(new SolidBrush(TitleBarGradientColor), fillArea);
-            graphics.FillRectangle(
-                gradient, new Rectangle(fillArea.Location, new Size(fillArea.Width - rightMargin, fillArea.Height)));
-        }
+		internal void ForwardMessage(ref Message m)
+		{
+			m.HWnd = Handle;
+			WndProc(ref m);
+		}
 
         /// <summary>
         /// Callback that is invoked whenever anything is added or removed from <see cref="Tabs" /> so that we can
@@ -561,13 +497,13 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         /// <param name="e">Arguments associated with the event.</param>
         protected override void OnSizeChanged(EventArgs e)
         {
-            base.OnSizeChanged(e);
-
             // If no tab renderer has been set yet or the window state hasn't changed, don't do anything
             if (_previousWindowState != null && WindowState != _previousWindowState.Value)
                 SetFrameSize();
 
             _previousWindowState = WindowState;
+
+			base.OnSizeChanged(e);
         }
 
         /// <summary>
@@ -588,21 +524,6 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                     m.Result = IntPtr.Zero;
 
                     break;
-
-				//case Win32Messages.WM_NCPAINT:
-				//	if (_drawTitlebarBackground)
-				//	{
-				//		base.WndProc(ref m);
-				//		DrawTitleBarBackground(
-				//			new Rectangle(
-				//				new Point(
-				//					SystemInformation.HorizontalResizeBorderThickness,
-				//					SystemInformation.VerticalResizeBorderThickness + SystemInformation.CaptionHeight - 1),
-				//				new Size(ClientRectangle.Width, 1)));
-				//		callDwp = false;
-				//	}
-
-				//	break;
 
                 case Win32Messages.WM_NCHITTEST:
                     // Call the base message handler to see where the user clicked in the window
