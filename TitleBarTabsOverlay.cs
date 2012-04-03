@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
@@ -50,6 +51,10 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         /// </summary>
         protected int _isOverCloseButtonForTab = -1;
 
+    	protected bool _drawTitlebarBackground = false;
+
+    	protected bool _active = false;
+
         /// <summary>
         /// Blank default constructor to ensure that the overlays are only initialized through 
         /// <see cref="GetInstance"/>.
@@ -71,6 +76,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             FormBorderStyle = FormBorderStyle.FixedToolWindow;
             MinimizeBox = false;
             MaximizeBox = false;
+        	_drawTitlebarBackground = !_parentForm.IsCompositionEnabled;
 
             Show(_parentForm);
             AttachHandlers();
@@ -112,7 +118,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         {
             _parentForm.Disposed += _parentForm_Disposed;
             _parentForm.Deactivate += _parentForm_Deactivate;
-            _parentForm.Activated += _parentForm_FormActivated;
+            _parentForm.Activated += _parentForm_Activated;
             _parentForm.SizeChanged += _parentForm_Refresh;
             _parentForm.Shown += _parentForm_Refresh;
             _parentForm.VisibleChanged += _parentForm_Refresh;
@@ -181,6 +187,76 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             return Win32Interop.CallNextHookEx(_hookId, nCode, wParam, lParam);
         }
 
+		/// <summary>
+		/// Draws the titlebar background behind the tabs if Aero glass is not enabled.
+		/// </summary>
+		/// <param name="graphics">Graphics context with which to draw the background.</param>
+		protected virtual void DrawTitleBarBackground(Graphics graphics)
+		{
+			if (!_drawTitlebarBackground)
+				return;
+
+			Rectangle fillArea = new Rectangle(
+				new Point(1, Top == 0 ? SystemInformation.CaptionHeight - 1 : (SystemInformation.CaptionHeight + SystemInformation.VerticalResizeBorderThickness) - (Top - _parentForm.Top) - 1),
+				new Size(Width - 2, _parentForm.Padding.Top));
+
+			if (fillArea.Height <= 0)
+				return;
+
+			int rightMargin = SystemInformation.CaptionButtonSize.Width * 3 + 3;
+
+			LinearGradientBrush gradient = new LinearGradientBrush(
+				new Point(24, 0), new Point(fillArea.Width - rightMargin + 1, 0), TitleBarColor, TitleBarGradientColor);
+
+			using (BufferedGraphics bufferedGraphics = BufferedGraphicsManager.Current.Allocate(graphics, fillArea))
+			{
+				bufferedGraphics.Graphics.FillRectangle(new SolidBrush(TitleBarColor), fillArea);
+				bufferedGraphics.Graphics.FillRectangle(
+					new SolidBrush(TitleBarGradientColor),
+					new Rectangle(new Point(fillArea.Location.X + fillArea.Width - rightMargin, fillArea.Location.Y), new Size(rightMargin, fillArea.Height)));
+				bufferedGraphics.Graphics.FillRectangle(
+					gradient, new Rectangle(new Point(fillArea.Location.X, fillArea.Location.Y), new Size(fillArea.Width - rightMargin, fillArea.Height)));
+				bufferedGraphics.Graphics.FillRectangle(new SolidBrush(TitleBarColor), new Rectangle(fillArea.Location, new Size(24, fillArea.Height)));
+
+				bufferedGraphics.Render(graphics);
+			}
+		}
+
+		/// <summary>
+		/// Primary color for the titlebar background.
+		/// </summary>
+		protected Color TitleBarColor
+		{
+			get
+			{
+				if (Application.RenderWithVisualStyles && Environment.OSVersion.Version.Major >= 6)
+					return _active
+							   ? SystemColors.GradientActiveCaption
+							   : SystemColors.GradientInactiveCaption;
+
+				return _active
+						   ? SystemColors.ActiveCaption
+						   : SystemColors.InactiveCaption;
+			}
+		}
+
+		/// <summary>
+		/// Gradient color for the titlebar background.
+		/// </summary>
+		protected Color TitleBarGradientColor
+		{
+			get
+			{
+				return _active
+						   ? SystemInformation.IsTitleBarGradientEnabled
+								 ? SystemColors.GradientActiveCaption
+								 : SystemColors.ActiveCaption
+						   : SystemInformation.IsTitleBarGradientEnabled
+								 ? SystemColors.GradientInactiveCaption
+								 : SystemColors.InactiveCaption;
+			}
+		}
+
         /// <summary>
         /// Event handler that is called when <see cref="_parentForm"/>'s <see cref="Form.SystemColorsChanged"/> event
         /// is fired which re-renders the tabs.
@@ -189,6 +265,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         /// <param name="e">Arguments associated with the event.</param>
         private void _parentForm_SystemColorsChanged(object sender, EventArgs e)
         {
+			_drawTitlebarBackground = !_parentForm.IsCompositionEnabled;
             OnPosition();
         }
 
@@ -255,8 +332,10 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                 using (Bitmap bitmap = new Bitmap(Width, Height, PixelFormat.Format32bppArgb))
                 using (Graphics graphics = Graphics.FromImage(bitmap))
                 {
+					graphics.FillRectangle(new SolidBrush(Color.Transparent), new Rectangle(0, 0, Width, Height));
+					DrawTitleBarBackground(graphics);
+
                     // Render the tabs into the bitmap
-                    graphics.FillRectangle(new SolidBrush(Color.Transparent), new Rectangle(0, 0, Width, Height));
                     _parentForm.TabRenderer.Render(_parentForm.Tabs, graphics, cursorPosition, forceRedraw);
 
                     IntPtr screenDc = Win32Interop.GetDC(IntPtr.Zero);
@@ -396,8 +475,10 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         /// </summary>
         /// <param name="sender">Object from which this event originated.</param>
         /// <param name="e">Arguments associated with the event.</param>
-        private void _parentForm_FormActivated(object sender, EventArgs e)
+        private void _parentForm_Activated(object sender, EventArgs e)
         {
+        	_active = true;
+			Render();
         }
 
         /// <summary>
@@ -407,6 +488,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         /// <param name="e">Arguments associated with the event.</param>
         private void _parentForm_Deactivate(object sender, EventArgs e)
         {
+        	_active = false;
+			Render();
         }
 
         /// <summary>

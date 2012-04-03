@@ -119,7 +119,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         /// <summary>
         /// Flag indicating whether composition is enabled on the desktop.
         /// </summary>
-        protected bool IsCompositionEnabled
+        internal bool IsCompositionEnabled
         {
             get
             {
@@ -506,16 +506,6 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         }
 
         /// <summary>
-        /// Paints the titlebar background.
-        /// </summary>
-        /// <param name="e">Arguments associated with the event.</param>
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            base.OnPaint(e);
-            DrawTitleBarBackground(e.Graphics, e.ClipRectangle);
-        }
-
-        /// <summary>
         /// Callback that is invoked whenever anything is added or removed from <see cref="Tabs" /> so that we can
         /// trigger a redraw of the tabs.
         /// </summary>
@@ -599,20 +589,20 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
                     break;
 
-                case Win32Messages.WM_NCPAINT:
-                    if (_drawTitlebarBackground)
-                    {
-                        base.WndProc(ref m);
-                        DrawTitleBarBackground(
-                            new Rectangle(
-                                new Point(
-                                    SystemInformation.HorizontalResizeBorderThickness,
-                                    SystemInformation.VerticalResizeBorderThickness + SystemInformation.CaptionHeight - 1),
-                                new Size(ClientRectangle.Width, 1)));
-                        callDwp = false;
-                    }
+				//case Win32Messages.WM_NCPAINT:
+				//	if (_drawTitlebarBackground)
+				//	{
+				//		base.WndProc(ref m);
+				//		DrawTitleBarBackground(
+				//			new Rectangle(
+				//				new Point(
+				//					SystemInformation.HorizontalResizeBorderThickness,
+				//					SystemInformation.VerticalResizeBorderThickness + SystemInformation.CaptionHeight - 1),
+				//				new Size(ClientRectangle.Width, 1)));
+				//		callDwp = false;
+				//	}
 
-                    break;
+				//	break;
 
                 case Win32Messages.WM_NCHITTEST:
                     // Call the base message handler to see where the user clicked in the window
