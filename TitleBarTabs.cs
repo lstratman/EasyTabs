@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
@@ -81,28 +80,6 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             SetStyle(
                 ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw,
                 true);
-        }
-
-        /// <summary>
-        /// Repaints the window to update the background color for the titlebar via 
-        /// <see cref="DrawTitleBarBackground(System.Drawing.Rectangle)"/>.
-        /// </summary>
-        /// <param name="e">Arguments associated with the event.</param>
-        protected override void OnDeactivate(EventArgs e)
-        {
-            base.OnDeactivate(e);
-            Invalidate();
-        }
-
-        /// <summary>
-        /// Repaints the window to update the background color for the titlebar via 
-        /// <see cref="DrawTitleBarBackground(System.Drawing.Rectangle)"/>.
-        /// </summary>
-        /// <param name="e">Arguments associated with the event.</param>
-        protected override void OnActivated(EventArgs e)
-        {
-            base.OnActivated(e);
-            Invalidate();
         }
 
         /// <summary>
