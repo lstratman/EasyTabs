@@ -5,7 +5,7 @@
     /// </summary>
     internal static class Win32Messages
     {
-        // ReSharper disable InconsistentNaming
+    	// ReSharper disable InconsistentNaming
         /// <summary>
         /// Sent when an application requests that a window be created by calling the CreateWindowEx or CreateWindow 
         /// function. (The message is sent before the function returns.) The window procedure of the new window 
@@ -119,6 +119,10 @@
         /// Capture low-level mouse events.
         /// </summary>
         public const int WH_MOUSE_LL = 14;
+
+		public const int WM_DEACTIVATE = 0x0006;
+
+		public const int WM_ACTIVATEAPP = 0x001C;
         // ReSharper restore InconsistentNaming
     }
 }

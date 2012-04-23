@@ -177,6 +177,11 @@
         /// if the window has a class style of either CS_OWNDC or CS_CLASSDC.
         /// </summary>
         public static int WS_EX_LAYERED = 0x00080000;
-        // ReSharper restore InconsistentNaming
+
+    	public static int WS_EX_NOACTIVATE = 0x08000000;
+
+    	public static int WS_EX_TOOLWINDOW = 0x00000080;
+		public static int WS_CHILD = 0x40000000;
+    	// ReSharper restore InconsistentNaming
     }
 }

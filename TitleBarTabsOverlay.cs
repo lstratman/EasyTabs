@@ -38,7 +38,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		/// <summary>
 		/// Flag indicating whether we should draw the titlebar background (i.e. we are in a non-Aero environment).
 		/// </summary>
-		protected bool _drawTitlebarBackground = false;
+		protected bool _aeroEnabled = false;
 
 		/// <summary>
 		/// Pointer to the low-level mouse hook callback (<see cref="MouseHookCallback"/>).
@@ -79,10 +79,10 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
 			// We don't want this window visible in the taskbar
 			ShowInTaskbar = false;
-			FormBorderStyle = FormBorderStyle.FixedToolWindow;
+			FormBorderStyle = FormBorderStyle.Sizable;
 			MinimizeBox = false;
 			MaximizeBox = false;
-			_drawTitlebarBackground = !_parentForm.IsCompositionEnabled;
+			_aeroEnabled = _parentForm.IsCompositionEnabled;
 
 			Show(_parentForm);
 			AttachHandlers();
@@ -97,7 +97,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			get
 			{
 				CreateParams createParams = base.CreateParams;
-				createParams.ExStyle |= Win32Constants.WS_EX_LAYERED;
+				createParams.ExStyle |= Win32Constants.WS_EX_LAYERED | Win32Constants.WS_EX_NOACTIVATE;
 
 				return createParams;
 			}
@@ -120,6 +120,20 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 				return _active
 				       	? SystemColors.ActiveCaption
 				       	: SystemColors.InactiveCaption;
+			}
+		}
+
+		protected DisplayType DisplayType
+		{
+			get
+			{
+				if (_aeroEnabled)
+					return DisplayType.Aero;
+
+				else if (Application.RenderWithVisualStyles && Environment.OSVersion.Version.Major >= 6)
+					return DisplayType.Basic;
+
+				return DisplayType.Classic;
 			}
 		}
 
@@ -236,15 +250,21 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		/// <param name="graphics">Graphics context with which to draw the background.</param>
 		protected virtual void DrawTitleBarBackground(Graphics graphics)
 		{
-			if (!_drawTitlebarBackground)
+			if (DisplayType == DisplayType.Aero)
 				return;
 
-			Rectangle fillArea = new Rectangle(
-				new Point(
-					1, Top == 0
-					   	? SystemInformation.CaptionHeight - 1
-					   	: (SystemInformation.CaptionHeight + SystemInformation.VerticalResizeBorderThickness) - (Top - _parentForm.Top) - 1),
-				new Size(Width - 2, _parentForm.Padding.Top));
+			Rectangle fillArea;
+
+			if (DisplayType == DisplayType.Basic)
+				fillArea = new Rectangle(
+					new Point(
+						1, Top == 0
+						   	? SystemInformation.CaptionHeight - 1
+						   	: (SystemInformation.CaptionHeight + SystemInformation.VerticalResizeBorderThickness) - (Top - _parentForm.Top) - 1),
+					new Size(Width - 2, _parentForm.Padding.Top));
+
+			else
+				fillArea = new Rectangle(new Point(1, 0), new Size(Width - 2, Height - 1));
 
 			if (fillArea.Height <= 0)
 				return;
@@ -270,7 +290,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 					new SolidBrush(TitleBarGradientColor),
 					new Rectangle(new Point(fillArea.Location.X + fillArea.Width - rightMargin, fillArea.Location.Y), new Size(rightMargin, fillArea.Height)));
 				bufferedGraphics.Graphics.FillRectangle(
-					gradient, new Rectangle(new Point(fillArea.Location.X, fillArea.Location.Y), new Size(fillArea.Width - rightMargin, fillArea.Height)));
+					gradient, new Rectangle(fillArea.Location, new Size(fillArea.Width - rightMargin, fillArea.Height)));
 				bufferedGraphics.Graphics.FillRectangle(new SolidBrush(TitleBarColor), new Rectangle(fillArea.Location, new Size(24, fillArea.Height)));
 
 				bufferedGraphics.Render(graphics);
@@ -285,7 +305,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		/// <param name="e">Arguments associated with the event.</param>
 		private void _parentForm_SystemColorsChanged(object sender, EventArgs e)
 		{
-			_drawTitlebarBackground = !_parentForm.IsCompositionEnabled;
+			_aeroEnabled = _parentForm.IsCompositionEnabled;
 			OnPosition();
 		}
 
@@ -314,13 +334,18 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			{
 				// If the form is in a non-maximized state, we position the tabs below the minimize/maximize/close
 				// buttons
-				Top = _parentForm.Top + (_parentForm.WindowState == FormWindowState.Maximized
+				Top = _parentForm.Top + (DisplayType == DisplayType.Classic
 				                         	? SystemInformation.VerticalResizeBorderThickness
-				                         	: SystemInformation.CaptionButtonSize.Height);
+				                         	: _parentForm.WindowState == FormWindowState.Maximized
+				                         	  	? SystemInformation.VerticalResizeBorderThickness
+				                         	  	: SystemInformation.CaptionHeight);
 				Left = _parentForm.Left + SystemInformation.HorizontalResizeBorderThickness -
 				       SystemInformation.BorderSize.Width;
 				Width = _parentForm.Width - (SystemInformation.VerticalResizeBorderThickness * 2) +
 				        (SystemInformation.BorderSize.Width * 2);
+				Height = _parentForm.TabRenderer.TabHeight + (DisplayType == DisplayType.Classic && _parentForm.WindowState != FormWindowState.Maximized
+				                                              	? SystemInformation.CaptionButtonSize.Height
+				                                              	: 0);
 
 				Render();
 			}
@@ -346,17 +371,42 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		{
 			if (!IsDisposed && _parentForm.TabRenderer != null)
 			{
-				Height = _parentForm.TabRenderer.TabHeight;
 				cursorPosition = GetRelativeCursorPosition(cursorPosition);
 
 				using (Bitmap bitmap = new Bitmap(Width, Height, PixelFormat.Format32bppArgb))
 				using (Graphics graphics = Graphics.FromImage(bitmap))
 				{
-					graphics.FillRectangle(new SolidBrush(Color.Transparent), new Rectangle(0, 0, Width, Height));
 					DrawTitleBarBackground(graphics);
 
+					Point offset = _parentForm.WindowState != FormWindowState.Maximized && DisplayType == DisplayType.Classic
+					               	? new Point(0, SystemInformation.CaptionButtonSize.Height)
+					               	: _parentForm.WindowState != FormWindowState.Maximized
+					               	  	? new Point(0, SystemInformation.VerticalResizeBorderThickness - SystemInformation.BorderSize.Height)
+					               	  	: new Point(0, 0);
+
 					// Render the tabs into the bitmap
-					_parentForm.TabRenderer.Render(_parentForm.Tabs, graphics, cursorPosition, forceRedraw);
+					_parentForm.TabRenderer.Render(_parentForm.Tabs, graphics, offset, cursorPosition, forceRedraw);
+
+					if (DisplayType == DisplayType.Classic && (_parentForm.ControlBox || _parentForm.MaximizeBox || _parentForm.MinimizeBox))
+					{
+						int boxWidth = 0;
+
+						if (_parentForm.ControlBox)
+							boxWidth += SystemInformation.CaptionButtonSize.Width;
+
+						if (_parentForm.MinimizeBox)
+							boxWidth += SystemInformation.CaptionButtonSize.Width;
+
+						if (_parentForm.MaximizeBox)
+							boxWidth += SystemInformation.CaptionButtonSize.Width;
+
+						CompositingMode oldCompositingMode = graphics.CompositingMode;
+
+						graphics.CompositingMode = CompositingMode.SourceCopy;
+						graphics.FillRectangle(
+							new SolidBrush(Color.Transparent), Width - boxWidth, 0, boxWidth, SystemInformation.CaptionButtonSize.Height);
+						graphics.CompositingMode = oldCompositingMode;
+					}
 
 					IntPtr screenDc = Win32Interop.GetDC(IntPtr.Zero);
 					IntPtr memDc = Win32Interop.CreateCompatibleDC(screenDc);
@@ -453,6 +503,10 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 					_parentForm.ForwardMessage(ref m);
 					break;
 
+				case Win32Messages.WM_NCHITTEST:
+					m.Result = new IntPtr(Win32Constants.HTCAPTION);
+					break;
+
 				case Win32Messages.WM_LBUTTONUP:
 				case Win32Messages.WM_NCLBUTTONUP:
 					Point relativeCursorPosition2 = GetRelativeCursorPosition(Cursor.Position);
@@ -540,5 +594,12 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
 			Win32Interop.UnhookWindowsHookEx(_hookId);
 		}
+	}
+
+	public enum DisplayType
+	{
+		Classic,
+		Basic,
+		Aero
 	}
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -8,7 +9,7 @@ using System.Windows.Forms;
 namespace Stratman.Windows.Forms.TitleBarTabs
 {
     /// <summary>
-    /// Base class that contains the functionality to render tabs within a WinForms application's title bar area. This 
+    /// Base class that contains the functionality to render tabs within a WinForms application's title bar area. This  
     /// is done through a borderless overlay window (<see cref="Overlay"/>) rendered on top of the non-client area at 
     /// the top of this window.  All an implementing class will need to do is set the <see cref="TabRenderer" /> 
     /// property and begin adding tabs to <see cref="Tabs" />.
@@ -260,11 +261,13 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             if (TabRenderer == null)
                 return;
 
-            int topPadding = TabRenderer.TabHeight - SystemInformation.VerticalResizeBorderThickness;
+            int topPadding;
 
-            if (WindowState == FormWindowState.Maximized)
-                topPadding -= SystemInformation.CaptionHeight - SystemInformation.VerticalResizeBorderThickness -
-                              SystemInformation.BorderSize.Width;
+			if (WindowState == FormWindowState.Maximized)
+				topPadding = TabRenderer.TabHeight - SystemInformation.CaptionHeight;
+
+			else
+				topPadding = (TabRenderer.TabHeight +  SystemInformation.CaptionButtonSize.Height) - SystemInformation.CaptionHeight;
 
         	Padding = new Padding(
         		Padding.Left, topPadding > 0
@@ -383,9 +386,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             if (tab != null)
             {
                 tab.Content.Location = new Point(0, Padding.Top - 1);
-                tab.Content.Size = new Size(
-                    ClientRectangle.Width,
-                                            ClientRectangle.Height - Padding.Top + 1);
+                tab.Content.Size = new Size(ClientRectangle.Width, ClientRectangle.Height - Padding.Top + 1);
             }
         }
 
@@ -485,11 +486,14 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             {
                 // When the window is activated, set the size of the non-client area appropriately
                 case Win32Messages.WM_ACTIVATE:
-                    SetFrameSize();
-                    ResizeTabContents();
-                    m.Result = IntPtr.Zero;
+					if ((m.WParam.ToInt64() & 0x0000FFFF) != 0)
+					{
+						SetFrameSize();
+						ResizeTabContents();
+						m.Result = IntPtr.Zero;
+					}
 
-                    break;
+            		break;
 
                 case Win32Messages.WM_NCHITTEST:
                     // Call the base message handler to see where the user clicked in the window
@@ -589,7 +593,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             if (point.X >= area.Left && point.X < area.Left + SystemInformation.HorizontalResizeBorderThickness)
                 column = 0;
 
-            else if (point.X < area.Right && point.X >= area.Right - SystemInformation.HorizontalResizeBorderThickness)
+            else if (point.X < area.Right && point.X >= area.Right - SystemInformation.HorizontalResizeBorderThickness)                                        
                 column = 2;
 
             int[,] hitTests = new[,]

@@ -385,7 +385,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         /// <param name="graphicsContext">Graphics context that we should use while rendering.</param>
         /// <param name="cursor">Current location of the cursor on the screen.</param>
         /// <param name="forceRedraw">Flag indicating whether or not the redraw should be forced.</param>
-        public virtual void Render(List<TitleBarTab> tabs, Graphics graphicsContext, Point cursor, bool forceRedraw = false)
+        public virtual void Render(List<TitleBarTab> tabs, Graphics graphicsContext, Point offset, Point cursor, bool forceRedraw = false)
         {
             if (tabs == null || tabs.Count == 0)
                 return;
@@ -396,7 +396,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             int tabContentWidth = Math.Min(_activeCenterImage.Width,
                                            Convert.ToInt32(
                                                Math.Floor(
-                                                   Convert.ToDouble((_parentWindow.ClientRectangle.Width -
+                                                   Convert.ToDouble((_parentWindow.ClientRectangle.Width - offset.X -
                                                                      (ShowAddButton
                                                                           ? _addButtonImage.Width + AddButtonMarginLeft +
                                                                             AddButtonMarginRight
@@ -416,7 +416,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
             // Render the background image
             if (_background != null)
-                graphicsContext.DrawImage(_background, 0, 0, _parentWindow.Width, _activeCenterImage.Height);
+                graphicsContext.DrawImage(_background, offset.X, offset.Y, _parentWindow.Width, _activeCenterImage.Height);
 
             // Loop through the tabs in reverse order since we need the ones farthest on the left to overlap those to
             // their right
@@ -424,9 +424,9 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             {
                 Rectangle tabArea =
                     new Rectangle(
-                        SystemInformation.BorderSize.Width +
+                        SystemInformation.BorderSize.Width + offset.X +
                         (i * (tabContentWidth + _activeLeftSideImage.Width + _activeRightSideImage.Width - OverlapWidth)),
-                        0, tabContentWidth + _activeLeftSideImage.Width + _activeRightSideImage.Width,
+                        offset.Y, tabContentWidth + _activeLeftSideImage.Width + _activeRightSideImage.Width,
                         _activeCenterImage.Height);
 
                 // If we need to redraw the tab image, null out the property so that it will be recreated in the call
@@ -458,8 +458,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                     new Rectangle(
                         (_previousTabCount *
                          (tabContentWidth + _activeLeftSideImage.Width + _activeRightSideImage.Width - OverlapWidth)) +
-                        _activeRightSideImage.Width + AddButtonMarginLeft,
-                        AddButtonMarginTop, _addButtonImage.Width, _addButtonImage.Height);
+                        _activeRightSideImage.Width + AddButtonMarginLeft + offset.X,
+                        AddButtonMarginTop + offset.Y, _addButtonImage.Width, _addButtonImage.Height);
 
                 bool cursorOverAddButton = IsOverAddButton(cursor);
 
@@ -591,7 +591,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                                                                                         CloseButtonMarginRight
                                                                                       : 0))
                 graphicsContext.DrawIcon(new Icon(tab.Content.Icon, 16, 16),
-                                         new Rectangle(area.X + OverlapWidth + IconMarginLeft, IconMarginTop, 16, 16));
+                                         new Rectangle(area.X + OverlapWidth + IconMarginLeft, IconMarginTop + area.Y, 16, 16));
 
             // Render the caption for the tab's content if there's room for it in the tab's content area
             if (_tabContentWidth > (tab.Content.ShowIcon
@@ -608,7 +608,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                                                                                                   16 +
                                                                                                   IconMarginRight
                                                                                                 : 0),
-                                               CaptionMarginTop,
+                                               CaptionMarginTop + area.Y,
                                                _tabContentWidth - (tab.Content.ShowIcon
                                                                        ? IconMarginLeft + 16 + IconMarginRight
                                                                        : 0) - (tab.ShowCloseButton
