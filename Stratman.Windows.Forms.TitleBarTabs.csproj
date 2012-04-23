@@ -60,6 +60,7 @@
   <ItemGroup>
     <Compile Include="BaseTabRenderer.cs" />
     <Compile Include="ChromeTabRenderer.cs" />
+    <Compile Include="DisplayType.cs" />
     <Compile Include="ListItemEventArgs.cs" />
     <Compile Include="ListModification.cs" />
     <Compile Include="ListModificationEventArgs.cs" />

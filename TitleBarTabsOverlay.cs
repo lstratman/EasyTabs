@@ -11,18 +11,15 @@ using System.Windows.Forms;
 namespace Stratman.Windows.Forms.TitleBarTabs
 {
 	/// <summary>
-	/// Borderless overlay window that is moved with and rendered on top of the non-client area of a 
-	/// <see cref="TitleBarTabs"/> instance that's responsible for rendering the actual tab content and responding to
-	/// click events for those tabs.
+	/// Borderless overlay window that is moved with and rendered on top of the non-client area of a  <see cref="TitleBarTabs"/> instance that's responsible 
+	/// for rendering the actual tab content and responding to click events for those tabs.
 	/// </summary>
 	internal class TitleBarTabsOverlay : Form
 	{
 		/// <summary>
-		/// All of the parent forms and their overlays so that we don't create duplicate overlays across the 
-		/// application domain.
+		/// All of the parent forms and their overlays so that we don't create duplicate overlays across the application domain.
 		/// </summary>
-		protected static Dictionary<TitleBarTabs, TitleBarTabsOverlay> _parents =
-			new Dictionary<TitleBarTabs, TitleBarTabsOverlay>();
+		protected static Dictionary<TitleBarTabs, TitleBarTabsOverlay> _parents = new Dictionary<TitleBarTabs, TitleBarTabsOverlay>();
 
 		/// <summary>
 		/// Flag indicating whether or not the underlying window is active.
@@ -30,15 +27,15 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		protected bool _active = false;
 
 		/// <summary>
-		/// State information representing a tab that was clicked during a <see cref="Win32Messages.WM_LBUTTONDOWN" /> 
-		/// message so that we can respond properly during the <see cref="Win32Messages.WM_LBUTTONUP" /> message.
-		/// </summary>
-		protected TitleBarTab _clickedTab;
-
-		/// <summary>
 		/// Flag indicating whether we should draw the titlebar background (i.e. we are in a non-Aero environment).
 		/// </summary>
 		protected bool _aeroEnabled = false;
+
+		/// <summary>
+		/// State information representing a tab that was clicked during a <see cref="Win32Messages.WM_LBUTTONDOWN" /> message so that we can respond properly 
+		/// during the <see cref="Win32Messages.WM_LBUTTONUP" /> message.
+		/// </summary>
+		protected TitleBarTab _clickedTab;
 
 		/// <summary>
 		/// Pointer to the low-level mouse hook callback (<see cref="MouseHookCallback"/>).
@@ -46,8 +43,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		protected IntPtr _hookId;
 
 		/// <summary>
-		/// Delegate of <see cref="MouseHookCallback"/>; declared as a member variable to keep it from being garbage
-		/// collected.
+		/// Delegate of <see cref="MouseHookCallback"/>; declared as a member variable to keep it from being garbage collected.
 		/// </summary>
 		protected HOOKPROC _hookproc = null;
 
@@ -89,8 +85,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		}
 
 		/// <summary>
-		/// Makes sure that the window is created with an <see cref="Win32Constants.WS_EX_LAYERED"/> flag set so that
-		/// it can be alpha-blended properly with the content (<see cref="_parentForm"/>) underneath the overlay.
+		/// Makes sure that the window is created with an <see cref="Win32Constants.WS_EX_LAYERED"/> flag set so that it can be alpha-blended properly with the 
+		/// content (<see cref="_parentForm"/>) underneath the overlay.
 		/// </summary>
 		protected override CreateParams CreateParams
 		{
@@ -123,6 +119,9 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			}
 		}
 
+		/// <summary>
+		/// Type of theme being used by the OS to render the desktop.
+		/// </summary>
 		protected DisplayType DisplayType
 		{
 			get
@@ -168,8 +167,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		}
 
 		/// <summary>
-		/// Attaches the various event handlers to <see cref="_parentForm"/> so that the overlay is moved in
-		/// synchronization to <see cref="_parentForm"/>.
+		/// Attaches the various event handlers to <see cref="_parentForm"/> so that the overlay is moved in synchronization to <see cref="_parentForm"/>.
 		/// </summary>
 		protected void AttachHandlers()
 		{
@@ -192,14 +190,12 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		}
 
 		/// <summary>
-		/// Hook callback to process <see cref="Win32Messages.WM_MOUSEMOVE"/> messages to highlight/un-highlight the
-		/// close button on each tab.
+		/// Hook callback to process <see cref="Win32Messages.WM_MOUSEMOVE"/> messages to highlight/un-highlight the close button on each tab.
 		/// </summary>
 		/// <param name="nCode">The message being received.</param>
 		/// <param name="wParam">Additional information about the message.</param>
 		/// <param name="lParam">Additional information about the message.</param>
-		/// <returns>A zero value if the procedure processes the message; a nonzero value if the procedure ignores the 
-		/// message.</returns>
+		/// <returns>A zero value if the procedure processes the message; a nonzero value if the procedure ignores the message.</returns>
 		protected IntPtr MouseHookCallback(int nCode, IntPtr wParam, IntPtr lParam)
 		{
 			if (nCode >= 0 && Win32Messages.WM_MOUSEMOVE == (int) wParam)
@@ -212,22 +208,20 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 				// close button; if not, re-render
 				if (_isOverCloseButtonForTab != -1 &&
 				    (_isOverCloseButtonForTab >= _parentForm.Tabs.Count ||
-				     !_parentForm.TabRenderer.IsOverCloseButton(
-				     	_parentForm.Tabs[_isOverCloseButtonForTab], GetRelativeCursorPosition(cursorPosition))))
+				     !_parentForm.TabRenderer.IsOverCloseButton(_parentForm.Tabs[_isOverCloseButtonForTab], GetRelativeCursorPosition(cursorPosition))))
 				{
 					reRender = true;
 					_isOverCloseButtonForTab = -1;
 				}
 
-					// Otherwise, see if any tabs' close button is being hovered over
+				// Otherwise, see if any tabs' close button is being hovered over
 				else
 				{
 					// ReSharper disable ForCanBeConvertedToForeach
 					for (int i = 0; i < _parentForm.Tabs.Count; i++)
-						// ReSharper restore ForCanBeConvertedToForeach
+					// ReSharper restore ForCanBeConvertedToForeach
 					{
-						if (_parentForm.TabRenderer.IsOverCloseButton(
-							_parentForm.Tabs[i], GetRelativeCursorPosition(cursorPosition)))
+						if (_parentForm.TabRenderer.IsOverCloseButton(_parentForm.Tabs[i], GetRelativeCursorPosition(cursorPosition)))
 						{
 							_isOverCloseButtonForTab = i;
 							reRender = true;
@@ -269,6 +263,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			if (fillArea.Height <= 0)
 				return;
 
+			// Adjust the margin so that the gradient stops immediately prior to the control box in the titlebar
 			int rightMargin = 3;
 
 			if (_parentForm.ControlBox && _parentForm.MinimizeBox)
@@ -298,8 +293,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		}
 
 		/// <summary>
-		/// Event handler that is called when <see cref="_parentForm"/>'s <see cref="Form.SystemColorsChanged"/> event
-		/// is fired which re-renders the tabs.
+		/// Event handler that is called when <see cref="_parentForm"/>'s <see cref="Control.SystemColorsChanged"/> event is fired which re-renders the tabs.
 		/// </summary>
 		/// <param name="sender">Object from which the event originated.</param>
 		/// <param name="e">Arguments associated with the event.</param>
@@ -310,8 +304,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		}
 
 		/// <summary>
-		/// Event handler that is called when <see cref="_parentForm"/>'s <see cref="Form.SizeChanged"/>,
-		/// <see cref="Form.VisibleChanged"/>, or <see cref="Form.Move"/> events are fired which re-renders the tabs.
+		/// Event handler that is called when <see cref="_parentForm"/>'s <see cref="Control.SizeChanged"/>, <see cref="Control.VisibleChanged"/>, or 
+		/// <see cref="Control.Move"/> events are fired which re-renders the tabs.
 		/// </summary>
 		/// <param name="sender">Object from which the event originated.</param>
 		/// <param name="e">Arguments associated with the event.</param>
@@ -325,8 +319,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		}
 
 		/// <summary>
-		/// Sets the position of the overlay window to match that of <see cref="_parentForm"/> so that it moves in
-		/// tandem with it.
+		/// Sets the position of the overlay window to match that of <see cref="_parentForm"/> so that it moves in tandem with it.
 		/// </summary>
 		protected void OnPosition()
 		{
@@ -339,10 +332,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 				                         	: _parentForm.WindowState == FormWindowState.Maximized
 				                         	  	? SystemInformation.VerticalResizeBorderThickness
 				                         	  	: SystemInformation.CaptionHeight);
-				Left = _parentForm.Left + SystemInformation.HorizontalResizeBorderThickness -
-				       SystemInformation.BorderSize.Width;
-				Width = _parentForm.Width - (SystemInformation.VerticalResizeBorderThickness * 2) +
-				        (SystemInformation.BorderSize.Width * 2);
+				Left = _parentForm.Left + SystemInformation.HorizontalResizeBorderThickness - SystemInformation.BorderSize.Width;
+				Width = _parentForm.Width - (SystemInformation.VerticalResizeBorderThickness * 2) + (SystemInformation.BorderSize.Width * 2);
 				Height = _parentForm.TabRenderer.TabHeight + (DisplayType == DisplayType.Classic && _parentForm.WindowState != FormWindowState.Maximized
 				                                              	? SystemInformation.CaptionButtonSize.Height
 				                                              	: 0);
@@ -352,8 +343,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		}
 
 		/// <summary>
-		/// Renders the tabs and then calls <see cref="Win32Interop.UpdateLayeredWindow"/> to blend the tab content
-		/// with the underlying window (<see cref="_parentForm"/>).
+		/// Renders the tabs and then calls <see cref="Win32Interop.UpdateLayeredWindow"/> to blend the tab content with the underlying window 
+		/// (<see cref="_parentForm"/>).
 		/// </summary>
 		/// <param name="forceRedraw">Flag indicating whether a full render should be forced.</param>
 		public void Render(bool forceRedraw = false)
@@ -362,8 +353,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		}
 
 		/// <summary>
-		/// Renders the tabs and then calls <see cref="Win32Interop.UpdateLayeredWindow"/> to blend the tab content
-		/// with the underlying window (<see cref="_parentForm"/>).
+		/// Renders the tabs and then calls <see cref="Win32Interop.UpdateLayeredWindow"/> to blend the tab content with the underlying window 
+		/// (<see cref="_parentForm"/>).
 		/// </summary>
 		/// <param name="cursorPosition">Current position of the cursor.</param>
 		/// <param name="forceRedraw">Flag indicating whether a full render should be forced.</param>
@@ -378,6 +369,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 				{
 					DrawTitleBarBackground(graphics);
 
+					// Since classic mode themese draw over the *entire* titlebar, not just the area immediately behind the tabs, we have to offset the tabs
+					// when rendering in the window
 					Point offset = _parentForm.WindowState != FormWindowState.Maximized && DisplayType == DisplayType.Classic
 					               	? new Point(0, SystemInformation.CaptionButtonSize.Height)
 					               	: _parentForm.WindowState != FormWindowState.Maximized
@@ -387,6 +380,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 					// Render the tabs into the bitmap
 					_parentForm.TabRenderer.Render(_parentForm.Tabs, graphics, offset, cursorPosition, forceRedraw);
 
+					// Cut out a hole in the background so that the control box on the underlying window can be shown
 					if (DisplayType == DisplayType.Classic && (_parentForm.ControlBox || _parentForm.MaximizeBox || _parentForm.MinimizeBox))
 					{
 						int boxWidth = 0;
@@ -424,28 +418,24 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 						POINT topPos = new POINT(Left, Top);
 						BLENDFUNCTION blend = new BLENDFUNCTION
 						                      	{
-						                      		// We want to blend the bitmap's content with the screen content
-						                      		// under it
+						                      		// We want to blend the bitmap's content with the screen content under it
 						                      		BlendOp = Win32Constants.AC_SRC_OVER,
 						                      		BlendFlags = 0,
 						                      		SourceConstantAlpha = 255,
-						                      		// We use the bitmap's alpha channel for blending instead of a
-						                      		// pre-defined transparency key
+						                      		// We use the bitmap's alpha channel for blending instead of a pre-defined transparency key
 						                      		AlphaFormat = Win32Constants.AC_SRC_ALPHA
 						                      	};
 
 						// Blend the tab content with the underlying content
-						if (
-							!Win32Interop.UpdateLayeredWindow(
-								Handle, screenDc, ref topPos, ref size, memDc, ref pointSource, 0, ref blend,
-								Win32Constants.ULW_ALPHA))
+						if (!Win32Interop.UpdateLayeredWindow(
+							Handle, screenDc, ref topPos, ref size, memDc, ref pointSource, 0, ref blend, Win32Constants.ULW_ALPHA))
 						{
 							int error = Marshal.GetLastWin32Error();
 							throw new Win32Exception(error, "Error while calling UpdateLayeredWindow().");
 						}
 					}
 
-						// Clean up after ourselves
+					// Clean up after ourselves
 					finally
 					{
 						Win32Interop.ReleaseDC(IntPtr.Zero, screenDc);
@@ -465,8 +455,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		/// <summary>
 		/// Gets the relative location of the cursor within the overlay.
 		/// </summary>
-		/// <param name="cursorPosition">Cursor position that represents the absolute position of the cursor on the
-		/// screen.</param>
+		/// <param name="cursorPosition">Cursor position that represents the absolute position of the cursor on the screen.</param>
 		/// <returns>The relative location of the cursor within the overlay.</returns>
 		protected Point GetRelativeCursorPosition(Point cursorPosition)
 		{
@@ -485,12 +474,10 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 				case Win32Messages.WM_LBUTTONDOWN:
 					Point relativeCursorPosition = GetRelativeCursorPosition(Cursor.Position);
 
-					// When the user clicks a mouse button, save the tab that the user was over so we can respond
-					// properly when the mouse button is released
+					// When the user clicks a mouse button, save the tab that the user was over so we can respond properly when the mouse button is released
 					_clickedTab = _parentForm.TabRenderer.OverTab(_parentForm.Tabs, relativeCursorPosition);
 
-					// If we were over a tab, set the capture state for the window so that we'll actually receive
-					// a WM_LBUTTONUP message
+					// If we were over a tab, set the capture state for the window so that we'll actually receive a WM_LBUTTONUP message
 					if (_clickedTab != null || _parentForm.TabRenderer.IsOverAddButton(relativeCursorPosition))
 						Win32Interop.SetCapture(m.HWnd);
 
@@ -503,6 +490,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 					_parentForm.ForwardMessage(ref m);
 					break;
 
+				// We always return HTCAPTION for the hit test message so that the underlying window doesn't have its focus removed
 				case Win32Messages.WM_NCHITTEST:
 					m.Result = new IntPtr(Win32Constants.HTCAPTION);
 					break;
@@ -520,7 +508,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 							Render();
 						}
 
-							// Otherwise, select the tab that was clicked
+						// Otherwise, select the tab that was clicked
 						else
 						{
 							_parentForm.ResizeTabContents(_clickedTab);
@@ -533,8 +521,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 						Win32Interop.ReleaseCapture();
 					}
 
-						// Otherwise, if the user clicked the add button, call CreateTab to add a new tab to the list and 
-						// select it
+					// Otherwise, if the user clicked the add button, call CreateTab to add a new tab to the list and select it
 					else if (_parentForm.TabRenderer.IsOverAddButton(relativeCursorPosition2))
 					{
 						_parentForm.AddNewTab();
@@ -577,8 +564,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		}
 
 		/// <summary>
-		/// Event handler that is called when <see cref="_parentForm"/>'s <see cref="Component.Disposed"/> event is 
-		/// fired.
+		/// Event handler that is called when <see cref="_parentForm"/>'s <see cref="Component.Disposed"/> event is fired.
 		/// </summary>
 		/// <param name="sender">Object from which this event originated.</param>
 		/// <param name="e">Arguments associated with the event.</param>
@@ -594,12 +580,5 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
 			Win32Interop.UnhookWindowsHookEx(_hookId);
 		}
-	}
-
-	public enum DisplayType
-	{
-		Classic,
-		Basic,
-		Aero
 	}
 }
