@@ -32,12 +32,6 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		protected bool _aeroEnabled = false;
 
 		/// <summary>
-		/// State information representing a tab that was clicked during a <see cref="Win32Messages.WM_LBUTTONDOWN" /> message so that we can respond properly 
-		/// during the <see cref="Win32Messages.WM_LBUTTONUP" /> message.
-		/// </summary>
-		protected TitleBarTab _clickedTab;
-
-		/// <summary>
 		/// Pointer to the low-level mouse hook callback (<see cref="MouseHookCallback"/>).
 		/// </summary>
 		protected IntPtr _hookId;
@@ -235,7 +229,50 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 					Render(cursorPosition, true);
 			}
 
-			return Win32Interop.CallNextHookEx(_hookId, nCode, wParam, lParam);
+            else if (nCode >= 0 && (Win32Messages.WM_LBUTTONDOWN == (int) wParam || Win32Messages.WM_NCLBUTTONDOWN == (int) wParam))
+            {
+                Point relativeCursorPosition = GetRelativeCursorPosition(Cursor.Position);
+
+				// When the user clicks a mouse button, save the tab that the user was over so we can respond properly when the mouse button is released
+				TitleBarTab clickedTab = _parentForm.TabRenderer.OverTab(_parentForm.Tabs, relativeCursorPosition);
+
+				// If we were over a tab, set the capture state for the window so that we'll actually receive a WM_LBUTTONUP message
+                if (clickedTab != null)
+                {
+                    // If the user clicked the close button, remove the tab from the list
+                    if (!_parentForm.TabRenderer.IsOverCloseButton(clickedTab, relativeCursorPosition))
+                    {
+                        _parentForm.ResizeTabContents(clickedTab);
+                        _parentForm.SelectedTabIndex = _parentForm.Tabs.IndexOf(clickedTab);
+
+                        Render();
+                    }
+                }
+            }
+
+            else if (nCode >= 0 && (Win32Messages.WM_LBUTTONUP == (int)wParam || Win32Messages.WM_NCLBUTTONUP == (int)wParam))
+            {
+                Point relativeCursorPosition = GetRelativeCursorPosition(Cursor.Position);
+
+                // When the user clicks a mouse button, save the tab that the user was over so we can respond properly when the mouse button is released
+                TitleBarTab clickedTab = _parentForm.TabRenderer.OverTab(_parentForm.Tabs, relativeCursorPosition);
+
+                if (clickedTab != null)
+                {
+                    // If the user clicked the close button, remove the tab from the list
+                    if (_parentForm.TabRenderer.IsOverCloseButton(clickedTab, relativeCursorPosition))
+                    {
+                        clickedTab.Content.Close();
+                        Render();
+                    }
+                }
+
+                // Otherwise, if the user clicked the add button, call CreateTab to add a new tab to the list and select it
+                else if (_parentForm.TabRenderer.IsOverAddButton(relativeCursorPosition))
+                    _parentForm.AddNewTab();
+            }
+
+		    return Win32Interop.CallNextHookEx(_hookId, nCode, wParam, lParam);
 		}
 
 		/// <summary>
@@ -474,14 +511,9 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 				case Win32Messages.WM_LBUTTONDOWN:
 					Point relativeCursorPosition = GetRelativeCursorPosition(Cursor.Position);
 
-					// When the user clicks a mouse button, save the tab that the user was over so we can respond properly when the mouse button is released
-					_clickedTab = _parentForm.TabRenderer.OverTab(_parentForm.Tabs, relativeCursorPosition);
-
 					// If we were over a tab, set the capture state for the window so that we'll actually receive a WM_LBUTTONUP message
-					if (_clickedTab != null || _parentForm.TabRenderer.IsOverAddButton(relativeCursorPosition))
-						Win32Interop.SetCapture(m.HWnd);
-
-					else
+                    if (_parentForm.TabRenderer.OverTab(_parentForm.Tabs, relativeCursorPosition) == null && 
+                        !_parentForm.TabRenderer.IsOverAddButton(relativeCursorPosition))
 						_parentForm.ForwardMessage(ref m);
 
 					break;
@@ -499,38 +531,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 				case Win32Messages.WM_NCLBUTTONUP:
 					Point relativeCursorPosition2 = GetRelativeCursorPosition(Cursor.Position);
 
-					if (_clickedTab != null)
-					{
-						// If the user clicked the close button, remove the tab from the list
-						if (_parentForm.TabRenderer.IsOverCloseButton(_clickedTab, relativeCursorPosition2))
-						{
-							_clickedTab.Content.Close();
-							Render();
-						}
-
-						// Otherwise, select the tab that was clicked
-						else
-						{
-							_parentForm.ResizeTabContents(_clickedTab);
-							_parentForm.SelectedTabIndex = _parentForm.Tabs.IndexOf(_clickedTab);
-
-							Render();
-						}
-
-						// Release the mouse capture
-						Win32Interop.ReleaseCapture();
-					}
-
-					// Otherwise, if the user clicked the add button, call CreateTab to add a new tab to the list and select it
-					else if (_parentForm.TabRenderer.IsOverAddButton(relativeCursorPosition2))
-					{
-						_parentForm.AddNewTab();
-
-						// Release the mouse capture
-						Win32Interop.ReleaseCapture();
-					}
-
-					else
+					if (_parentForm.TabRenderer.OverTab(_parentForm.Tabs, relativeCursorPosition2) == null && 
+                        !_parentForm.TabRenderer.IsOverAddButton(relativeCursorPosition2))
 						_parentForm.ForwardMessage(ref m);
 
 					break;
