@@ -87,9 +87,15 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		/// </summary>
 		protected int _tabContentWidth;
 
-	    protected Point? _dragStart = null;
+        /// <summary>
+        /// When the user is dragging a tab, this represents the horizontal offset within the tab where the user clicked to start the drag operation.
+        /// </summary>
+	    protected int? _tabClickOffset = null;
 
-	    protected int _dropIndex = -1;
+        /// <summary>
+        /// When the user is dragging a tab, this represents the point where the user first clicked to start the drag operation.
+        /// </summary>
+	    protected Point? _dragStart = null;
 
 		/// <summary>
 		/// Default constructor that initializes the <see cref="_parentWindow" /> and <see cref="ShowAddButton" /> properties.
@@ -111,25 +117,49 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             }
 		}
 
+        /// <summary>
+        /// Initialize the <see cref="_dragStart"/> and <see cref="_tabClickOffset"/> fields in case the user starts dragging a tab.
+        /// </summary>
+        /// <param name="sender">Object from which this event originated.</param>
+        /// <param name="e">Arguments associated with the event.</param>
         protected internal virtual void Overlay_MouseDown(object sender, MouseEventArgs e)
         {
             if (_parentWindow.Tabs.Count > 1)
+            {
                 _dragStart = e.Location;
+                _tabClickOffset = _parentWindow.Overlay.GetRelativeCursorPosition(e.Location).X - _parentWindow.SelectedTab.Area.Location.X;
+            }
         }
 
+        /// <summary>
+        /// End the drag operation by resetting the <see cref="_dragStart"/> and <see cref="_tabClickOffset"/> fields and setting 
+        /// <see cref="IsTabRepositioning"/> to false.
+        /// </summary>
+        /// <param name="sender">Object from which this event originated.</param>
+        /// <param name="e">Arguments associated with the event.</param>
         protected internal virtual void Overlay_MouseUp(object sender, MouseEventArgs e)
         {
             _dragStart = null;
-            _dropIndex = -1;
+            _tabClickOffset = null;
+
+            bool wasRepositioning = IsTabRepositioning;
+
+            IsTabRepositioning = false;
+
+            if (wasRepositioning)
+                _parentWindow.Overlay.Render(true);
         }
 
+        /// <summary>
+        /// If the user is dragging the mouse, see if they have passed the <see cref="TabRepositionDragDistance"/> threshold and, if so, officially begin
+        /// the tab drag operation.
+        /// </summary>
+        /// <param name="sender">Object from which this event originated.</param>
+        /// <param name="e">Arguments associated with the event.</param>
         protected internal virtual void Overlay_MouseMove(object sender, MouseEventArgs e)
         {
             if (_dragStart != null && !IsTabRepositioning && Math.Abs(e.X - _dragStart.Value.X) > TabRepositionDragDistance)
-            {
-                _dropIndex = _parentWindow.SelectedTabIndex;
                 IsTabRepositioning = true;
-            }
         }
 
 		/// <summary>
@@ -452,10 +482,54 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			if (_background != null)
 				graphicsContext.DrawImage(_background, offset.X, offset.Y, _parentWindow.Width, _activeCenterImage.Height);
 
+            if (_parentWindow.SelectedTabIndex != -1)
+            {
+                Rectangle tabArea =
+                    new Rectangle(
+                        SystemInformation.BorderSize.Width + offset.X +
+                        (_parentWindow.SelectedTabIndex * (tabContentWidth + _activeLeftSideImage.Width + _activeRightSideImage.Width - OverlapWidth)),
+                        offset.Y, tabContentWidth + _activeLeftSideImage.Width + _activeRightSideImage.Width,
+                        _activeCenterImage.Height);
+
+                if (IsTabRepositioning && _tabClickOffset != null)
+                {
+                    // Make sure that the user doesn't move the tab past the beginning or end of the tab list
+                    tabArea.X = cursor.X - _tabClickOffset.Value;
+                    tabArea.X = Math.Max(SystemInformation.BorderSize.Width + offset.X, tabArea.X);
+                    tabArea.X =
+                        Math.Min(
+                            SystemInformation.BorderSize.Width + offset.X +
+                            ((tabContentWidth + _activeLeftSideImage.Width + _activeRightSideImage.Width - OverlapWidth) * (tabs.Count - 1)), tabArea.X);
+
+                    int dropIndex = 0;
+
+                    // Figure out which slot the active tab is being "dropped" over
+                    if (tabArea.X - SystemInformation.BorderSize.Width - offset.X - TabRepositionDragDistance > 0)
+                        dropIndex =
+                            Convert.ToInt32(
+                                Math.Round(
+                                    Convert.ToDouble(tabArea.X - SystemInformation.BorderSize.Width - offset.X - TabRepositionDragDistance) /
+                                    Convert.ToDouble(tabArea.Width - OverlapWidth)));
+
+                    // If the tab has been moved over another slot, move the tab object in the window's tab list
+                    if (dropIndex != _parentWindow.SelectedTabIndex)
+                    {
+                        TitleBarTab tab = _parentWindow.SelectedTab;
+                        
+                        _parentWindow.Tabs.SuppressEvents();
+                        _parentWindow.Tabs.Remove(tab);
+                        _parentWindow.Tabs.Insert(dropIndex, tab);
+                        _parentWindow.Tabs.ResumeEvents();
+                    }
+                }
+
+                activeTabs.Add(new Tuple<TitleBarTab, Rectangle>(_parentWindow.SelectedTab, tabArea));
+            }
+
 			// Loop through the tabs in reverse order since we need the ones farthest on the left to overlap those to their right
 			foreach (TitleBarTab tab in ((IEnumerable<TitleBarTab>) tabs).Reverse())
 			{
-				Rectangle tabArea =
+                Rectangle tabArea =
 					new Rectangle(
 						SystemInformation.BorderSize.Width + offset.X +
 						(i * (tabContentWidth + _activeLeftSideImage.Width + _activeRightSideImage.Width - OverlapWidth)),
@@ -466,25 +540,9 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 				if (redraw)
 					tab.TabImage = null;
 
-				// In this first pass, we only render the inactive tabs since we need the active tabs to show up on top of everything else
+                // In this first pass, we only render the inactive tabs since we need the active tabs to show up on top of everything else
                 if (!tab.Active)
-                {
-                    if (i == _dropIndex)
-                        tabArea.X -= tabArea.Width - OverlapWidth;
-
                     Render(graphicsContext, tab, tabArea, cursor);
-                }
-
-                else
-                {
-                    if (_dragStart != null)
-                    {
-                        tabArea.X += Cursor.Position.X - _dragStart.Value.X;
-
-                    }
-
-                    activeTabs.Add(new Tuple<TitleBarTab, Rectangle>(tab, tabArea));
-                }
 
 			    i--;
 			}

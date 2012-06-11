@@ -505,7 +505,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		/// </summary>
 		/// <param name="cursorPosition">Cursor position that represents the absolute position of the cursor on the screen.</param>
 		/// <returns>The relative location of the cursor within the overlay.</returns>
-		protected Point GetRelativeCursorPosition(Point cursorPosition)
+		public Point GetRelativeCursorPosition(Point cursorPosition)
 		{
 			return new Point(cursorPosition.X - Location.X, cursorPosition.Y - Location.Y);
 		}
