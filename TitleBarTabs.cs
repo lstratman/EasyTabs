@@ -244,6 +244,13 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		{
 			base.OnLoad(e);
 			Overlay = TitleBarTabsOverlay.GetInstance(this);
+
+            if (TabRenderer != null)
+            {
+                Overlay.MouseMove += TabRenderer.Overlay_MouseMove;
+                Overlay.MouseUp += TabRenderer.Overlay_MouseUp;
+                Overlay.MouseDown += TabRenderer.Overlay_MouseDown;
+            }
 		}
 
 		/// <summary>

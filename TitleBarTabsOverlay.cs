@@ -123,10 +123,10 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 				if (_aeroEnabled)
 					return DisplayType.Aero;
 
-				else if (Application.RenderWithVisualStyles && Environment.OSVersion.Version.Major >= 6)
-					return DisplayType.Basic;
+			    if (Application.RenderWithVisualStyles && Environment.OSVersion.Version.Major >= 6)
+			        return DisplayType.Basic;
 
-				return DisplayType.Classic;
+			    return DisplayType.Classic;
 			}
 		}
 
@@ -198,32 +198,40 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 				Point cursorPosition = new Point(hookStruct.pt.x, hookStruct.pt.y);
 				bool reRender = false;
 
-				// If we were over a close button previously, check to see if the cursor is still over that tab's
-				// close button; if not, re-render
-				if (_isOverCloseButtonForTab != -1 &&
-				    (_isOverCloseButtonForTab >= _parentForm.Tabs.Count ||
-				     !_parentForm.TabRenderer.IsOverCloseButton(_parentForm.Tabs[_isOverCloseButtonForTab], GetRelativeCursorPosition(cursorPosition))))
-				{
-					reRender = true;
-					_isOverCloseButtonForTab = -1;
-				}
+                if (!_parentForm.TabRenderer.IsTabRepositioning)
+                {
+                    // If we were over a close button previously, check to see if the cursor is still over that tab's
+                    // close button; if not, re-render
+                    if (_isOverCloseButtonForTab != -1 &&
+                        (_isOverCloseButtonForTab >= _parentForm.Tabs.Count ||
+                         !_parentForm.TabRenderer.IsOverCloseButton(_parentForm.Tabs[_isOverCloseButtonForTab], GetRelativeCursorPosition(cursorPosition))))
+                    {
+                        reRender = true;
+                        _isOverCloseButtonForTab = -1;
+                    }
 
-				// Otherwise, see if any tabs' close button is being hovered over
-				else
-				{
-					// ReSharper disable ForCanBeConvertedToForeach
-					for (int i = 0; i < _parentForm.Tabs.Count; i++)
-					// ReSharper restore ForCanBeConvertedToForeach
-					{
-						if (_parentForm.TabRenderer.IsOverCloseButton(_parentForm.Tabs[i], GetRelativeCursorPosition(cursorPosition)))
-						{
-							_isOverCloseButtonForTab = i;
-							reRender = true;
+                    // Otherwise, see if any tabs' close button is being hovered over
+                    else
+                    {
+                        // ReSharper disable ForCanBeConvertedToForeach
+                        for (int i = 0; i < _parentForm.Tabs.Count; i++)
+                        // ReSharper restore ForCanBeConvertedToForeach
+                        {
+                            if (_parentForm.TabRenderer.IsOverCloseButton(_parentForm.Tabs[i], GetRelativeCursorPosition(cursorPosition)))
+                            {
+                                _isOverCloseButtonForTab = i;
+                                reRender = true;
 
-							break;
-						}
-					}
-				}
+                                break;
+                            }
+                        }
+                    }
+                }
+
+			    OnMouseMove(new MouseEventArgs(MouseButtons.None, 0, cursorPosition.X, cursorPosition.Y, 0));
+
+                if (_parentForm.TabRenderer.IsTabRepositioning)
+                    reRender = true;
 
 				if (reRender)
 					Render(cursorPosition, true);
@@ -236,8 +244,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 				// When the user clicks a mouse button, save the tab that the user was over so we can respond properly when the mouse button is released
 				TitleBarTab clickedTab = _parentForm.TabRenderer.OverTab(_parentForm.Tabs, relativeCursorPosition);
 
-				// If we were over a tab, set the capture state for the window so that we'll actually receive a WM_LBUTTONUP message
-                if (clickedTab != null)
+				if (clickedTab != null)
                 {
                     // If the user clicked the close button, remove the tab from the list
                     if (!_parentForm.TabRenderer.IsOverCloseButton(clickedTab, relativeCursorPosition))
@@ -247,6 +254,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
                         Render();
                     }
+
+                    OnMouseDown(new MouseEventArgs(MouseButtons.Left, 1, Cursor.Position.X, Cursor.Position.Y, 0));
                 }
             }
 
@@ -270,6 +279,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                 // Otherwise, if the user clicked the add button, call CreateTab to add a new tab to the list and select it
                 else if (_parentForm.TabRenderer.IsOverAddButton(relativeCursorPosition))
                     _parentForm.AddNewTab();
+
+                OnMouseUp(new MouseEventArgs(MouseButtons.Left, 1, Cursor.Position.X, Cursor.Position.Y, 0));
             }
 
 		    return Win32Interop.CallNextHookEx(_hookId, nCode, wParam, lParam);
@@ -406,7 +417,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 				{
 					DrawTitleBarBackground(graphics);
 
-					// Since classic mode themese draw over the *entire* titlebar, not just the area immediately behind the tabs, we have to offset the tabs
+					// Since classic mode themes draw over the *entire* titlebar, not just the area immediately behind the tabs, we have to offset the tabs
 					// when rendering in the window
 					Point offset = _parentForm.WindowState != FormWindowState.Maximized && DisplayType == DisplayType.Classic
 					               	? new Point(0, SystemInformation.CaptionButtonSize.Height)

@@ -87,6 +87,10 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		/// </summary>
 		protected int _tabContentWidth;
 
+	    protected Point? _dragStart = null;
+
+	    protected int _dropIndex = -1;
+
 		/// <summary>
 		/// Default constructor that initializes the <see cref="_parentWindow" /> and <see cref="ShowAddButton" /> properties.
 		/// </summary>
@@ -95,9 +99,38 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		{
 			_parentWindow = parentWindow;
 			ShowAddButton = true;
+		    TabRepositionDragDistance = 10;
 
 			parentWindow.Tabs.CollectionModified += Tabs_CollectionModified;
+
+            if (parentWindow.Overlay != null)
+            {
+                parentWindow.Overlay.MouseMove += Overlay_MouseMove;
+                parentWindow.Overlay.MouseUp += Overlay_MouseUp;
+                parentWindow.Overlay.MouseDown += Overlay_MouseDown;
+            }
 		}
+
+        protected internal virtual void Overlay_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (_parentWindow.Tabs.Count > 1)
+                _dragStart = e.Location;
+        }
+
+        protected internal virtual void Overlay_MouseUp(object sender, MouseEventArgs e)
+        {
+            _dragStart = null;
+            _dropIndex = -1;
+        }
+
+        protected internal virtual void Overlay_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (_dragStart != null && !IsTabRepositioning && Math.Abs(e.X - _dragStart.Value.X) > TabRepositionDragDistance)
+            {
+                _dropIndex = _parentWindow.SelectedTabIndex;
+                IsTabRepositioning = true;
+            }
+        }
 
 		/// <summary>
 		/// Height of the tab content area; derived from the height of <see cref="_activeCenterImage" />.
@@ -238,6 +271,24 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 				return 0;
 			}
 		}
+
+        /// <summary>
+        /// Horizontal distance that a tab must be dragged before it starts to be repositioned.
+        /// </summary>
+        public int TabRepositionDragDistance
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Flag indicating whether or not a tab is being repositioned.
+        /// </summary>
+        public bool IsTabRepositioning
+        {
+            get;
+            protected set;
+        }
 
 		/// <summary>
 		/// When items are added to the tabs collection, we need to ensure that the <see cref="_parentWindow" />'s minimum width is set so that we can display 
@@ -416,20 +467,33 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 					tab.TabImage = null;
 
 				// In this first pass, we only render the inactive tabs since we need the active tabs to show up on top of everything else
-				if (!tab.Active)
-					Render(graphicsContext, tab, tabArea, cursor);
+                if (!tab.Active)
+                {
+                    if (i == _dropIndex)
+                        tabArea.X -= tabArea.Width - OverlapWidth;
 
-				else
-					activeTabs.Add(new Tuple<TitleBarTab, Rectangle>(tab, tabArea));
+                    Render(graphicsContext, tab, tabArea, cursor);
+                }
 
-				i--;
+                else
+                {
+                    if (_dragStart != null)
+                    {
+                        tabArea.X += Cursor.Position.X - _dragStart.Value.X;
+
+                    }
+
+                    activeTabs.Add(new Tuple<TitleBarTab, Rectangle>(tab, tabArea));
+                }
+
+			    i--;
 			}
 
 			// In the second pass, render all of the active tabs identified in the previous pass
-			foreach (Tuple<TitleBarTab, Rectangle> tab in activeTabs)
-				Render(graphicsContext, tab.Item1, tab.Item2, cursor);
+            foreach (Tuple<TitleBarTab, Rectangle> tab in activeTabs)
+                Render(graphicsContext, tab.Item1, tab.Item2, cursor);
 
-			_previousTabCount = tabs.Count;
+		    _previousTabCount = tabs.Count;
 
 			// Render the add tab button to the screen
 			if (ShowAddButton)
