@@ -424,7 +424,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			}
 
 			if (Overlay != null)
-				Overlay.Render();
+				Overlay.Render(true);
 		}
 
 		/// <summary>
@@ -436,7 +436,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		private void Content_TextChanged(object sender, EventArgs e)
 		{
 			if (Overlay != null)
-				Overlay.Render();
+				Overlay.Render(true);
 		}
 
 		/// <summary>
@@ -450,7 +450,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			CloseTab((TitleBarTab) sender);
 
 			if (Overlay != null)
-				Overlay.Render();
+				Overlay.Render(true);
 		}
 
 		/// <summary>
