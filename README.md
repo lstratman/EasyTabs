@@ -5,4 +5,4 @@
 
 The library comes with a renderer for Chrome-like tabs (ChromeTabRenderer), but you can implement your own by creating a class inheriting from BaseTabRenderer.  The TestApp directory contains the project for a tabbed web browser test application that you can use as a starting point for implementing your own functionality.
 
-Bear in mind that this is very early code.  Things like tab reordering, tearing, and more advanced graphical effects have not been implemented yet.  You are welcome to poke around the code and submit patches, but just remember that this is alpha-quality code.
+Bear in mind that this is very early code.  Things like tab tearing and more advanced graphical effects have not been implemented yet.  You are welcome to poke around the code and submit patches, but just remember that this is alpha-quality code.
