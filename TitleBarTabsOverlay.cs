@@ -14,7 +14,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 	/// Borderless overlay window that is moved with and rendered on top of the non-client area of a  <see cref="TitleBarTabs"/> instance that's responsible 
 	/// for rendering the actual tab content and responding to click events for those tabs.
 	/// </summary>
-	internal class TitleBarTabsOverlay : Form
+	public class TitleBarTabsOverlay : Form
 	{
 		/// <summary>
 		/// All of the parent forms and their overlays so that we don't create duplicate overlays across the application domain.

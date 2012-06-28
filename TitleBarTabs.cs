@@ -32,7 +32,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		/// <summary>
 		/// Borderless window that is rendered over top of the non-client area of this window.
 		/// </summary>
-		internal TitleBarTabsOverlay Overlay;
+		protected internal TitleBarTabsOverlay Overlay;
 
 		/// <summary>
 		/// Height of the non-client area at the top of the window.

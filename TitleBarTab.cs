@@ -135,6 +135,12 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
 			set
 			{
+                if (_content != null)
+                {
+                    _content.FormClosing -= Content_Closing;
+                    _content.TextChanged -= Content_TextChanged;
+                }
+
 				_content = value;
 
 				// We set the content form to a non-top-level child of the parent form.
