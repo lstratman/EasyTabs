@@ -195,7 +195,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 					Tabs[value].Active = true;
 
 					// Raise the TabSelected event
-					OnTabDeselected(
+					OnTabSelected(
 						new TitleBarTabEventArgs
 							{
 								Tab = Tabs[value],
