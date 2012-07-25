@@ -9,7 +9,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 {
 	/// <summary>
 	/// Base class that contains the functionality to render tabs within a WinForms application's title bar area. This  is done through a borderless overlay 
-	/// window (<see cref="Overlay"/>) rendered on top of the non-client area at the top of this window.  All an implementing class will need to do is set the 
+	/// window (<see cref="_overlay"/>) rendered on top of the non-client area at the top of this window.  All an implementing class will need to do is set the 
 	/// <see cref="TabRenderer" /> property and begin adding tabs to <see cref="Tabs" />.
 	/// </summary>
 	public abstract partial class TitleBarTabs : Form
@@ -32,7 +32,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		/// <summary>
 		/// Borderless window that is rendered over top of the non-client area of this window.
 		/// </summary>
-		protected internal TitleBarTabsOverlay Overlay;
+		protected internal TitleBarTabsOverlay _overlay;
 
 		/// <summary>
 		/// Height of the non-client area at the top of the window.
@@ -45,7 +45,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		protected FormWindowState? _previousWindowState;
 
 		/// <summary>
-		/// Class responsible for actually rendering the tabs in <see cref="Overlay"/>.
+		/// Class responsible for actually rendering the tabs in <see cref="_overlay"/>.
 		/// </summary>
 		protected BaseTabRenderer _tabRenderer;
 
@@ -204,8 +204,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 							});
 				}
 
-				if (Overlay != null)
-					Overlay.Render();
+				if (_overlay != null)
+					_overlay.Render();
 			}
 		}
 
@@ -236,20 +236,20 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		}
 
 		/// <summary>
-		/// Event handler that is invoked when the <see cref="Form.Load"/> event is fired.  Instantiates <see cref="Overlay"/> and clears out the window's 
+		/// Event handler that is invoked when the <see cref="Form.Load"/> event is fired.  Instantiates <see cref="_overlay"/> and clears out the window's 
 		/// caption.
 		/// </summary>
 		/// <param name="e">Arguments associated with the event.</param>
 		protected override void OnLoad(EventArgs e)
 		{
 			base.OnLoad(e);
-			Overlay = TitleBarTabsOverlay.GetInstance(this);
+			_overlay = TitleBarTabsOverlay.GetInstance(this);
 
             if (TabRenderer != null)
             {
-                Overlay.MouseMove += TabRenderer.Overlay_MouseMove;
-                Overlay.MouseUp += TabRenderer.Overlay_MouseUp;
-                Overlay.MouseDown += TabRenderer.Overlay_MouseDown;
+                _overlay.MouseMove += TabRenderer.Overlay_MouseMove;
+                _overlay.MouseUp += TabRenderer.Overlay_MouseUp;
+                _overlay.MouseDown += TabRenderer.Overlay_MouseDown;
             }
 		}
 
@@ -313,12 +313,27 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		/// </summary>
 		public event TitleBarTabEventHandler TabSelected;
 
+        /// <summary>
+        /// Event that is raised after a tab has been clicked.
+        /// </summary>
+	    public event TitleBarTabEventHandler TabClicked;
+
 		/// <summary>
 		/// Callback that should be implemented by the inheriting class that will create a new <see cref="TitleBarTab" /> object when the add button is 
 		/// clicked.
 		/// </summary>
 		/// <returns>A newly created tab.</returns>
 		public abstract TitleBarTab CreateTab();
+
+        /// <summary>
+        /// Callback for the <see cref="TabClicked"/> event.
+        /// </summary>
+        /// <param name="e">Arguments associated with the event.</param>
+        protected internal void OnTabClicked(TitleBarTabEventArgs e)
+        {
+            if (TabClicked != null)
+                TabClicked(this, e);
+        }
 
 		/// <summary>
 		/// Callback for the <see cref="TabDeselecting" /> event.
@@ -423,25 +438,25 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 				}
 			}
 
-			if (Overlay != null)
-				Overlay.Render(true);
+			if (_overlay != null)
+				_overlay.Render(true);
 		}
 
 		/// <summary>
 		/// Event handler that is called when a tab's <see cref="TitleBarTab.Closing"/> event is fired, which removes the tab from <see cref="Tabs"/> and 
-		/// re-renders <see cref="Overlay"/>.
+		/// re-renders <see cref="_overlay"/>.
 		/// </summary>
 		/// <param name="sender">Object from which this event originated (the <see cref="TitleBarTab"/> in this case).</param>
 		/// <param name="e">Arguments associated with the event.</param>
 		private void Content_TextChanged(object sender, EventArgs e)
 		{
-			if (Overlay != null)
-				Overlay.Render(true);
+			if (_overlay != null)
+				_overlay.Render(true);
 		}
 
 		/// <summary>
 		/// Event handler that is called when a tab's <see cref="TitleBarTab.Closing"/> event is fired, which removes the tab from <see cref="Tabs"/> and 
-		/// re-renders <see cref="Overlay"/>.
+		/// re-renders <see cref="_overlay"/>.
 		/// </summary>
 		/// <param name="sender">Object from which this event originated (the <see cref="TitleBarTab"/> in this case).</param>
 		/// <param name="e">Arguments associated with the event.</param>
@@ -449,8 +464,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		{
 			CloseTab((TitleBarTab) sender);
 
-			if (Overlay != null)
-				Overlay.Render(true);
+			if (_overlay != null)
+				_overlay.Render(true);
 		}
 
 		/// <summary>

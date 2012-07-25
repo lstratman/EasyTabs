@@ -11,7 +11,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		/// <summary>
 		/// Action that is being performed.
 		/// </summary>
-		public TabControlAction Action
+		public TabControlAction? Action
 		{
 			get;
 			set;

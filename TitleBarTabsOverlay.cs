@@ -250,6 +250,13 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                     if (!_parentForm.TabRenderer.IsOverCloseButton(clickedTab, relativeCursorPosition))
                     {
                         _parentForm.ResizeTabContents(clickedTab);
+                        _parentForm.OnTabClicked(
+                            new TitleBarTabEventArgs
+                                {
+                                    Tab = clickedTab,
+                                    TabIndex = _parentForm.SelectedTabIndex,
+                                    Action = TabControlAction.Selected
+                                });
                         _parentForm.SelectedTabIndex = _parentForm.Tabs.IndexOf(clickedTab);
 
                         Render();
