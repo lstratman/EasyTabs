@@ -109,11 +109,11 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
 			parentWindow.Tabs.CollectionModified += Tabs_CollectionModified;
 
-            if (parentWindow.Overlay != null)
+            if (parentWindow._overlay != null)
             {
-                parentWindow.Overlay.MouseMove += Overlay_MouseMove;
-                parentWindow.Overlay.MouseUp += Overlay_MouseUp;
-                parentWindow.Overlay.MouseDown += Overlay_MouseDown;
+                parentWindow._overlay.MouseMove += Overlay_MouseMove;
+                parentWindow._overlay.MouseUp += Overlay_MouseUp;
+                parentWindow._overlay.MouseDown += Overlay_MouseDown;
             }
 		}
 
@@ -127,7 +127,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             if (_parentWindow.Tabs.Count > 1)
             {
                 _dragStart = e.Location;
-                _tabClickOffset = _parentWindow.Overlay.GetRelativeCursorPosition(e.Location).X - _parentWindow.SelectedTab.Area.Location.X;
+                _tabClickOffset = _parentWindow._overlay.GetRelativeCursorPosition(e.Location).X - _parentWindow.SelectedTab.Area.Location.X;
             }
         }
 
@@ -147,7 +147,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             IsTabRepositioning = false;
 
             if (wasRepositioning)
-                _parentWindow.Overlay.Render(true);
+                _parentWindow._overlay.Render(true);
         }
 
         /// <summary>
