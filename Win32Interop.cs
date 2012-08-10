@@ -16,7 +16,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 	/// <summary>
 	/// Win32 interop functions necessary to interact with low-level DWM and windowing functionality.
 	/// </summary>
-	internal static class Win32Interop
+	public static class Win32Interop
 	{
 		/// <summary>
 		/// Calculates the required size of the window rectangle, based on the desired size of the client rectangle. The window rectangle can then be passed to 

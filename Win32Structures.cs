@@ -8,7 +8,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 	/// Returned by the GetThemeMargins function to define the margins of windows that have visual styles applied.
 	/// </summary>
 	[StructLayout(LayoutKind.Sequential)]
-	internal struct MARGINS
+	public struct MARGINS
 	{
 		/// <summary>
 		/// Width of the left border that retains its size.
@@ -35,7 +35,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 	/// The RECT structure defines the coordinates of the upper-left and lower-right corners of a rectangle.
 	/// </summary>
 	[StructLayout(LayoutKind.Sequential)]
-	internal struct RECT
+	public struct RECT
 	{
 		/// <summary>
 		/// The x-coordinate of the upper-left corner of the rectangle.
@@ -63,7 +63,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 	/// client area of a window.
 	/// </summary>
 	[StructLayout(LayoutKind.Sequential)]
-	internal struct NCCALCSIZE_PARAMS
+	public struct NCCALCSIZE_PARAMS
 	{
 		/// <summary>
 		/// When the window procedure receives the WM_NCCALCSIZE message, this contains the new coordinates of a window that has been moved or resized, that 

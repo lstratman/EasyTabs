@@ -3,7 +3,7 @@
 	/// <summary>
 	/// Collection of Win32 constants we use for interop purposes.
 	/// </summary>
-	internal static class Win32Constants
+	public static class Win32Constants
 	{
 		// ReSharper disable InconsistentNaming
 		/// <summary>

@@ -3,7 +3,7 @@
 	/// <summary>
 	/// A series of Win32 messaging constants that we use for interop.
 	/// </summary>
-	internal static class Win32Messages
+	public static class Win32Messages
 	{
 		// ReSharper disable InconsistentNaming
 		/// <summary>
@@ -105,6 +105,16 @@
 		/// Capture low-level mouse events.
 		/// </summary>
 		public const int WH_MOUSE_LL = 14;
-		// ReSharper restore InconsistentNaming
+
+        /// <summary>
+        /// Capture low-level keyboard events.
+        /// </summary>
+	    public const int WH_KEYBOARD_LL = 13;
+
+	    public const int WM_KEYDOWN = 256;
+	    public const int WM_KEYUP = 257;
+        public const int WM_SYSKEYUP = 261;
+	    public const int WM_SYSKEYDOWN = 260;
+	    // ReSharper restore InconsistentNaming
 	}
 }
