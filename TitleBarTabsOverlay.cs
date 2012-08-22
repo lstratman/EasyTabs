@@ -7,6 +7,7 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using Win32Interop.Enums;
 using Win32Interop.Methods;
 using Win32Interop.Structs;
 using Point = System.Drawing.Point;
@@ -181,13 +182,12 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			using (ProcessModule curModule = curProcess.MainModule)
 			{
 				_hookproc = MouseHookCallback;
-				_hookId = User32.SetWindowsHookExA(
-					Win32Messages.WH_MOUSE_LL, _hookproc, Kernel32.GetModuleHandleA(curModule.ModuleName), 0);
+				_hookId = User32.SetWindowsHookExA((int)WH.WH_MOUSE_LL, _hookproc, Kernel32.GetModuleHandleA(curModule.ModuleName), 0);
 			}
 		}
 
 		/// <summary>
-		/// Hook callback to process <see cref="Win32Messages.WM_MOUSEMOVE"/> messages to highlight/un-highlight the close button on each tab.
+		/// Hook callback to process <see cref="WM.WM_MOUSEMOVE"/> messages to highlight/un-highlight the close button on each tab.
 		/// </summary>
 		/// <param name="nCode">The message being received.</param>
 		/// <param name="wParam">Additional information about the message.</param>
@@ -195,7 +195,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		/// <returns>A zero value if the procedure processes the message; a nonzero value if the procedure ignores the message.</returns>
 		protected int MouseHookCallback(int nCode, IntPtr wParam, IntPtr lParam)
 		{
-			if (nCode >= 0 && Win32Messages.WM_MOUSEMOVE == (int) wParam)
+			if (nCode >= 0 && (int)WM.WM_MOUSEMOVE == (int) wParam)
 			{
 				MSLLHOOKSTRUCT hookStruct = (MSLLHOOKSTRUCT) Marshal.PtrToStructure(lParam, typeof (MSLLHOOKSTRUCT));
 				Point cursorPosition = new Point(hookStruct.pt.x, hookStruct.pt.y);
@@ -240,7 +240,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 					Render(cursorPosition, true);
 			}
 
-            else if (nCode >= 0 && (Win32Messages.WM_LBUTTONDOWN == (int) wParam || Win32Messages.WM_NCLBUTTONDOWN == (int) wParam))
+            else if (nCode >= 0 && ((int)WM.WM_LBUTTONDOWN == (int) wParam || (int)WM.WM_NCLBUTTONDOWN == (int) wParam))
             {
                 Point relativeCursorPosition = GetRelativeCursorPosition(Cursor.Position);
 
@@ -269,7 +269,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                 }
             }
 
-            else if (nCode >= 0 && (Win32Messages.WM_LBUTTONUP == (int)wParam || Win32Messages.WM_NCLBUTTONUP == (int)wParam))
+            else if (nCode >= 0 && ((int)WM.WM_LBUTTONUP == (int)wParam || (int)WM.WM_NCLBUTTONUP == (int)wParam))
             {
                 Point relativeCursorPosition = GetRelativeCursorPosition(Cursor.Position);
 
@@ -539,10 +539,10 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		/// <param name="m">Message received by the pump.</param>
 		protected override void WndProc(ref Message m)
 		{
-			switch (m.Msg)
+			switch ((WM)m.Msg)
 			{
-				case Win32Messages.WM_NCLBUTTONDOWN:
-				case Win32Messages.WM_LBUTTONDOWN:
+				case WM.WM_NCLBUTTONDOWN:
+				case WM.WM_LBUTTONDOWN:
 					Point relativeCursorPosition = GetRelativeCursorPosition(Cursor.Position);
 
 					// If we were over a tab, set the capture state for the window so that we'll actually receive a WM_LBUTTONUP message
@@ -552,17 +552,17 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
 					break;
 
-				case Win32Messages.WM_LBUTTONDBLCLK:
+				case WM.WM_LBUTTONDBLCLK:
 					_parentForm.ForwardMessage(ref m);
 					break;
 
 				// We always return HTCAPTION for the hit test message so that the underlying window doesn't have its focus removed
-				case Win32Messages.WM_NCHITTEST:
+				case WM.WM_NCHITTEST:
 					m.Result = new IntPtr(Win32Constants.HTCAPTION);
 					break;
 
-				case Win32Messages.WM_LBUTTONUP:
-				case Win32Messages.WM_NCLBUTTONUP:
+				case WM.WM_LBUTTONUP:
+				case WM.WM_NCLBUTTONUP:
 					Point relativeCursorPosition2 = GetRelativeCursorPosition(Cursor.Position);
 
 					if (_parentForm.TabRenderer.OverTab(_parentForm.Tabs, relativeCursorPosition2) == null && 

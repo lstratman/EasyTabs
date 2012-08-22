@@ -223,7 +223,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		}
 
 		/// <summary>
-		/// Calls <see cref="Win32Interop.SetWindowThemeAttribute"/> to set various attributes on the window.
+		/// Calls <see cref="Uxtheme.SetWindowThemeAttribute"/> to set various attributes on the window.
 		/// </summary>
 		/// <param name="attributes">Attributes to set on the window.</param>
 		private void SetWindowThemeAttributes(WTNCA attributes)
@@ -496,10 +496,10 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		{
 			bool callDwp = true;
 
-			switch (m.Msg)
+			switch ((WM)m.Msg)
 			{
 				// When the window is activated, set the size of the non-client area appropriately
-				case Win32Messages.WM_ACTIVATE:
+				case WM.WM_ACTIVATE:
 					if ((m.WParam.ToInt64() & 0x0000FFFF) != 0)
 					{
 						SetFrameSize();
@@ -509,7 +509,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
 					break;
 
-				case Win32Messages.WM_NCHITTEST:
+				case WM.WM_NCHITTEST:
 					// Call the base message handler to see where the user clicked in the window
 					base.WndProc(ref m);
 
@@ -571,7 +571,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		}
 
 		/// <summary>
-		/// Called when a <see cref="Win32Messages.WM_NCHITTEST" /> message is received to see where in the non-client area the user clicked.
+		/// Called when a <see cref="WM.WM_NCHITTEST" /> message is received to see where in the non-client area the user clicked.
 		/// </summary>
 		/// <param name="m">Message received by <see cref="WndProc" />.</param>
 		/// <returns>One of the <see cref="Win32Constants" />.HT* constants, depending on where the user clicked.</returns>
