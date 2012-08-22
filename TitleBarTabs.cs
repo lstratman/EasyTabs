@@ -4,6 +4,10 @@ using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using Win32Interop.Enums;
+using Win32Interop.Methods;
+using Win32Interop.Structs;
+using Point = System.Drawing.Point;
 
 namespace Stratman.Windows.Forms.TitleBarTabs
 {
@@ -83,7 +87,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 				// This tests that the OS will support what we want to do. Will be false on Windows XP and earlier, as well as on Vista and 7 with Aero Glass 
 				// disabled.
 				bool hasComposition;
-				Win32Interop.DwmIsCompositionEnabled(out hasComposition);
+				Dwmapi.DwmIsCompositionEnabled(out hasComposition);
 
 				return hasComposition;
 			}
@@ -231,7 +235,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			                      	};
 
 			// The SetWindowThemeAttribute API call takes care of everything
-			Win32Interop.SetWindowThemeAttribute(
+			Uxtheme.SetWindowThemeAttribute(
 				Handle, WINDOWTHEMEATTRIBUTETYPE.WTA_NONCLIENT, ref options, (uint) Marshal.SizeOf(typeof (WTA_OPTIONS)));
 		}
 
@@ -286,7 +290,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			                  		              	: 0
 			                  	};
 
-			Win32Interop.DwmExtendFrameIntoClientArea(Handle, ref margins);
+			Dwmapi.DwmExtendFrameIntoClientArea(Handle, ref margins);
 
 			_nonClientAreaHeight = SystemInformation.CaptionHeight + (topPadding > 0
 			                                                          	? topPadding
@@ -578,7 +582,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			Point point = new Point(lParam & 0xffff, lParam >> 16);
 			RECT rect;
 
-			Win32Interop.GetWindowRect(m.HWnd, out rect);
+			User32.GetWindowRect(m.HWnd, out rect);
 			Rectangle area = new Rectangle(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top);
 
 			int row = 1;

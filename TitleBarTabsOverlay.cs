@@ -7,6 +7,9 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using Win32Interop.Methods;
+using Win32Interop.Structs;
+using Point = System.Drawing.Point;
 
 namespace Stratman.Windows.Forms.TitleBarTabs
 {
@@ -178,8 +181,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			using (ProcessModule curModule = curProcess.MainModule)
 			{
 				_hookproc = MouseHookCallback;
-				_hookId = Win32Interop.SetWindowsHookEx(
-					Win32Messages.WH_MOUSE_LL, _hookproc, Win32Interop.GetModuleHandle(curModule.ModuleName), 0);
+				_hookId = User32.SetWindowsHookExA(
+					Win32Messages.WH_MOUSE_LL, _hookproc, Kernel32.GetModuleHandleA(curModule.ModuleName), 0);
 			}
 		}
 
@@ -190,7 +193,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		/// <param name="wParam">Additional information about the message.</param>
 		/// <param name="lParam">Additional information about the message.</param>
 		/// <returns>A zero value if the procedure processes the message; a nonzero value if the procedure ignores the message.</returns>
-		protected IntPtr MouseHookCallback(int nCode, IntPtr wParam, IntPtr lParam)
+		protected int MouseHookCallback(int nCode, IntPtr wParam, IntPtr lParam)
 		{
 			if (nCode >= 0 && Win32Messages.WM_MOUSEMOVE == (int) wParam)
 			{
@@ -290,7 +293,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                 OnMouseUp(new MouseEventArgs(MouseButtons.Left, 1, Cursor.Position.X, Cursor.Position.Y, 0));
             }
 
-		    return Win32Interop.CallNextHookEx(_hookId, nCode, wParam, lParam);
+		    return User32.CallNextHookEx(_hookId, nCode, wParam, lParam).ToInt32();
 		}
 
 		/// <summary>
@@ -398,7 +401,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		}
 
 		/// <summary>
-		/// Renders the tabs and then calls <see cref="Win32Interop.UpdateLayeredWindow"/> to blend the tab content with the underlying window 
+		/// Renders the tabs and then calls <see cref="User32.UpdateLayeredWindow"/> to blend the tab content with the underlying window 
 		/// (<see cref="_parentForm"/>).
 		/// </summary>
 		/// <param name="forceRedraw">Flag indicating whether a full render should be forced.</param>
@@ -408,7 +411,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		}
 
 		/// <summary>
-		/// Renders the tabs and then calls <see cref="Win32Interop.UpdateLayeredWindow"/> to blend the tab content with the underlying window 
+		/// Renders the tabs and then calls <see cref="User32.UpdateLayeredWindow"/> to blend the tab content with the underlying window 
 		/// (<see cref="_parentForm"/>).
 		/// </summary>
 		/// <param name="cursorPosition">Current position of the cursor.</param>
@@ -457,8 +460,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 						graphics.CompositingMode = oldCompositingMode;
 					}
 
-					IntPtr screenDc = Win32Interop.GetDC(IntPtr.Zero);
-					IntPtr memDc = Win32Interop.CreateCompatibleDC(screenDc);
+					IntPtr screenDc = User32.GetDC(IntPtr.Zero);
+					IntPtr memDc = Gdi32.CreateCompatibleDC(screenDc);
 					IntPtr oldBitmap = IntPtr.Zero;
 					IntPtr bitmapHandle = IntPtr.Zero;
 
@@ -466,11 +469,24 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 					{
 						// Copy the contents of the bitmap into memDc
 						bitmapHandle = bitmap.GetHbitmap(Color.FromArgb(0));
-						oldBitmap = Win32Interop.SelectObject(memDc, bitmapHandle);
+						oldBitmap = Gdi32.SelectObject(memDc, bitmapHandle);
 
-						SIZE size = new SIZE(bitmap.Width, bitmap.Height);
-						POINT pointSource = new POINT(0, 0);
-						POINT topPos = new POINT(Left, Top);
+                        SIZE size = new SIZE
+                            {
+                                cx = bitmap.Width,
+                                cy = bitmap.Height
+                            };
+
+					    Win32Interop.Structs.Point pointSource = new Win32Interop.Structs.Point
+					        {
+					            x = 0,
+					            y = 0
+					        };
+					    Win32Interop.Structs.Point topPos = new Win32Interop.Structs.Point
+					        {
+					            x = Left,
+					            y = Top
+					        };
 						BLENDFUNCTION blend = new BLENDFUNCTION
 						                      	{
 						                      		// We want to blend the bitmap's content with the screen content under it
@@ -482,7 +498,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 						                      	};
 
 						// Blend the tab content with the underlying content
-						if (!Win32Interop.UpdateLayeredWindow(
+						if (!User32.UpdateLayeredWindow(
 							Handle, screenDc, ref topPos, ref size, memDc, ref pointSource, 0, ref blend, Win32Constants.ULW_ALPHA))
 						{
 							int error = Marshal.GetLastWin32Error();
@@ -493,15 +509,15 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 					// Clean up after ourselves
 					finally
 					{
-						Win32Interop.ReleaseDC(IntPtr.Zero, screenDc);
+						User32.ReleaseDC(IntPtr.Zero, screenDc);
 
 						if (bitmapHandle != IntPtr.Zero)
 						{
-							Win32Interop.SelectObject(memDc, oldBitmap);
-							Win32Interop.DeleteObject(bitmapHandle);
+							Gdi32.SelectObject(memDc, oldBitmap);
+							Gdi32.DeleteObject(bitmapHandle);
 						}
 
-						Win32Interop.DeleteDC(memDc);
+						Gdi32.DeleteDC(memDc);
 					}
 				}
 			}
@@ -598,7 +614,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			if (_parents.ContainsKey(form))
 				_parents.Remove(form);
 
-			Win32Interop.UnhookWindowsHookEx(_hookId);
+			User32.UnhookWindowsHookEx(_hookId);
 		}
 	}
 }
