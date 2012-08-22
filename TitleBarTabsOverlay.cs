@@ -83,7 +83,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		}
 
 		/// <summary>
-		/// Makes sure that the window is created with an <see cref="Win32Constants.WS_EX_LAYERED"/> flag set so that it can be alpha-blended properly with the 
+		/// Makes sure that the window is created with an <see cref="WS_EX.WS_EX_LAYERED"/> flag set so that it can be alpha-blended properly with the 
 		/// content (<see cref="_parentForm"/>) underneath the overlay.
 		/// </summary>
 		protected override CreateParams CreateParams
@@ -91,7 +91,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			get
 			{
 				CreateParams createParams = base.CreateParams;
-				createParams.ExStyle |= Win32Constants.WS_EX_LAYERED | Win32Constants.WS_EX_NOACTIVATE;
+				createParams.ExStyle |= (int)(WS_EX.WS_EX_LAYERED | WS_EX.WS_EX_NOACTIVATE);
 
 				return createParams;
 			}
@@ -490,16 +490,16 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 						BLENDFUNCTION blend = new BLENDFUNCTION
 						                      	{
 						                      		// We want to blend the bitmap's content with the screen content under it
-						                      		BlendOp = Win32Constants.AC_SRC_OVER,
+						                      		BlendOp = Convert.ToByte((int)AC.AC_SRC_OVER),
 						                      		BlendFlags = 0,
 						                      		SourceConstantAlpha = 255,
 						                      		// We use the bitmap's alpha channel for blending instead of a pre-defined transparency key
-						                      		AlphaFormat = Win32Constants.AC_SRC_ALPHA
+						                      		AlphaFormat = Convert.ToByte((int)AC.AC_SRC_ALPHA)
 						                      	};
 
 						// Blend the tab content with the underlying content
 						if (!User32.UpdateLayeredWindow(
-							Handle, screenDc, ref topPos, ref size, memDc, ref pointSource, 0, ref blend, Win32Constants.ULW_ALPHA))
+							Handle, screenDc, ref topPos, ref size, memDc, ref pointSource, 0, ref blend, ULW.ULW_ALPHA))
 						{
 							int error = Marshal.GetLastWin32Error();
 							throw new Win32Exception(error, "Error while calling UpdateLayeredWindow().");
@@ -558,7 +558,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
 				// We always return HTCAPTION for the hit test message so that the underlying window doesn't have its focus removed
 				case WM.WM_NCHITTEST:
-					m.Result = new IntPtr(Win32Constants.HTCAPTION);
+					m.Result = new IntPtr((int)HT.HTCAPTION);
 					break;
 
 				case WM.WM_LBUTTONUP:

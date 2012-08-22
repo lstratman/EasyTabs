@@ -513,16 +513,15 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 					// Call the base message handler to see where the user clicked in the window
 					base.WndProc(ref m);
 
+			        HT hitResult = (HT) m.Result.ToInt32();
+
 					// If they were over the minimize/maximize/close buttons or the system menu, let the message pass
-					if (!(m.Result.ToInt32() == Win32Constants.HTCLOSE ||
-					      m.Result.ToInt32() == Win32Constants.HTMINBUTTON ||
-					      m.Result.ToInt32() == Win32Constants.HTMAXBUTTON ||
-					      m.Result.ToInt32() == Win32Constants.HTMENU ||
-					      m.Result.ToInt32() == Win32Constants.HTSYSMENU))
-					{
-						int hitResult = HitTest(m);
-						m.Result = new IntPtr(hitResult);
-					}
+					if (!(hitResult == HT.HTCLOSE ||
+                          hitResult == HT.HTMINBUTTON ||
+                          hitResult == HT.HTMAXBUTTON ||
+                          hitResult == HT.HTMENU ||
+                          hitResult == HT.HTSYSMENU))
+                        m.Result = new IntPtr((int)HitTest(m));
 
 					callDwp = false;
 
@@ -574,8 +573,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		/// Called when a <see cref="WM.WM_NCHITTEST" /> message is received to see where in the non-client area the user clicked.
 		/// </summary>
 		/// <param name="m">Message received by <see cref="WndProc" />.</param>
-		/// <returns>One of the <see cref="Win32Constants" />.HT* constants, depending on where the user clicked.</returns>
-		private int HitTest(Message m)
+		/// <returns>One of the <see cref="HT" /> values, depending on where the user clicked.</returns>
+		private HT HitTest(Message m)
 		{
 			// Get the point that the user clicked
 			int lParam = (int) m.LParam;
@@ -606,25 +605,25 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			else if (point.X < area.Right && point.X >= area.Right - SystemInformation.HorizontalResizeBorderThickness)
 				column = 2;
 
-			int[,] hitTests = new[,]
+			HT[,] hitTests = new[,]
 			                  	{
 			                  		{
 			                  			onResizeBorder
-			                  				? Win32Constants.HTTOPLEFT
-			                  				: Win32Constants.HTLEFT,
+			                  				? HT.HTTOPLEFT
+			                  				: HT.HTLEFT,
 			                  			onResizeBorder
-			                  				? Win32Constants.HTTOP
-			                  				: Win32Constants.HTCAPTION,
+			                  				? HT.HTTOP
+			                  				: HT.HTCAPTION,
 			                  			onResizeBorder
-			                  				? Win32Constants.HTTOPRIGHT
-			                  				: Win32Constants.HTRIGHT
+			                  				? HT.HTTOPRIGHT
+			                  				: HT.HTRIGHT
 			                  		},
 			                  		{
-			                  			Win32Constants.HTLEFT, Win32Constants.HTNOWHERE, Win32Constants.HTRIGHT
+			                  			HT.HTLEFT, HT.HTNOWHERE, HT.HTRIGHT
 			                  		},
 			                  		{
-			                  			Win32Constants.HTBOTTOMLEFT, Win32Constants.HTBOTTOM,
-			                  			Win32Constants.HTBOTTOMRIGHT
+			                  			HT.HTBOTTOMLEFT, HT.HTBOTTOM,
+			                  			HT.HTBOTTOMRIGHT
 			                  		}
 			                  	};
 
