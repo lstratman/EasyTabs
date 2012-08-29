@@ -193,7 +193,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		/// <param name="wParam">Additional information about the message.</param>
 		/// <param name="lParam">Additional information about the message.</param>
 		/// <returns>A zero value if the procedure processes the message; a nonzero value if the procedure ignores the message.</returns>
-		protected int MouseHookCallback(int nCode, IntPtr wParam, IntPtr lParam)
+		protected IntPtr MouseHookCallback(int nCode, IntPtr wParam, IntPtr lParam)
 		{
 			if (nCode >= 0 && (int)WM.WM_MOUSEMOVE == (int) wParam)
 			{
@@ -293,7 +293,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                 OnMouseUp(new MouseEventArgs(MouseButtons.Left, 1, Cursor.Position.X, Cursor.Position.Y, 0));
             }
 
-		    return User32.CallNextHookEx(_hookId, nCode, wParam, lParam).ToInt32();
+		    return User32.CallNextHookEx(_hookId, nCode, wParam, lParam);
 		}
 
 		/// <summary>

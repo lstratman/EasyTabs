@@ -137,23 +137,23 @@
     <None Include="Resources\ChromeBackground.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="Win32Interop\Dwmapi\Win32Interop.Dwmapi.csproj">
+    <ProjectReference Include="$(SolutionDir)Win32Interop\Dwmapi\Win32Interop.Dwmapi.csproj">
       <Project>{88d97bb0-77cc-4431-8c6d-63ef9ad461b4}</Project>
       <Name>Win32Interop.Dwmapi</Name>
     </ProjectReference>
-    <ProjectReference Include="Win32Interop\Gdi32\Win32Interop.Gdi32.csproj">
+    <ProjectReference Include="$(SolutionDir)Win32Interop\Gdi32\Win32Interop.Gdi32.csproj">
       <Project>{7B9B5218-AC11-48CE-83F9-465A3C897A14}</Project>
       <Name>Win32Interop.Gdi32</Name>
     </ProjectReference>
-    <ProjectReference Include="Win32Interop\Kernel32\Win32Interop.Kernel32.csproj">
+    <ProjectReference Include="$(SolutionDir)Win32Interop\Kernel32\Win32Interop.Kernel32.csproj">
       <Project>{C50EB086-0E96-4D7F-9C23-E7632ABC46AB}</Project>
       <Name>Win32Interop.Kernel32</Name>
     </ProjectReference>
-    <ProjectReference Include="Win32Interop\User32\Win32Interop.User32.csproj">
+    <ProjectReference Include="$(SolutionDir)Win32Interop\User32\Win32Interop.User32.csproj">
       <Project>{1C09DA92-5492-4022-A090-961076A41185}</Project>
       <Name>Win32Interop.User32</Name>
     </ProjectReference>
-    <ProjectReference Include="Win32Interop\Uxtheme\Win32Interop.Uxtheme.csproj">
+    <ProjectReference Include="$(SolutionDir)Win32Interop\Uxtheme\Win32Interop.Uxtheme.csproj">
       <Project>{dfe88b86-31ca-4bde-a1d1-77fe83f6a541}</Project>
       <Name>Win32Interop.Uxtheme</Name>
     </ProjectReference>
