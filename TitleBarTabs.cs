@@ -74,6 +74,11 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         protected ListWithEvents<TitleBarTab> _tabs = new ListWithEvents<TitleBarTab>();
 
         /// <summary>
+        /// Flag indicating whether or not each tab has an Aero Peek entry allowing the user to switch between tabs from the taskbar.
+        /// </summary>
+        protected bool _aeroPeekEnabled = true;
+
+        /// <summary>
         /// Default constructor.
         /// </summary>
         protected TitleBarTabs()
@@ -103,6 +108,39 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                 Dwmapi.DwmIsCompositionEnabled(out hasComposition);
 
                 return hasComposition;
+            }
+        }
+
+        /// <summary>
+        /// Flag indicating whether or not each tab has an Aero Peek entry allowing the user to switch between tabs from the taskbar.
+        /// </summary>
+        public bool AeroPeekEnabled
+        {
+            get
+            {
+                return _aeroPeekEnabled;
+            }
+
+            set
+            {
+                if (!_aeroPeekEnabled)
+                {
+                    foreach (TitleBarTab tab in Tabs)
+                        TaskbarManager.Instance.TabbedThumbnail.RemoveThumbnailPreview(tab.Content);
+
+                    _previews.Clear();
+                }
+
+                else
+                {
+                    foreach (TitleBarTab tab in Tabs)
+                        CreateThumbnailPreview(tab);
+
+                    if (SelectedTab != null)
+                        TaskbarManager.Instance.TabbedThumbnail.SetActiveTab(SelectedTab.Content);
+                }
+
+                _aeroPeekEnabled = value;
             }
         }
 
@@ -308,8 +346,13 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                                                                           ? topPadding
                                                                           : 0);
 
-            foreach (TabbedThumbnail preview in Tabs.Select(tab => TaskbarManager.Instance.TabbedThumbnail.GetThumbnailPreview(tab.Content)).Where(preview => preview != null))
-                preview.PeekOffset = new Vector(Padding.Left, Padding.Top - 1);
+            if (AeroPeekEnabled)
+            {
+                foreach (
+                    TabbedThumbnail preview in
+                        Tabs.Select(tab => TaskbarManager.Instance.TabbedThumbnail.GetThumbnailPreview(tab.Content)).Where(preview => preview != null))
+                    preview.PeekOffset = new Vector(Padding.Left, Padding.Top - 1);
+            }
         }
 
         /// <summary>
@@ -361,7 +404,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         /// <param name="e">Arguments associated with the event.</param>
         protected void OnTabDeselecting(TitleBarTabCancelEventArgs e)
         {
-            if (_previousActiveTab != null)
+            if (_previousActiveTab != null && AeroPeekEnabled)
             {
                 TabbedThumbnail preview = TaskbarManager.Instance.TabbedThumbnail.GetThumbnailPreview(_previousActiveTab.Content);
 
@@ -410,7 +453,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         /// <param name="e">Arguments associated with the event.</param>
         protected void OnTabSelected(TitleBarTabEventArgs e)
         {
-            if (SelectedTabIndex != -1 && _previews.ContainsKey(SelectedTab.Content))
+            if (SelectedTabIndex != -1 && _previews.ContainsKey(SelectedTab.Content) && AeroPeekEnabled)
                 TaskbarManager.Instance.TabbedThumbnail.SetActiveTab(SelectedTab.Content);
 
             _previousActiveTab = SelectedTab;
@@ -495,13 +538,15 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             foreach (TitleBarTab tab in Tabs.Where(tab => tab.Content.Handle == e.WindowHandle))
             {
                 SelectedTabIndex = Tabs.IndexOf(tab);
-
                 TaskbarManager.Instance.TabbedThumbnail.SetActiveTab(tab.Content);
+
                 break;
             }
 
             if (WindowState == FormWindowState.Minimized)
                 WindowState = FormWindowState.Normal;
+
+            Focus();
         }
 
         /// <summary>
@@ -539,25 +584,32 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                     currentTab.Content.TextChanged += Content_TextChanged;
                     currentTab.Closing += TitleBarTabs_Closing;
 
-                    TabbedThumbnail preview = new TabbedThumbnail(Handle, currentTab.Content)
-                                                  {
-                                                      Title = currentTab.Content.Text,
-                                                      Tooltip = currentTab.Content.Text
-                                                  };
-
-                    preview.SetWindowIcon(currentTab.Content.Icon);
-                    preview.TabbedThumbnailActivated += preview_TabbedThumbnailActivated;
-                    preview.TabbedThumbnailClosed += preview_TabbedThumbnailClosed;
-                    preview.TabbedThumbnailBitmapRequested += preview_TabbedThumbnailBitmapRequested;
-                    preview.PeekOffset = new Vector(Padding.Left, Padding.Top - 1);
-
-                    TaskbarManager.Instance.TabbedThumbnail.AddThumbnailPreview(preview);
-                    TaskbarManager.Instance.TabbedThumbnail.SetActiveTab(preview);
+                    if (AeroPeekEnabled)
+                        TaskbarManager.Instance.TabbedThumbnail.SetActiveTab(CreateThumbnailPreview(currentTab));
                 }
             }
 
             if (_overlay != null)
                 _overlay.Render(true);
+        }
+
+        protected virtual TabbedThumbnail CreateThumbnailPreview(TitleBarTab tab)
+        {
+            TabbedThumbnail preview = new TabbedThumbnail(Handle, tab.Content)
+                                          {
+                                              Title = tab.Content.Text,
+                                              Tooltip = tab.Content.Text
+                                          };
+
+            preview.SetWindowIcon(tab.Content.Icon);
+            preview.TabbedThumbnailActivated += preview_TabbedThumbnailActivated;
+            preview.TabbedThumbnailClosed += preview_TabbedThumbnailClosed;
+            preview.TabbedThumbnailBitmapRequested += preview_TabbedThumbnailBitmapRequested;
+            preview.PeekOffset = new Vector(Padding.Left, Padding.Top - 1);
+
+            TaskbarManager.Instance.TabbedThumbnail.AddThumbnailPreview(preview);
+
+            return preview;
         }
 
         /// <summary>
@@ -570,10 +622,13 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         /// <param name="e">Arguments associated with the event.</param>
         private void Content_TextChanged(object sender, EventArgs e)
         {
-            TabbedThumbnail preview = TaskbarManager.Instance.TabbedThumbnail.GetThumbnailPreview((Form) sender);
+            if (AeroPeekEnabled)
+            {
+                TabbedThumbnail preview = TaskbarManager.Instance.TabbedThumbnail.GetThumbnailPreview((Form) sender);
 
-            if (preview != null)
-                preview.Title = (sender as Form).Text;
+                if (preview != null)
+                    preview.Title = (sender as Form).Text;
+            }
 
             if (_overlay != null)
                 _overlay.Render(true);
@@ -694,7 +749,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             if (_previousActiveTab != null && closingTab.Content == _previousActiveTab.Content)
                 _previousActiveTab = null;
 
-            if (!closingTab.Content.IsDisposed)
+            if (!closingTab.Content.IsDisposed && AeroPeekEnabled)
                 TaskbarManager.Instance.TabbedThumbnail.RemoveThumbnailPreview(closingTab.Content);
 
             if (Tabs.Count == 0 && ExitOnLastTabClose)
