@@ -334,16 +334,27 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 				tab => (tab.Active
 				        	? _activeLeftSideImage.Width
 				        	: _inactiveLeftSideImage.Width) + (tab.Active
-				        	                                   	? _activeRightSideImage
-				        	                                   	  	.Width
-				        	                                   	: _inactiveRightSideImage
-				        	                                   	  	.Width) +
+				        	                                   	? _activeRightSideImage.Width
+				        	                                   	: _inactiveRightSideImage.Width) +
 				       (tab.ShowCloseButton
-				        	? tab.CloseButtonArea.Width + CloseButtonMarginTop
-				        	: 0) - OverlapWidth);
+				        	? tab.CloseButtonArea.Width + CloseButtonMarginLeft
+				        	: 0));
 
 			if (tabs.Count > 0)
 				minimumWidth += OverlapWidth;
+
+		    minimumWidth += (_parentWindow.ControlBox
+		                         ? SystemInformation.CaptionButtonSize.Width
+		                         : 0) -
+		                    (_parentWindow.MinimizeBox
+		                         ? SystemInformation.CaptionButtonSize.Width
+		                         : 0) -
+		                    (_parentWindow.MaximizeBox
+		                         ? SystemInformation.CaptionButtonSize.Width
+		                         : 0) + (ShowAddButton
+		                                     ? _addButtonImage.Width + AddButtonMarginLeft +
+		                                       AddButtonMarginRight
+		                                     : 0);
 
 			_parentWindow.MinimumSize = new Size(minimumWidth, 0);
 		}
@@ -465,8 +476,9 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 							  	? _addButtonImage.Width + AddButtonMarginLeft +
 							  	  AddButtonMarginRight
 							  	: 0) - (tabs.Count() * OverlapWidth) -
-							 OverlapWidth - SystemInformation.BorderSize.Width -
-							 SystemInformation.BorderSize.Width) / tabs.Count()))));
+                             (_parentWindow.ControlBox ? SystemInformation.CaptionButtonSize.Width : 0) -
+                             (_parentWindow.MinimizeBox ? SystemInformation.CaptionButtonSize.Width : 0) -
+                             (_parentWindow.MaximizeBox ? SystemInformation.CaptionButtonSize.Width : 0)) / tabs.Count()))));
 
 			// Determine if we need to redraw the TabImage properties for each tab by seeing if the content width that we calculated above is equal to content 
 			// width we had in the previous rendering pass
