@@ -330,6 +330,9 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		{
 			ListWithEvents<TitleBarTab> tabs = (ListWithEvents<TitleBarTab>) sender;
 
+			if (tabs.Count == 0)
+				return;
+
 			int minimumWidth = tabs.Sum(
 				tab => (tab.Active
 				        	? _activeLeftSideImage.Width
@@ -340,8 +343,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 				        	? tab.CloseButtonArea.Width + CloseButtonMarginLeft
 				        	: 0));
 
-			if (tabs.Count > 0)
-				minimumWidth += OverlapWidth;
+			minimumWidth += OverlapWidth;
 
 		    minimumWidth += (_parentWindow.ControlBox
 		                         ? SystemInformation.CaptionButtonSize.Width
