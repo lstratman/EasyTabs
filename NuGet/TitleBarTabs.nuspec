@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>TitleBarTabs</id>
+        <version>1.0.0</version>
+        <title>.NET Title Bar Tabs</title>
+        <authors>Luke Stratman</authors>
+        <owners />
+        <projectUrl>https://github.com/lstratman/.NETTitleBarTabs</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Library to enable .NET WinForms apps to easily render a set of tabs in their titlebar space, similar to Chrome, Firefox, Trillian, etc.</description>
+        <summary />
+    </metadata>
+    <files>
+        <file src="..\bin\Release\Microsoft.WindowsAPICodePack.dll" target="lib\Microsoft.WindowsAPICodePack.dll" />
+        <file src="..\bin\Release\Microsoft.WindowsAPICodePack.Shell.dll" target="lib\Microsoft.WindowsAPICodePack.Shell.dll" />
+        <file src="..\bin\Release\Stratman.Windows.Forms.TitleBarTabs.dll" target="lib\Stratman.Windows.Forms.TitleBarTabs.dll" />
+        <file src="..\bin\Release\Stratman.Windows.Forms.TitleBarTabs.XML" target="lib\Stratman.Windows.Forms.TitleBarTabs.XML" />
+        <file src="..\bin\Release\Win32Interop.Dwmapi.dll" target="lib\Win32Interop.Dwmapi.dll" />
+        <file src="..\bin\Release\Win32Interop.Gdi32.dll" target="lib\Win32Interop.Gdi32.dll" />
+        <file src="..\bin\Release\Win32Interop.Gdi32.xml" target="lib\Win32Interop.Gdi32.xml" />
+        <file src="..\bin\Release\Win32Interop.Kernel32.dll" target="lib\Win32Interop.Kernel32.dll" />
+        <file src="..\bin\Release\Win32Interop.Kernel32.xml" target="lib\Win32Interop.Kernel32.xml" />
+        <file src="..\bin\Release\Win32Interop.User32.dll" target="lib\Win32Interop.User32.dll" />
+        <file src="..\bin\Release\Win32Interop.User32.xml" target="lib\Win32Interop.User32.xml" />
+        <file src="..\bin\Release\Win32Interop.Uxtheme.dll" target="lib\Win32Interop.Uxtheme.dll" />
+    </files>
+</package>
