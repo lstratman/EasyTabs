@@ -4,12 +4,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("CustomFrame")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle(".NET Title Bar Tabs")]
+[assembly: AssemblyDescription("Displays tabs in the title bar (ala Chrome) for .NET WinForms applications")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Microsoft")]
-[assembly: AssemblyProduct("CustomFrame")]
-[assembly: AssemblyCopyright("Copyright © Microsoft 2011")]
+[assembly: AssemblyCompany("Luke Stratman")]
+[assembly: AssemblyProduct(".NET Title Bar Tabs")]
+[assembly: AssemblyCopyright("Copyright © 2012")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
