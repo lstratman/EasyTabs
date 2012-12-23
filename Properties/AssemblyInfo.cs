@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle(".NET Title Bar Tabs")]
-[assembly: AssemblyDescription("Displays tabs in the title bar (ala Chrome) for .NET WinForms applications")]
+[assembly: AssemblyDescription("Library to enable .NET WinForms apps to easily render a set of tabs in their titlebar space, similar to Chrome, Firefox, Trillian, etc.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Luke Stratman")]
 [assembly: AssemblyProduct(".NET Title Bar Tabs")]
