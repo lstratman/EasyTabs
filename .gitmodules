@@ -1,3 +1,0 @@
-[submodule "Win32Interop"]
-	path = Win32Interop
-	url = git@github.com:lstratman/Win32Interop.git

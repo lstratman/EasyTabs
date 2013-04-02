@@ -477,12 +477,12 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                                 cy = bitmap.Height
                             };
 
-					    Win32Interop.Structs.Point pointSource = new Win32Interop.Structs.Point
+					    POINT pointSource = new POINT
 					        {
 					            x = 0,
 					            y = 0
 					        };
-					    Win32Interop.Structs.Point topPos = new Win32Interop.Structs.Point
+					    POINT topPos = new POINT
 					        {
 					            x = Left,
 					            y = Top
