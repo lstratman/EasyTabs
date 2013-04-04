@@ -405,26 +405,29 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         protected void OnTabDeselecting(TitleBarTabCancelEventArgs e)
         {
             if (_previousActiveTab != null && AeroPeekEnabled)
-            {
-                TabbedThumbnail preview = TaskbarManager.Instance.TabbedThumbnail.GetThumbnailPreview(_previousActiveTab.Content);
-
-                if (preview == null)
-                    return;
-
-                Bitmap bitmap = TabbedThumbnailScreenCapture.GrabWindowBitmap(_previousActiveTab.Content.Handle, _previousActiveTab.Content.Size);
-
-                preview.SetImage(bitmap);
-
-                // If we already had a preview image for the tab, dispose of it
-                if (_previews.ContainsKey(_previousActiveTab.Content))
-                    _previews[_previousActiveTab.Content].Dispose();
-
-                _previews[_previousActiveTab.Content] = bitmap;
-            }
+				UpdateTabThumbnail(_previousActiveTab);
 
             if (TabDeselecting != null)
                 TabDeselecting(this, e);
         }
+
+		protected void UpdateTabThumbnail(TitleBarTab tab)
+		{
+			TabbedThumbnail preview = TaskbarManager.Instance.TabbedThumbnail.GetThumbnailPreview(tab.Content);
+
+			if (preview == null)
+				return;
+
+			Bitmap bitmap = TabbedThumbnailScreenCapture.GrabWindowBitmap(tab.Content.Handle, tab.Content.Size);
+
+			preview.SetImage(bitmap);
+
+			// If we already had a preview image for the tab, dispose of it
+			if (_previews.ContainsKey(tab.Content) && _previews[tab.Content] != null)
+				_previews[tab.Content].Dispose();
+
+			_previews[tab.Content] = bitmap;
+		}
 
         /// <summary>
         /// Callback for the <see cref="TabDeselected" /> event.
@@ -535,7 +538,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         /// <param name="e">Arguments associated with this event.</param>
         private void preview_TabbedThumbnailActivated(object sender, TabbedThumbnailEventArgs e)
         {
-            foreach (TitleBarTab tab in Tabs.Where(tab => tab.Content.Handle == e.WindowHandle))
+			foreach (TitleBarTab tab in Tabs.Where(tab => tab.Content.Handle == e.WindowHandle))
             {
                 SelectedTabIndex = Tabs.IndexOf(tab);
                 TaskbarManager.Instance.TabbedThumbnail.SetActiveTab(tab.Content);
@@ -543,10 +546,12 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                 break;
             }
 
-            if (WindowState == FormWindowState.Minimized)
-                WindowState = FormWindowState.Normal;
+			// Restore the window if it was minimized
+	        if (WindowState == FormWindowState.Minimized)
+		        User32.ShowWindow(Handle, 3);
 
-            Focus();
+	        else
+		        Focus();
         }
 
         /// <summary>
@@ -560,7 +565,9 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             foreach (TitleBarTab tab in Tabs.Where(tab => tab.Content.Handle == e.WindowHandle))
             {
                 tab.Content.Close();
-                TaskbarManager.Instance.TabbedThumbnail.RemoveThumbnailPreview(e.TabbedThumbnail);
+
+				if (e.TabbedThumbnail != null)
+					TaskbarManager.Instance.TabbedThumbnail.RemoveThumbnailPreview(e.TabbedThumbnail);
 
                 break;
             }
@@ -658,10 +665,10 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         protected override void OnSizeChanged(EventArgs e)
         {
             // If no tab renderer has been set yet or the window state hasn't changed, don't do anything
-            if (_previousWindowState != null && WindowState != _previousWindowState.Value)
-                SetFrameSize();
+	        if (_previousWindowState != null && WindowState != _previousWindowState.Value)
+		        SetFrameSize();
 
-            _previousWindowState = WindowState;
+	        _previousWindowState = WindowState;
 
             base.OnSizeChanged(e);
         }
@@ -701,6 +708,13 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                     callDwp = false;
 
                     break;
+
+				// Catch the case where the user is clicking the minimize button and use this opportunity to update the AeroPeek thumbnail for the current tab
+				case WM.WM_NCLBUTTONDOWN:
+					if (((HT)m.WParam.ToInt32()) == HT.HTMINBUTTON && AeroPeekEnabled && SelectedTab != null)
+						UpdateTabThumbnail(SelectedTab);
+
+		            break;
             }
 
             if (callDwp)
@@ -756,6 +770,15 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                 Close();
         }
 
+		private HT HitTest(Message m)
+		{
+			// Get the point that the user clicked
+			int lParam = (int)m.LParam;
+			Point point = new Point(lParam & 0xffff, lParam >> 16);
+
+			return HitTest(point, m.HWnd);
+		}
+
         /// <summary>
         /// Called when a <see cref="WM.WM_NCHITTEST" /> message is received to see where in the non-client area the user clicked.
         /// </summary>
@@ -765,14 +788,11 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         /// <returns>
         /// One of the <see cref="HT" /> values, depending on where the user clicked.
         /// </returns>
-        private HT HitTest(Message m)
+        private HT HitTest(Point point, IntPtr windowHandle)
         {
-            // Get the point that the user clicked
-            int lParam = (int) m.LParam;
-            Point point = new Point(lParam & 0xffff, lParam >> 16);
             RECT rect;
 
-            User32.GetWindowRect(m.HWnd, out rect);
+            User32.GetWindowRect(windowHandle, out rect);
             Rectangle area = new Rectangle(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top);
 
             int row = 1;

@@ -418,7 +418,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		/// <param name="forceRedraw">Flag indicating whether a full render should be forced.</param>
 		public void Render(Point cursorPosition, bool forceRedraw = false)
 		{
-			if (!IsDisposed && _parentForm.TabRenderer != null && _parentForm.WindowState != FormWindowState.Minimized)
+			if (!IsDisposed && _parentForm.TabRenderer != null && _parentForm.WindowState != FormWindowState.Minimized && _parentForm.ClientRectangle.Width > 0)
 			{
 				cursorPosition = GetRelativeCursorPosition(cursorPosition);
 
