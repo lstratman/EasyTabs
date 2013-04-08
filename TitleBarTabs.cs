@@ -313,7 +313,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         /// </summary>
         protected void SetFrameSize()
         {
-            if (TabRenderer == null)
+            if (TabRenderer == null || WindowState == FormWindowState.Minimized)
                 return;
 
             int topPadding;
