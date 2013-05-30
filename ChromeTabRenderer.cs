@@ -28,8 +28,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			_addButtonHoverImage = new Bitmap(Resources.ChromeAddHover);
 
 			// Set the various positioning properties
-			CloseButtonMarginTop = 9;
-			CloseButtonMarginLeft = 5;
+			CloseButtonMarginTop = 6;
+			CloseButtonMarginLeft = 2;
 			AddButtonMarginTop = 5;
 			AddButtonMarginLeft = -3;
 			CaptionMarginTop = 5;
