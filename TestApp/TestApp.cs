@@ -8,6 +8,8 @@ namespace TestApp
         {
             InitializeComponent();
 
+			AeroPeekEnabled = false;
+
             Tabs.Add(new TitleBarTab(this)
                 {
                     Content = new TabWindow
