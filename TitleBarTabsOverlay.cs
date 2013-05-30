@@ -240,59 +240,6 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 					Render(cursorPosition, true);
 			}
 
-            else if (nCode >= 0 && ((int)WM.WM_LBUTTONDOWN == (int) wParam || (int)WM.WM_NCLBUTTONDOWN == (int) wParam))
-            {
-                Point relativeCursorPosition = GetRelativeCursorPosition(Cursor.Position);
-
-				// When the user clicks a mouse button, save the tab that the user was over so we can respond properly when the mouse button is released
-				TitleBarTab clickedTab = _parentForm.TabRenderer.OverTab(_parentForm.Tabs, relativeCursorPosition);
-
-				if (clickedTab != null)
-                {
-                    // If the user clicked the close button, remove the tab from the list
-                    if (!_parentForm.TabRenderer.IsOverCloseButton(clickedTab, relativeCursorPosition))
-                    {
-                        _parentForm.ResizeTabContents(clickedTab);
-                        _parentForm.OnTabClicked(
-                            new TitleBarTabEventArgs
-                                {
-                                    Tab = clickedTab,
-                                    TabIndex = _parentForm.SelectedTabIndex,
-                                    Action = TabControlAction.Selected
-                                });
-                        _parentForm.SelectedTabIndex = _parentForm.Tabs.IndexOf(clickedTab);
-
-                        Render();
-                    }
-
-                    OnMouseDown(new MouseEventArgs(MouseButtons.Left, 1, Cursor.Position.X, Cursor.Position.Y, 0));
-                }
-            }
-
-            else if (nCode >= 0 && ((int)WM.WM_LBUTTONUP == (int)wParam || (int)WM.WM_NCLBUTTONUP == (int)wParam))
-            {
-                Point relativeCursorPosition = GetRelativeCursorPosition(Cursor.Position);
-
-                // When the user clicks a mouse button, save the tab that the user was over so we can respond properly when the mouse button is released
-                TitleBarTab clickedTab = _parentForm.TabRenderer.OverTab(_parentForm.Tabs, relativeCursorPosition);
-
-                if (clickedTab != null)
-                {
-                    // If the user clicked the close button, remove the tab from the list
-                    if (_parentForm.TabRenderer.IsOverCloseButton(clickedTab, relativeCursorPosition))
-                    {
-                        clickedTab.Content.Close();
-                        Render();
-                    }
-                }
-
-                // Otherwise, if the user clicked the add button, call CreateTab to add a new tab to the list and select it
-                else if (_parentForm.TabRenderer.IsOverAddButton(relativeCursorPosition))
-                    _parentForm.AddNewTab();
-
-                OnMouseUp(new MouseEventArgs(MouseButtons.Left, 1, Cursor.Position.X, Cursor.Position.Y, 0));
-            }
-
 		    return User32.CallNextHookEx(_hookId, nCode, wParam, lParam);
 		}
 
@@ -539,7 +486,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		/// <param name="m">Message received by the pump.</param>
 		protected override void WndProc(ref Message m)
 		{
-			switch ((WM)m.Msg)
+            switch ((WM)m.Msg)
 			{
 				case WM.WM_NCLBUTTONDOWN:
 				case WM.WM_LBUTTONDOWN:
@@ -549,6 +496,33 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                     if (_parentForm.TabRenderer.OverTab(_parentForm.Tabs, relativeCursorPosition) == null && 
                         !_parentForm.TabRenderer.IsOverAddButton(relativeCursorPosition))
 						_parentForm.ForwardMessage(ref m);
+
+                    else
+                    {
+	                    // When the user clicks a mouse button, save the tab that the user was over so we can respond properly when the mouse button is released
+						TitleBarTab clickedTab = _parentForm.TabRenderer.OverTab(_parentForm.Tabs, relativeCursorPosition);
+
+						if (clickedTab != null)
+						{
+							// If the user clicked the close button, remove the tab from the list
+							if (!_parentForm.TabRenderer.IsOverCloseButton(clickedTab, relativeCursorPosition))
+							{
+								_parentForm.ResizeTabContents(clickedTab);
+								_parentForm.OnTabClicked(
+									new TitleBarTabEventArgs
+										{
+											Tab = clickedTab,
+											TabIndex = _parentForm.SelectedTabIndex,
+											Action = TabControlAction.Selected
+										});
+								_parentForm.SelectedTabIndex = _parentForm.Tabs.IndexOf(clickedTab);
+
+								Render();
+							}
+
+							OnMouseDown(new MouseEventArgs(MouseButtons.Left, 1, Cursor.Position.X, Cursor.Position.Y, 0));
+						}
+                    }
 
 					break;
 
@@ -568,6 +542,28 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 					if (_parentForm.TabRenderer.OverTab(_parentForm.Tabs, relativeCursorPosition2) == null && 
                         !_parentForm.TabRenderer.IsOverAddButton(relativeCursorPosition2))
 						_parentForm.ForwardMessage(ref m);
+
+					else
+					{
+						// When the user clicks a mouse button, save the tab that the user was over so we can respond properly when the mouse button is released
+						TitleBarTab clickedTab = _parentForm.TabRenderer.OverTab(_parentForm.Tabs, relativeCursorPosition2);
+
+						if (clickedTab != null)
+						{
+							// If the user clicked the close button, remove the tab from the list
+							if (_parentForm.TabRenderer.IsOverCloseButton(clickedTab, relativeCursorPosition2))
+							{
+								clickedTab.Content.Close();
+								Render();
+							}
+						}
+
+						// Otherwise, if the user clicked the add button, call CreateTab to add a new tab to the list and select it
+						else if (_parentForm.TabRenderer.IsOverAddButton(relativeCursorPosition2))
+							_parentForm.AddNewTab();
+
+						OnMouseUp(new MouseEventArgs(MouseButtons.Left, 1, Cursor.Position.X, Cursor.Position.Y, 0));
+					}
 
 					break;
 
