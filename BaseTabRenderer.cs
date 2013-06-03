@@ -98,6 +98,11 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 	    protected Point? _dragStart = null;
 
 		/// <summary>
+		/// Flag indicating whether or not a tab is being repositioned.
+		/// </summary>
+		protected bool _isTabRepositioning = false;
+
+		/// <summary>
 		/// Default constructor that initializes the <see cref="_parentWindow" /> and <see cref="ShowAddButton" /> properties.
 		/// </summary>
 		/// <param name="parentWindow">The parent window that this renderer instance belongs to.</param>
@@ -106,6 +111,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			_parentWindow = parentWindow;
 			ShowAddButton = true;
 		    TabRepositionDragDistance = 10;
+			TabTearDragDistance = 10;
 
 			parentWindow.Tabs.CollectionModified += Tabs_CollectionModified;
 
@@ -158,7 +164,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         /// <param name="e">Arguments associated with the event.</param>
         protected internal virtual void Overlay_MouseMove(object sender, MouseEventArgs e)
         {
-            if (_dragStart != null && !IsTabRepositioning && Math.Abs(e.X - _dragStart.Value.X) > TabRepositionDragDistance)
+            if (_dragStart != null && !IsTabRepositioning && (Math.Abs(e.X - _dragStart.Value.X) > TabRepositionDragDistance || Math.Abs(e.Y - _dragStart.Value.Y) > TabRepositionDragDistance))
                 IsTabRepositioning = true;
         }
 
@@ -311,13 +317,29 @@ namespace Stratman.Windows.Forms.TitleBarTabs
             set;
         }
 
+		public int TabTearDragDistance
+		{
+			get;
+			set;
+		}
+
         /// <summary>
         /// Flag indicating whether or not a tab is being repositioned.
         /// </summary>
         public bool IsTabRepositioning
         {
-            get;
-            protected set;
+            get
+            {
+	            return _isTabRepositioning;
+            }
+
+            internal set
+            {
+	            _isTabRepositioning = value;
+
+	            if (!_isTabRepositioning)
+		            _dragStart = null;
+            }
         }
 
 		/// <summary>

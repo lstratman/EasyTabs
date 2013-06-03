@@ -9,16 +9,6 @@ namespace TestApp
             InitializeComponent();
 
 			AeroPeekEnabled = false;
-
-            Tabs.Add(new TitleBarTab(this)
-                {
-                    Content = new TabWindow
-                    {
-                        Text = "New Tab"
-                    }
-                });
-
-            SelectedTabIndex = 0;
             TabRenderer = new ChromeTabRenderer(this);
             Icon = Resources.DefaultIcon;
         }

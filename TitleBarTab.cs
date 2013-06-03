@@ -32,7 +32,26 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		public TitleBarTab(TitleBarTabs parent)
 		{
 			ShowCloseButton = true;
-			_parent = parent;
+			Parent = parent;
+		}
+
+		/// <summary>
+		/// Parent window that contains this tab.
+		/// </summary>
+		public TitleBarTabs Parent
+		{
+			get
+			{
+				return _parent;
+			}
+
+			internal set
+			{
+				_parent = value;
+
+				if (_content != null)
+					_content.Parent = _parent;
+			}
 		}
 
 		/// <summary>
@@ -146,7 +165,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 				// We set the content form to a non-top-level child of the parent form.
 				Content.FormBorderStyle = FormBorderStyle.None;
 				Content.TopLevel = false;
-				Content.Parent = _parent;
+				Content.Parent = Parent;
 				Content.FormClosing += Content_Closing;
 				Content.TextChanged += Content_TextChanged;
 			}

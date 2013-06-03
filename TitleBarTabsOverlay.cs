@@ -55,6 +55,12 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		/// </summary>
 		protected TitleBarTabs _parentForm;
 
+		protected static TitleBarTab _tornTab;
+
+		protected static TornTabForm _tornTabForm;
+
+		protected object _tornTabLock = new object();
+
 		/// <summary>
 		/// Blank default constructor to ensure that the overlays are only initialized through 
 		/// <see cref="GetInstance"/>.
@@ -195,52 +201,110 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		/// <returns>A zero value if the procedure processes the message; a nonzero value if the procedure ignores the message.</returns>
 		protected IntPtr MouseHookCallback(int nCode, IntPtr wParam, IntPtr lParam)
 		{
-			if (nCode >= 0 && (int)WM.WM_MOUSEMOVE == (int) wParam)
+			if (nCode >= 0 && (int) WM.WM_MOUSEMOVE == (int) wParam)
 			{
 				MSLLHOOKSTRUCT hookStruct = (MSLLHOOKSTRUCT) Marshal.PtrToStructure(lParam, typeof (MSLLHOOKSTRUCT));
 				Point cursorPosition = new Point(hookStruct.pt.x, hookStruct.pt.y);
 				bool reRender = false;
 
-                if (!_parentForm.TabRenderer.IsTabRepositioning)
-                {
-                    // If we were over a close button previously, check to see if the cursor is still over that tab's
-                    // close button; if not, re-render
-                    if (_isOverCloseButtonForTab != -1 &&
-                        (_isOverCloseButtonForTab >= _parentForm.Tabs.Count ||
-                         !_parentForm.TabRenderer.IsOverCloseButton(_parentForm.Tabs[_isOverCloseButtonForTab], GetRelativeCursorPosition(cursorPosition))))
-                    {
-                        reRender = true;
-                        _isOverCloseButtonForTab = -1;
-                    }
+				if (!_parentForm.TabRenderer.IsTabRepositioning)
+				{
+					// If we were over a close button previously, check to see if the cursor is still over that tab's
+					// close button; if not, re-render
+					if (_isOverCloseButtonForTab != -1 &&
+					    (_isOverCloseButtonForTab >= _parentForm.Tabs.Count ||
+					     !_parentForm.TabRenderer.IsOverCloseButton(_parentForm.Tabs[_isOverCloseButtonForTab], GetRelativeCursorPosition(cursorPosition))))
+					{
+						reRender = true;
+						_isOverCloseButtonForTab = -1;
+					}
 
-                    // Otherwise, see if any tabs' close button is being hovered over
-                    else
-                    {
-                        // ReSharper disable ForCanBeConvertedToForeach
-                        for (int i = 0; i < _parentForm.Tabs.Count; i++)
-                        // ReSharper restore ForCanBeConvertedToForeach
-                        {
-                            if (_parentForm.TabRenderer.IsOverCloseButton(_parentForm.Tabs[i], GetRelativeCursorPosition(cursorPosition)))
-                            {
-                                _isOverCloseButtonForTab = i;
-                                reRender = true;
+						// Otherwise, see if any tabs' close button is being hovered over
+					else
+					{
+						// ReSharper disable ForCanBeConvertedToForeach
+						for (int i = 0; i < _parentForm.Tabs.Count; i++)
+							// ReSharper restore ForCanBeConvertedToForeach
+						{
+							if (_parentForm.TabRenderer.IsOverCloseButton(_parentForm.Tabs[i], GetRelativeCursorPosition(cursorPosition)))
+							{
+								_isOverCloseButtonForTab = i;
+								reRender = true;
 
-                                break;
-                            }
-                        }
-                    }
-                }
+								break;
+							}
+						}
+					}
+				}
 
-			    OnMouseMove(new MouseEventArgs(MouseButtons.None, 0, cursorPosition.X, cursorPosition.Y, 0));
+				else
+				{
+					Rectangle dragArea = new Rectangle(
+						Left - _parentForm.TabRenderer.TabTearDragDistance, Top - _parentForm.TabRenderer.TabTearDragDistance,
+						Width + _parentForm.TabRenderer.TabTearDragDistance * 2, Height + _parentForm.TabRenderer.TabTearDragDistance * 2);
 
-                if (_parentForm.TabRenderer.IsTabRepositioning)
-                    reRender = true;
+					if (!dragArea.Contains(cursorPosition) && _tornTab == null)
+					{
+						lock (_tornTabLock)
+						{
+							if (_tornTab == null)
+							{
+								_parentForm.TabRenderer.IsTabRepositioning = false;
+
+								_tornTab = _parentForm.SelectedTab;
+								_parentForm.SelectedTabIndex = (_parentForm.SelectedTabIndex == _parentForm.Tabs.Count - 1
+									                                ? _parentForm.SelectedTabIndex - 1
+									                                : _parentForm.SelectedTabIndex + 1);
+								_parentForm.Tabs.Remove(_tornTab);
+
+								_tornTabForm = new TornTabForm();
+								_tornTabForm.Show();
+							}
+						}
+					}
+
+					else
+					{
+						Debug.WriteLine("{0} needs to be outside of {1}", cursorPosition, dragArea);
+					}
+				}
+
+				OnMouseMove(new MouseEventArgs(MouseButtons.None, 0, cursorPosition.X, cursorPosition.Y, 0));
+
+				if (_parentForm.TabRenderer.IsTabRepositioning)
+					reRender = true;
 
 				if (reRender)
 					Render(cursorPosition, true);
 			}
 
-		    return User32.CallNextHookEx(_hookId, nCode, wParam, lParam);
+			else if (nCode >= 0 && (int) WM.WM_LBUTTONUP == (int) wParam)
+			{
+				if (_tornTab != null)
+				{
+					lock (_tornTabLock)
+					{
+						if (_tornTab != null)
+						{
+							TitleBarTabs newWindow = (TitleBarTabs) Activator.CreateInstance(_parentForm.GetType());
+							
+							_tornTab.Parent = newWindow;
+							newWindow.Show();
+							newWindow.Tabs.Add(_tornTab);
+							newWindow.SelectedTabIndex = 0;
+							newWindow.ResizeTabContents();
+
+							_tornTab = null;
+							_tornTabForm.Close();
+							_tornTabForm = null;
+						}
+					}
+				}
+
+				OnMouseUp(new MouseEventArgs(MouseButtons.Left, 1, Cursor.Position.X, Cursor.Position.Y, 0));
+			}
+
+			return User32.CallNextHookEx(_hookId, nCode, wParam, lParam);
 		}
 
 		/// <summary>
