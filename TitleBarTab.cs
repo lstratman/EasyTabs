@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 
 namespace Stratman.Windows.Forms.TitleBarTabs
@@ -33,6 +34,16 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		{
 			ShowCloseButton = true;
 			Parent = parent;
+		}
+
+		public virtual Bitmap GetImage()
+		{
+			Bitmap tabContents = new Bitmap(Content.Size.Width, Content.Size.Height);
+			Graphics contentsGraphics = Graphics.FromImage(tabContents);
+
+			contentsGraphics.CopyFromScreen(Content.PointToScreen(Point.Empty).X, Content.PointToScreen(Point.Empty).Y, 0, 0, Content.Size);
+
+			return tabContents;
 		}
 
 		/// <summary>
