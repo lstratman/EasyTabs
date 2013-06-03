@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using Win32Interop.Enums;
@@ -287,7 +288,25 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 						if (_tornTab != null)
 						{
 							TitleBarTabs newWindow = (TitleBarTabs) Activator.CreateInstance(_parentForm.GetType());
-							
+
+							if (newWindow.WindowState == FormWindowState.Maximized)
+							{
+								Screen screen = Screen.AllScreens.First(s => s.WorkingArea.Contains(Cursor.Position));
+
+								newWindow.StartPosition = FormStartPosition.Manual;
+								newWindow.WindowState = FormWindowState.Normal;
+								newWindow.Left = screen.WorkingArea.Left;
+								newWindow.Top = screen.WorkingArea.Top;
+								newWindow.Width = screen.WorkingArea.Width;
+								newWindow.Height = screen.WorkingArea.Height;
+							}
+
+							else
+							{
+								newWindow.Left = Cursor.Position.X;
+								newWindow.Top = Cursor.Position.Y;
+							}
+
 							_tornTab.Parent = newWindow;
 							newWindow.Show();
 							newWindow.Tabs.Add(_tornTab);
