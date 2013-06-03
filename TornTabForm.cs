@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -24,25 +25,60 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		/// </summary>
 		protected HOOKPROC _hookproc = null;
 
-		public TornTabForm(TitleBarTab tab)
+		protected Point _cursorOffset;
+
+		/// <summary>
+		/// Makes sure that the window is created with an <see cref="WS_EX.WS_EX_LAYERED"/> flag set so that it can be alpha-blended properly with the 
+		/// content (<see cref="_parentForm"/>) underneath the overlay.
+		/// </summary>
+		protected override CreateParams CreateParams
+		{
+			get
+			{
+				CreateParams createParams = base.CreateParams;
+				createParams.ExStyle |= (int)(WS_EX.WS_EX_LAYERED | WS_EX.WS_EX_NOACTIVATE);
+
+				return createParams;
+			}
+		}
+
+		public TornTabForm(TitleBarTab tab, BaseTabRenderer tabRenderer)
 		{
 			InitializeComponent();
 
 			Disposed +=TornTabForm_Disposed;
 
 			Bitmap tabContents = tab.GetImage();
-			Bitmap tabThumbnail = new Bitmap(tabContents.Width / 2, tabContents.Height / 2);
+			Bitmap contentsAndTab = new Bitmap(tabContents.Width, tabContents.Height + tabRenderer.TabHeight);
+			Graphics tabGraphics = Graphics.FromImage(contentsAndTab);
+
+			tabGraphics.DrawImage(tabContents, 0, tabRenderer.TabHeight, tabContents.Width, tabContents.Height);
+
+			bool oldShowAddButton = tabRenderer.ShowAddButton;
+			
+			tabRenderer.ShowAddButton = false;
+			tabRenderer.Render(
+				new List<TitleBarTab>
+					{
+						tab
+					}, tabGraphics, new Point(0, 0), new Point(0, 0), true);
+			tabRenderer.ShowAddButton = oldShowAddButton;
+
+			Bitmap tabThumbnail = new Bitmap(contentsAndTab.Width / 2, contentsAndTab.Height / 2);
 			Graphics thumbnailGraphics = Graphics.FromImage(tabThumbnail);
 
 			thumbnailGraphics.InterpolationMode = InterpolationMode.High;
 			thumbnailGraphics.CompositingQuality = CompositingQuality.HighQuality;
 			thumbnailGraphics.SmoothingMode = SmoothingMode.AntiAlias;
-			thumbnailGraphics.DrawImage(tabContents, 0, 0, tabThumbnail.Width, tabThumbnail.Height);
+			thumbnailGraphics.DrawImage(contentsAndTab, 0, 0, tabThumbnail.Width, tabThumbnail.Height);
 
 			Width = tabThumbnail.Width - 1;
 			Height = tabThumbnail.Height - 1;
 
 			_tabThumbnail.Image = tabThumbnail;
+			_cursorOffset = new Point(tabRenderer.TabContentWidth / 4, tabRenderer.TabHeight / 4);
+
+			SetWindowPosition(Cursor.Position);
 		}
 
 		void TornTabForm_Disposed(object sender, EventArgs e)
@@ -81,11 +117,16 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 				MSLLHOOKSTRUCT hookStruct = (MSLLHOOKSTRUCT)Marshal.PtrToStructure(lParam, typeof(MSLLHOOKSTRUCT));
 				Point cursorPosition = new Point(hookStruct.pt.x, hookStruct.pt.y);
 
-				Left = cursorPosition.X;
-				Top = cursorPosition.Y;
+				SetWindowPosition(cursorPosition);
 			}
 
 			return User32.CallNextHookEx(_hookId, nCode, wParam, lParam);
+		}
+
+		protected void SetWindowPosition(Point cursorPosition)
+		{
+			Left = cursorPosition.X - _cursorOffset.X;
+			Top = cursorPosition.Y - _cursorOffset.Y;
 		}
 	}
 }

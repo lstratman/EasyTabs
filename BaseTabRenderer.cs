@@ -518,12 +518,14 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			if (_background != null)
 				graphicsContext.DrawImage(_background, offset.X, offset.Y, _parentWindow.Width, _activeCenterImage.Height);
 
-            if (_parentWindow.SelectedTabIndex != -1)
+			int selectedIndex = tabs.FindIndex(t => t.Active);
+
+            if (selectedIndex != -1)
             {
                 Rectangle tabArea =
                     new Rectangle(
                         SystemInformation.BorderSize.Width + offset.X +
-                        (_parentWindow.SelectedTabIndex * (tabContentWidth + _activeLeftSideImage.Width + _activeRightSideImage.Width - OverlapWidth)),
+                        (selectedIndex * (tabContentWidth + _activeLeftSideImage.Width + _activeRightSideImage.Width - OverlapWidth)),
                         offset.Y, tabContentWidth + _activeLeftSideImage.Width + _activeRightSideImage.Width,
                         _activeCenterImage.Height);
 
@@ -548,9 +550,9 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                                     Convert.ToDouble(tabArea.Width - OverlapWidth)));
 
                     // If the tab has been moved over another slot, move the tab object in the window's tab list
-                    if (dropIndex != _parentWindow.SelectedTabIndex)
+                    if (dropIndex != selectedIndex)
                     {
-                        TitleBarTab tab = _parentWindow.SelectedTab;
+                        TitleBarTab tab = tabs[selectedIndex];
                         
                         _parentWindow.Tabs.SuppressEvents();
                         _parentWindow.Tabs.Remove(tab);
@@ -559,7 +561,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
                     }
                 }
 
-                activeTabs.Add(new Tuple<TitleBarTab, Rectangle>(_parentWindow.SelectedTab, tabArea));
+                activeTabs.Add(new Tuple<TitleBarTab, Rectangle>(tabs[selectedIndex], tabArea));
             }
 
 			// Loop through the tabs in reverse order since we need the ones farthest on the left to overlap those to their right
@@ -774,6 +776,14 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 						{
 							Trimming = StringTrimming.EllipsisCharacter
 						});
+			}
+		}
+
+		public int TabContentWidth
+		{
+			get
+			{
+				return _tabContentWidth;
 			}
 		}
 	}

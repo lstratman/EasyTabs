@@ -257,7 +257,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 									                                : _parentForm.SelectedTabIndex + 1);
 								_parentForm.Tabs.Remove(_tornTab);
 
-								_tornTabForm = new TornTabForm(_tornTab);
+								_tornTabForm = new TornTabForm(_tornTab, _parentForm.TabRenderer);
 								_tornTabForm.Show();
 							}
 						}

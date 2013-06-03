@@ -1,4 +1,6 @@
-﻿namespace Stratman.Windows.Forms.TitleBarTabs
+﻿using System.Drawing;
+
+namespace Stratman.Windows.Forms.TitleBarTabs
 {
 	partial class TornTabForm
 	{
@@ -49,7 +51,6 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.BackColor = System.Drawing.Color.Magenta;
 			this.ClientSize = new System.Drawing.Size(284, 262);
 			this.Controls.Add(this._tabThumbnail);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
