@@ -117,9 +117,6 @@
     <Compile Include="TornTabForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="TornTabForm.Designer.cs">
-      <DependentUpon>TornTabForm.cs</DependentUpon>
-    </Compile>
     <EmbeddedResource Include="Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -128,9 +125,6 @@
     <EmbeddedResource Include="TitleBarTabs.resx">
       <DependentUpon>TitleBarTabs.cs</DependentUpon>
       <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="TornTabForm.resx">
-      <DependentUpon>TornTabForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
