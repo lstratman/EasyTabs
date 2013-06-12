@@ -216,5 +216,11 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			if (Closing != null)
 				Closing(this, e);
 		}
+
+		public void ClearSubscriptions()
+		{
+			Closing = null;
+			TextChanged = null;
+		}
 	}
 }
