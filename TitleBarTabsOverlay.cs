@@ -62,6 +62,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
 		protected object _tornTabLock = new object();
 
+		protected static bool _wasDragging = false;
+
 		/// <summary>
 		/// Blank default constructor to ensure that the overlays are only initialized through 
 		/// <see cref="GetInstance"/>.
@@ -202,9 +204,9 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		/// <returns>A zero value if the procedure processes the message; a nonzero value if the procedure ignores the message.</returns>
 		protected IntPtr MouseHookCallback(int nCode, IntPtr wParam, IntPtr lParam)
 		{
-			if (nCode >= 0 && (int) WM.WM_MOUSEMOVE == (int) wParam)
+			if (nCode >= 0 && (int)WM.WM_MOUSEMOVE == (int)wParam)
 			{
-				MSLLHOOKSTRUCT hookStruct = (MSLLHOOKSTRUCT) Marshal.PtrToStructure(lParam, typeof (MSLLHOOKSTRUCT));
+				MSLLHOOKSTRUCT hookStruct = (MSLLHOOKSTRUCT)Marshal.PtrToStructure(lParam, typeof(MSLLHOOKSTRUCT));
 				Point cursorPosition = new Point(hookStruct.pt.x, hookStruct.pt.y);
 				bool reRender = false;
 
@@ -213,8 +215,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 					// If we were over a close button previously, check to see if the cursor is still over that tab's
 					// close button; if not, re-render
 					if (_isOverCloseButtonForTab != -1 &&
-					    (_isOverCloseButtonForTab >= _parentForm.Tabs.Count ||
-					     !_parentForm.TabRenderer.IsOverCloseButton(_parentForm.Tabs[_isOverCloseButtonForTab], GetRelativeCursorPosition(cursorPosition))))
+						(_isOverCloseButtonForTab >= _parentForm.Tabs.Count ||
+						 !_parentForm.TabRenderer.IsOverCloseButton(_parentForm.Tabs[_isOverCloseButtonForTab], GetRelativeCursorPosition(cursorPosition))))
 					{
 						reRender = true;
 						_isOverCloseButtonForTab = -1;
@@ -225,7 +227,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 					{
 						// ReSharper disable ForCanBeConvertedToForeach
 						for (int i = 0; i < _parentForm.Tabs.Count; i++)
-							// ReSharper restore ForCanBeConvertedToForeach
+						// ReSharper restore ForCanBeConvertedToForeach
 						{
 							if (_parentForm.TabRenderer.IsOverCloseButton(_parentForm.Tabs[i], GetRelativeCursorPosition(cursorPosition)))
 							{
@@ -240,6 +242,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
 				else
 				{
+					_wasDragging = true;
+
 					Rectangle dragArea = new Rectangle(
 						Left - _parentForm.TabRenderer.TabTearDragDistance, Top - _parentForm.TabRenderer.TabTearDragDistance,
 						Width + _parentForm.TabRenderer.TabTearDragDistance * 2, Height + _parentForm.TabRenderer.TabTearDragDistance * 2);
@@ -256,18 +260,13 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 								_tornTab.ClearSubscriptions();
 								_tornTabForm = new TornTabForm(_tornTab, _parentForm.TabRenderer);
 								_parentForm.SelectedTabIndex = (_parentForm.SelectedTabIndex == _parentForm.Tabs.Count - 1
-									                                ? _parentForm.SelectedTabIndex - 1
-									                                : _parentForm.SelectedTabIndex + 1);
+																	? _parentForm.SelectedTabIndex - 1
+																	: _parentForm.SelectedTabIndex + 1);
 								_parentForm.Tabs.Remove(_tornTab);
 
 								_tornTabForm.Show();
 							}
 						}
-					}
-
-					else
-					{
-						Debug.WriteLine("{0} needs to be outside of {1}", cursorPosition, dragArea);
 					}
 				}
 
@@ -280,7 +279,10 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 					Render(cursorPosition, true);
 			}
 
-			else if (nCode >= 0 && (int) WM.WM_LBUTTONUP == (int) wParam)
+			else if (nCode >= 0 && (int) WM.WM_LBUTTONDOWN == (int) wParam)
+				_wasDragging = false;
+
+			else if (nCode >= 0 && (int)WM.WM_LBUTTONUP == (int)wParam)
 			{
 				if (_tornTab != null)
 				{
@@ -288,7 +290,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 					{
 						if (_tornTab != null)
 						{
-							TitleBarTabs newWindow = (TitleBarTabs) Activator.CreateInstance(_parentForm.GetType());
+							TitleBarTabs newWindow = (TitleBarTabs)Activator.CreateInstance(_parentForm.GetType());
 
 							if (newWindow.WindowState == FormWindowState.Maximized)
 							{
@@ -592,13 +594,6 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 							if (!_parentForm.TabRenderer.IsOverCloseButton(clickedTab, relativeCursorPosition))
 							{
 								_parentForm.ResizeTabContents(clickedTab);
-								_parentForm.OnTabClicked(
-									new TitleBarTabEventArgs
-										{
-											Tab = clickedTab,
-											TabIndex = _parentForm.SelectedTabIndex,
-											Action = TabControlAction.Selected
-										});
 								_parentForm.SelectedTabIndex = _parentForm.Tabs.IndexOf(clickedTab);
 
 								Render();
@@ -640,6 +635,16 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 								clickedTab.Content.Close();
 								Render();
 							}
+
+							else
+								_parentForm.OnTabClicked(
+									new TitleBarTabEventArgs
+										{
+											Tab = clickedTab,
+											TabIndex = _parentForm.SelectedTabIndex,
+											Action = TabControlAction.Selected,
+											WasDragging = _wasDragging
+										});
 						}
 
 						// Otherwise, if the user clicked the add button, call CreateTab to add a new tab to the list and select it

@@ -34,5 +34,11 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			get;
 			set;
 		}
+
+		public bool WasDragging
+		{
+			get;
+			set;
+		}
 	}
 }
