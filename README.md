@@ -9,4 +9,4 @@ You can include this functionality in your project via NuGet:
 
     PM> Install-Package TitleBarTabs
 
-Bear in mind that this is very early code.  Things like tab tearing and more advanced graphical effects have not been implemented yet.  You are welcome to poke around the code and submit patches, but just remember that this is alpha-quality code.
+This project is licensed under the terms of the [BSD license](BSD.txt)
