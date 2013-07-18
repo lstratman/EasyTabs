@@ -130,7 +130,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         /// <param name="e">Arguments associated with the event.</param>
         protected internal virtual void Overlay_MouseDown(object sender, MouseEventArgs e)
         {
-            if (_parentWindow.Tabs.Count > 1)
+            if (_parentWindow.Tabs.Count > 1 || _parentWindow.ApplicationContext.OpenWindows.Count > 1)
             {
                 _dragStart = e.Location;
                 _tabClickOffset = _parentWindow._overlay.GetRelativeCursorPosition(e.Location).X - _parentWindow.SelectedTab.Area.Location.X;

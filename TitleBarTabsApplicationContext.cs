@@ -13,6 +13,14 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		/// </summary>
 		protected List<TitleBarTabs> _openWindows = new List<TitleBarTabs>();
 
+		public List<TitleBarTabs> OpenWindows
+		{
+			get
+			{
+				return _openWindows;
+			}
+		}
+
 		/// <summary>
 		/// Constructor; provides the arguments to <typeparamref name="T"/> constructor in the form of <paramref name="bookmarkGuids"/> and 
 		/// <paramref name="historyGuid"/>.

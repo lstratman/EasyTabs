@@ -264,6 +264,9 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 																	: _parentForm.SelectedTabIndex + 1);
 								_parentForm.Tabs.Remove(_tornTab);
 
+								if (_parentForm.Tabs.Count == 0)
+									_parentForm.Hide();
+
 								_tornTabForm.Show();
 							}
 						}
@@ -321,6 +324,9 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 							_tornTab = null;
 							_tornTabForm.Close();
 							_tornTabForm = null;
+
+							if (_parentForm.Tabs.Count == 0)
+								_parentForm.Close();
 						}
 					}
 				}
