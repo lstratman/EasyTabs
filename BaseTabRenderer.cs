@@ -102,6 +102,10 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		/// </summary>
 		protected bool _isTabRepositioning = false;
 
+		protected Rectangle _maxTabArea = new Rectangle();
+
+		protected bool _suspendRendering = false;
+
 		/// <summary>
 		/// Default constructor that initializes the <see cref="_parentWindow" /> and <see cref="ShowAddButton" /> properties.
 		/// </summary>
@@ -130,11 +134,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
         /// <param name="e">Arguments associated with the event.</param>
         protected internal virtual void Overlay_MouseDown(object sender, MouseEventArgs e)
         {
-            if (_parentWindow.Tabs.Count > 1 || _parentWindow.ApplicationContext.OpenWindows.Count > 1)
-            {
-                _dragStart = e.Location;
-                _tabClickOffset = _parentWindow._overlay.GetRelativeCursorPosition(e.Location).X - _parentWindow.SelectedTab.Area.Location.X;
-            }
+            _dragStart = e.Location;
+            _tabClickOffset = _parentWindow._overlay.GetRelativeCursorPosition(e.Location).X - _parentWindow.SelectedTab.Area.Location.X;
         }
 
         /// <summary>
@@ -485,24 +486,34 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		/// <param name="offset">Offset within <paramref name="graphicsContext"/> that the tabs should be rendered.</param>
 		public virtual void Render(List<TitleBarTab> tabs, Graphics graphicsContext, Point offset, Point cursor, bool forceRedraw = false)
 		{
+			if (_suspendRendering)
+				return;
+
 			if (tabs == null || tabs.Count == 0)
 				return;
 
+			Point screenCoordinates = _parentWindow.PointToScreen(_parentWindow.ClientRectangle.Location);
+
+			_maxTabArea.Location = new Point(SystemInformation.BorderSize.Width + offset.X + screenCoordinates.X, offset.Y + screenCoordinates.Y);
+			_maxTabArea.Width = (_parentWindow.ClientRectangle.Width - offset.X -
+			                     (ShowAddButton
+				                     ? _addButtonImage.Width + AddButtonMarginLeft +
+				                       AddButtonMarginRight
+				                     : 0) - (tabs.Count() * OverlapWidth) -
+			                     (_parentWindow.ControlBox
+				                     ? SystemInformation.CaptionButtonSize.Width
+				                     : 0) -
+			                     (_parentWindow.MinimizeBox
+				                     ? SystemInformation.CaptionButtonSize.Width
+				                     : 0) -
+			                     (_parentWindow.MaximizeBox
+				                     ? SystemInformation.CaptionButtonSize.Width
+				                     : 0));
+			_maxTabArea.Height = _activeCenterImage.Height;
+
 			// Get the width of the content area for each tab by taking the parent window's client width, subtracting the left and right border widths and the 
 			// add button area (if applicable) and then dividing by the number of tabs
-			int tabContentWidth = Math.Min(
-				_activeCenterImage.Width,
-				Convert.ToInt32(
-					Math.Floor(
-						Convert.ToDouble(
-							(_parentWindow.ClientRectangle.Width - offset.X -
-							 (ShowAddButton
-							  	? _addButtonImage.Width + AddButtonMarginLeft +
-							  	  AddButtonMarginRight
-							  	: 0) - (tabs.Count() * OverlapWidth) -
-                             (_parentWindow.ControlBox ? SystemInformation.CaptionButtonSize.Width : 0) -
-                             (_parentWindow.MinimizeBox ? SystemInformation.CaptionButtonSize.Width : 0) -
-                             (_parentWindow.MaximizeBox ? SystemInformation.CaptionButtonSize.Width : 0)) / tabs.Count()))));
+			int tabContentWidth = Math.Min(_activeCenterImage.Width, Convert.ToInt32(Math.Floor(Convert.ToDouble(_maxTabArea.Width / tabs.Count()))));
 
 			// Determine if we need to redraw the TabImage properties for each tab by seeing if the content width that we calculated above is equal to content 
 			// width we had in the previous rendering pass
@@ -522,32 +533,40 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
             if (selectedIndex != -1)
             {
-                Rectangle tabArea =
-                    new Rectangle(
-                        SystemInformation.BorderSize.Width + offset.X +
-                        (selectedIndex * (tabContentWidth + _activeLeftSideImage.Width + _activeRightSideImage.Width - OverlapWidth)),
-                        offset.Y, tabContentWidth + _activeLeftSideImage.Width + _activeRightSideImage.Width,
-                        _activeCenterImage.Height);
+                Rectangle tabArea = new Rectangle(
+	                SystemInformation.BorderSize.Width + offset.X +
+	                (selectedIndex * (tabContentWidth + _activeLeftSideImage.Width + _activeRightSideImage.Width - OverlapWidth)),
+	                offset.Y, tabContentWidth + _activeLeftSideImage.Width + _activeRightSideImage.Width,
+	                _activeCenterImage.Height);
 
                 if (IsTabRepositioning && _tabClickOffset != null)
                 {
                     // Make sure that the user doesn't move the tab past the beginning or end of the tab list
                     tabArea.X = cursor.X - _tabClickOffset.Value;
                     tabArea.X = Math.Max(SystemInformation.BorderSize.Width + offset.X, tabArea.X);
-                    tabArea.X =
-                        Math.Min(
-                            SystemInformation.BorderSize.Width + offset.X +
-                            ((tabContentWidth + _activeLeftSideImage.Width + _activeRightSideImage.Width - OverlapWidth) * (tabs.Count - 1)), tabArea.X);
+	                tabArea.X =
+		                Math.Min(
+			                SystemInformation.BorderSize.Width + (_parentWindow.WindowState == FormWindowState.Maximized
+				                ? _parentWindow.ClientRectangle.Width - (_parentWindow.ControlBox
+					                ? SystemInformation.CaptionButtonSize.Width
+					                : 0) -
+				                  (_parentWindow.MinimizeBox
+					                  ? SystemInformation.CaptionButtonSize.Width
+					                  : 0) -
+				                  (_parentWindow.MaximizeBox
+					                  ? SystemInformation.CaptionButtonSize.Width
+					                  : 0)
+				                : _parentWindow.ClientRectangle.Width) - tabArea.Width, tabArea.X);
 
                     int dropIndex = 0;
 
                     // Figure out which slot the active tab is being "dropped" over
                     if (tabArea.X - SystemInformation.BorderSize.Width - offset.X - TabRepositionDragDistance > 0)
                         dropIndex =
-                            Convert.ToInt32(
+                            Math.Min(Convert.ToInt32(
                                 Math.Round(
                                     Convert.ToDouble(tabArea.X - SystemInformation.BorderSize.Width - offset.X - TabRepositionDragDistance) /
-                                    Convert.ToDouble(tabArea.Width - OverlapWidth)));
+                                    Convert.ToDouble(tabArea.Width - OverlapWidth))), tabs.Count - 1);
 
                     // If the tab has been moved over another slot, move the tab object in the window's tab list
                     if (dropIndex != selectedIndex)
@@ -592,7 +611,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		    _previousTabCount = tabs.Count;
 
 			// Render the add tab button to the screen
-			if (ShowAddButton)
+			if (ShowAddButton && !IsTabRepositioning)
 			{
 				_addButtonArea =
 					new Rectangle(
@@ -624,6 +643,9 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		/// <param name="cursor">Current position of the cursor.</param>
 		protected virtual void Render(Graphics graphicsContext, TitleBarTab tab, Rectangle area, Point cursor)
 		{
+			if (_suspendRendering)
+				return;
+
 			// If we need to redraw the tab image
 			if (tab.TabImage == null)
 			{
@@ -785,6 +807,40 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			{
 				return _tabContentWidth;
 			}
+		}
+
+		public Rectangle MaxTabArea
+		{
+			get
+			{
+				return _maxTabArea;
+			}
+		}
+
+		internal virtual void CombineTab(TitleBarTab tab, Point cursorLocation)
+		{
+			_suspendRendering = true;
+
+			int dropIndex = _parentWindow.Tabs.FindIndex(t => t.Area.Left <= cursorLocation.X && t.Area.Right >= cursorLocation.X);
+
+			_tabClickOffset = _parentWindow.Tabs.First().Area.Width / 2;
+			IsTabRepositioning = true;
+
+			tab.Parent = _parentWindow;
+
+			if (dropIndex == -1)
+			{
+				_parentWindow.Tabs.Add(tab);
+				dropIndex = _parentWindow.Tabs.Count - 1;
+			}
+
+			else
+				_parentWindow.Tabs.Insert(dropIndex, tab);
+
+			_suspendRendering = false;
+
+			_parentWindow.SelectedTabIndex = dropIndex;
+			_parentWindow.ResizeTabContents();
 		}
 	}
 }

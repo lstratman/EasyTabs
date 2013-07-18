@@ -64,6 +64,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
 		protected static bool _wasDragging = false;
 
+		protected Tuple<TitleBarTabs, Rectangle>[] _dropAreas = null;
+
 		/// <summary>
 		/// Blank default constructor to ensure that the overlays are only initialized through 
 		/// <see cref="GetInstance"/>.
@@ -210,7 +212,31 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 				Point cursorPosition = new Point(hookStruct.pt.x, hookStruct.pt.y);
 				bool reRender = false;
 
-				if (!_parentForm.TabRenderer.IsTabRepositioning)
+				if (_tornTab != null)
+				{
+					for (int i = 0; i < _dropAreas.Length; i++)
+					{
+						if (_dropAreas[i].Item2.Contains(cursorPosition))
+						{
+							lock (_tornTabLock)
+							{
+								if (_tornTab != null)
+								{
+									_dropAreas[i].Item1.TabRenderer.CombineTab(_tornTab, cursorPosition);
+
+									_tornTab = null;
+									_tornTabForm.Close();
+									_tornTabForm = null;
+
+									if (_parentForm.Tabs.Count == 0)
+										_parentForm.Close();
+								}
+							}
+						}
+					}
+				}
+
+				else if (!_parentForm.TabRenderer.IsTabRepositioning)
 				{
 					// If we were over a close button previously, check to see if the cursor is still over that tab's
 					// close button; if not, re-render
@@ -244,9 +270,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 				{
 					_wasDragging = true;
 
-					Rectangle dragArea = new Rectangle(
-						Left - _parentForm.TabRenderer.TabTearDragDistance, Top - _parentForm.TabRenderer.TabTearDragDistance,
-						Width + _parentForm.TabRenderer.TabTearDragDistance * 2, Height + _parentForm.TabRenderer.TabTearDragDistance * 2);
+					Rectangle dragArea = TabDropArea;
+					dragArea.Inflate(_parentForm.TabRenderer.TabTearDragDistance, _parentForm.TabRenderer.TabTearDragDistance);
 
 					if (!dragArea.Contains(cursorPosition) && _tornTab == null)
 					{
@@ -268,6 +293,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 									_parentForm.Hide();
 
 								_tornTabForm.Show();
+								_dropAreas = (from window in _parentForm.ApplicationContext.OpenWindows
+											  select new Tuple<TitleBarTabs, Rectangle>(window, window.TabDropArea)).ToArray();
 							}
 						}
 					}
@@ -708,6 +735,19 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 				_parents.Remove(form);
 
 			User32.UnhookWindowsHookEx(_hookId);
+		}
+
+		public Rectangle TabDropArea
+		{
+			get
+			{
+				RECT windowRectangle;
+				User32.GetWindowRect(_parentForm.Handle, out windowRectangle);
+
+				return new Rectangle(
+					windowRectangle.left + SystemInformation.HorizontalResizeBorderThickness, windowRectangle.top + SystemInformation.VerticalResizeBorderThickness,
+					ClientRectangle.Width, _parentForm.NonClientAreaHeight - SystemInformation.VerticalResizeBorderThickness);
+			}
 		}
 	}
 }

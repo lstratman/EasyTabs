@@ -855,5 +855,21 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		    get;
 		    internal set;
 	    }
+
+	    public int NonClientAreaHeight
+	    {
+		    get
+		    {
+			    return _nonClientAreaHeight;
+		    }
+	    }
+
+	    public Rectangle TabDropArea
+	    {
+		    get
+		    {
+			    return _overlay.TabDropArea;
+		    }
+	    }
     }
 }
