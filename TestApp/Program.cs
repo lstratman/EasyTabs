@@ -27,7 +27,10 @@ namespace TestApp
 			        });
 			testApp.SelectedTabIndex = 0;
 
-            Application.Run(testApp);
+			TitleBarTabsApplicationContext applicationContext = new TitleBarTabsApplicationContext();
+			applicationContext.Start(testApp);
+
+            Application.Run(applicationContext);
         }
     }
 }

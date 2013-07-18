@@ -840,5 +840,20 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
             return hitTests[row, column];
         }
+
+		/// <summary>
+		/// Flag indicating whether we are in the process of closing the window.
+		/// </summary>
+		public bool IsClosing
+		{
+			get;
+			set;
+		}
+
+	    public TitleBarTabsApplicationContext ApplicationContext
+	    {
+		    get;
+		    internal set;
+	    }
     }
 }

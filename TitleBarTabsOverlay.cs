@@ -311,6 +311,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 							}
 
 							_tornTab.Parent = newWindow;
+							_parentForm.ApplicationContext.OpenWindow(newWindow);
+
 							newWindow.Show();
 							newWindow.Tabs.Add(_tornTab);
 							newWindow.SelectedTabIndex = 0;
