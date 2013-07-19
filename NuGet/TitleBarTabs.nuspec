@@ -1,15 +1,20 @@
-<?xml version="1.0" encoding="utf-8"?>
-<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>TitleBarTabs</id>
-        <version>1.0.0</version>
+        <version>1.1.0</version>
         <title>.NET Title Bar Tabs</title>
         <authors>Luke Stratman</authors>
         <owners />
+        <licenseUrl>https://github.com/lstratman/.NETTitleBarTabs/blob/master/BSD.txt</licenseUrl>
         <projectUrl>https://github.com/lstratman/.NETTitleBarTabs</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Library to enable .NET WinForms apps to easily render a set of tabs in their titlebar space, similar to Chrome, Firefox, Trillian, etc.</description>
         <summary />
+        <releaseNotes>- Updated look and feel to be consistent with the latest version of Chrome
+- Added the ability to tear tabs out of their parent windows and combine them with other windows
+- Added an explicit BSD license file</releaseNotes>
+        <copyright>(c) 2013, Luke Stratman</copyright>
     </metadata>
     <files>
         <file src="..\bin\Release\Microsoft.WindowsAPICodePack.dll" target="lib\Microsoft.WindowsAPICodePack.dll" />
