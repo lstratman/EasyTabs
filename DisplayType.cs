@@ -1,21 +1,15 @@
 ﻿namespace Stratman.Windows.Forms.TitleBarTabs
 {
-	/// <summary>
-	/// The type of theme being used to render the desktop.
-	/// </summary>
+	/// <summary>The type of theme being used to render the desktop.</summary>
 	public enum DisplayType
 	{
-		/// <summary>
-		/// Windows 2000-esque theme.
-		/// </summary>
+		/// <summary>Windows 2000-esque theme.</summary>
 		Classic,
-		/// <summary>
-		/// Contemporary theme, but without Aero enabled.
-		/// </summary>
+
+		/// <summary>Contemporary theme, but without Aero enabled.</summary>
 		Basic,
-		/// <summary>
-		/// Full compositing enabled in the theme.
-		/// </summary>
+
+		/// <summary>Full compositing enabled in the theme.</summary>
 		Aero
 	}
 }

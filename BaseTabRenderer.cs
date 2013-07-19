@@ -7,171 +7,95 @@ using System.Windows.Forms;
 namespace Stratman.Windows.Forms.TitleBarTabs
 {
 	/// <summary>
-	/// Provides the base functionality for any tab renderer, taking care of actually rendering and detecting whether the cursor is over a tab.  Any custom tab 
-	/// renderer needs to inherit from this class, just as <see cref="ChromeTabRenderer" /> does.
+	/// Provides the base functionality for any tab renderer, taking care of actually rendering and detecting whether the cursor is over a tab.  Any custom
+	/// tab renderer needs to inherit from this class, just as <see cref="ChromeTabRenderer" /> does.
 	/// </summary>
 	public abstract class BaseTabRenderer
 	{
 		/// <summary>
-		/// Background of the content area for the tab when the tab is active; its width also determines how wide the default content area for the tab is.
+		/// Background of the content area for the tab when the tab is active; its width also determines how wide the default content area for the tab
+		/// is.
 		/// </summary>
 		protected Image _activeCenterImage;
 
-		/// <summary>
-		/// Image to display on the left side of an active tab.
-		/// </summary>
+		/// <summary>Image to display on the left side of an active tab.</summary>
 		protected Image _activeLeftSideImage;
 
-		/// <summary>
-		/// Image to display on the right side of an active tab.
-		/// </summary>
+		/// <summary>Image to display on the right side of an active tab.</summary>
 		protected Image _activeRightSideImage;
 
-		/// <summary>
-		/// Area on the screen where the add button is located.
-		/// </summary>
+		/// <summary>Area on the screen where the add button is located.</summary>
 		protected Rectangle _addButtonArea;
 
-		/// <summary>
-		/// Image to display when the user hovers over the add button.
-		/// </summary>
+		/// <summary>Image to display when the user hovers over the add button.</summary>
 		protected Bitmap _addButtonHoverImage;
 
-		/// <summary>
-		/// Image to display for the add button when the user is not hovering over it.
-		/// </summary>
+		/// <summary>Image to display for the add button when the user is not hovering over it.</summary>
 		protected Bitmap _addButtonImage;
 
-		/// <summary>
-		/// The background, if any, that should be displayed in the non-client area behind the actual tabs.
-		/// </summary>
+		/// <summary>The background, if any, that should be displayed in the non-client area behind the actual tabs.</summary>
 		protected Image _background;
 
-		/// <summary>
-		/// The hover-over image that should be displayed on each tab to close that tab.
-		/// </summary>
+		/// <summary>The hover-over image that should be displayed on each tab to close that tab.</summary>
 		protected Image _closeButtonHoverImage;
 
-		/// <summary>
-		/// The image that should be displayed on each tab to close that tab.
-		/// </summary>
+		/// <summary>The image that should be displayed on each tab to close that tab.</summary>
 		protected Image _closeButtonImage;
 
+		/// <summary>When the user is dragging a tab, this represents the point where the user first clicked to start the drag operation.</summary>
+		protected Point? _dragStart = null;
+
 		/// <summary>
-		/// Background of the content area for the tab when the tab is inactive; its width also determines how wide the default content area for the tab is.
+		/// Background of the content area for the tab when the tab is inactive; its width also determines how wide the default content area for the tab
+		/// is.
 		/// </summary>
 		protected Image _inactiveCenterImage;
 
-		/// <summary>
-		/// Image to display on the left side of an inactive tab.
-		/// </summary>
+		/// <summary>Image to display on the left side of an inactive tab.</summary>
 		protected Image _inactiveLeftSideImage;
 
-		/// <summary>
-		/// Image to display on the right side of an inactive tab.
-		/// </summary>
+		/// <summary>Image to display on the right side of an inactive tab.</summary>
 		protected Image _inactiveRightSideImage;
 
-		/// <summary>
-		/// The parent window that this renderer instance belongs to.
-		/// </summary>
-		protected TitleBarTabs _parentWindow;
-
-		/// <summary>
-		/// The number of tabs that were present when we last rendered; used to determine whether or not we need to redraw tab instances.
-		/// </summary>
-		protected int _previousTabCount;
-
-		/// <summary>
-		/// The width of the content area that we should use for each tab.
-		/// </summary>
-		protected int _tabContentWidth;
-
-        /// <summary>
-        /// When the user is dragging a tab, this represents the horizontal offset within the tab where the user clicked to start the drag operation.
-        /// </summary>
-	    protected int? _tabClickOffset = null;
-
-        /// <summary>
-        /// When the user is dragging a tab, this represents the point where the user first clicked to start the drag operation.
-        /// </summary>
-	    protected Point? _dragStart = null;
-
-		/// <summary>
-		/// Flag indicating whether or not a tab is being repositioned.
-		/// </summary>
+		/// <summary>Flag indicating whether or not a tab is being repositioned.</summary>
 		protected bool _isTabRepositioning = false;
 
 		protected Rectangle _maxTabArea = new Rectangle();
 
+		/// <summary>The parent window that this renderer instance belongs to.</summary>
+		protected TitleBarTabs _parentWindow;
+
+		/// <summary>The number of tabs that were present when we last rendered; used to determine whether or not we need to redraw tab instances.</summary>
+		protected int _previousTabCount;
+
 		protected bool _suspendRendering = false;
 
-		/// <summary>
-		/// Default constructor that initializes the <see cref="_parentWindow" /> and <see cref="ShowAddButton" /> properties.
-		/// </summary>
+		/// <summary>When the user is dragging a tab, this represents the horizontal offset within the tab where the user clicked to start the drag operation.</summary>
+		protected int? _tabClickOffset = null;
+
+		/// <summary>The width of the content area that we should use for each tab.</summary>
+		protected int _tabContentWidth;
+
+		/// <summary>Default constructor that initializes the <see cref="_parentWindow" /> and <see cref="ShowAddButton" /> properties.</summary>
 		/// <param name="parentWindow">The parent window that this renderer instance belongs to.</param>
 		protected BaseTabRenderer(TitleBarTabs parentWindow)
 		{
 			_parentWindow = parentWindow;
 			ShowAddButton = true;
-		    TabRepositionDragDistance = 10;
+			TabRepositionDragDistance = 10;
 			TabTearDragDistance = 10;
 
 			parentWindow.Tabs.CollectionModified += Tabs_CollectionModified;
 
-            if (parentWindow._overlay != null)
-            {
-                parentWindow._overlay.MouseMove += Overlay_MouseMove;
-                parentWindow._overlay.MouseUp += Overlay_MouseUp;
-                parentWindow._overlay.MouseDown += Overlay_MouseDown;
-            }
+			if (parentWindow._overlay != null)
+			{
+				parentWindow._overlay.MouseMove += Overlay_MouseMove;
+				parentWindow._overlay.MouseUp += Overlay_MouseUp;
+				parentWindow._overlay.MouseDown += Overlay_MouseDown;
+			}
 		}
 
-        /// <summary>
-        /// Initialize the <see cref="_dragStart"/> and <see cref="_tabClickOffset"/> fields in case the user starts dragging a tab.
-        /// </summary>
-        /// <param name="sender">Object from which this event originated.</param>
-        /// <param name="e">Arguments associated with the event.</param>
-        protected internal virtual void Overlay_MouseDown(object sender, MouseEventArgs e)
-        {
-            _dragStart = e.Location;
-            _tabClickOffset = _parentWindow._overlay.GetRelativeCursorPosition(e.Location).X - _parentWindow.SelectedTab.Area.Location.X;
-        }
-
-        /// <summary>
-        /// End the drag operation by resetting the <see cref="_dragStart"/> and <see cref="_tabClickOffset"/> fields and setting 
-        /// <see cref="IsTabRepositioning"/> to false.
-        /// </summary>
-        /// <param name="sender">Object from which this event originated.</param>
-        /// <param name="e">Arguments associated with the event.</param>
-        protected internal virtual void Overlay_MouseUp(object sender, MouseEventArgs e)
-        {
-            _dragStart = null;
-            _tabClickOffset = null;
-
-            bool wasRepositioning = IsTabRepositioning;
-
-            IsTabRepositioning = false;
-
-            if (wasRepositioning)
-                _parentWindow._overlay.Render(true);
-        }
-
-        /// <summary>
-        /// If the user is dragging the mouse, see if they have passed the <see cref="TabRepositionDragDistance"/> threshold and, if so, officially begin
-        /// the tab drag operation.
-        /// </summary>
-        /// <param name="sender">Object from which this event originated.</param>
-        /// <param name="e">Arguments associated with the event.</param>
-        protected internal virtual void Overlay_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (_dragStart != null && !IsTabRepositioning && (Math.Abs(e.X - _dragStart.Value.X) > TabRepositionDragDistance || Math.Abs(e.Y - _dragStart.Value.Y) > TabRepositionDragDistance))
-                IsTabRepositioning = true;
-        }
-
-		/// <summary>
-		/// Height of the tab content area; derived from the height of <see cref="_activeCenterImage" />.
-		/// </summary>
+		/// <summary>Height of the tab content area; derived from the height of <see cref="_activeCenterImage" />.</summary>
 		public virtual int TabHeight
 		{
 			get
@@ -180,117 +104,91 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			}
 		}
 
-		/// <summary>
-		/// Flag indicating whether or not we should display the add button.
-		/// </summary>
+		/// <summary>Flag indicating whether or not we should display the add button.</summary>
 		public bool ShowAddButton
 		{
 			get;
 			set;
 		}
 
-		/// <summary>
-		/// Amount of space we should put to the left of the caption when rendering the content area of the tab.
-		/// </summary>
+		/// <summary>Amount of space we should put to the left of the caption when rendering the content area of the tab.</summary>
 		public int CaptionMarginLeft
 		{
 			get;
 			set;
 		}
 
-		/// <summary>
-		/// Amount of space that we should leave to the right of the caption when rendering the content area of the tab.
-		/// </summary>
+		/// <summary>Amount of space that we should leave to the right of the caption when rendering the content area of the tab.</summary>
 		public int CaptionMarginRight
 		{
 			get;
 			set;
 		}
 
-		/// <summary>
-		/// Amount of space that we should leave between the top of the content area and the top of the caption text.
-		/// </summary>
+		/// <summary>Amount of space that we should leave between the top of the content area and the top of the caption text.</summary>
 		public int CaptionMarginTop
 		{
 			get;
 			set;
 		}
 
-		/// <summary>
-		/// Amount of space we should put to the left of the tab icon when rendering the content area of the tab.
-		/// </summary>
+		/// <summary>Amount of space we should put to the left of the tab icon when rendering the content area of the tab.</summary>
 		public int IconMarginLeft
 		{
 			get;
 			set;
 		}
 
-		/// <summary>
-		/// Amount of space that we should leave to the right of the icon when rendering the content area of the tab.
-		/// </summary>
+		/// <summary>Amount of space that we should leave to the right of the icon when rendering the content area of the tab.</summary>
 		public int IconMarginRight
 		{
 			get;
 			set;
 		}
 
-		/// <summary>
-		/// Amount of space that we should leave between the top of the content area and the top of the icon.
-		/// </summary>
+		/// <summary>Amount of space that we should leave between the top of the content area and the top of the icon.</summary>
 		public int IconMarginTop
 		{
 			get;
 			set;
 		}
 
-		/// <summary>
-		/// Amount of space that we should put to the left of the close button when rendering the content area of the tab.
-		/// </summary>
+		/// <summary>Amount of space that we should put to the left of the close button when rendering the content area of the tab.</summary>
 		public int CloseButtonMarginLeft
 		{
 			get;
 			set;
 		}
 
-		/// <summary>
-		/// Amount of space that we should leave to the right of the close button when rendering the content area of the tab.
-		/// </summary>
+		/// <summary>Amount of space that we should leave to the right of the close button when rendering the content area of the tab.</summary>
 		public int CloseButtonMarginRight
 		{
 			get;
 			set;
 		}
 
-		/// <summary>
-		/// Amount of space that we should leave between the top of the content area and the top of the close button.
-		/// </summary>
+		/// <summary>Amount of space that we should leave between the top of the content area and the top of the close button.</summary>
 		public int CloseButtonMarginTop
 		{
 			get;
 			set;
 		}
 
-		/// <summary>
-		/// Amount of space that we should put to the left of the add tab button when rendering the content area of the tab.
-		/// </summary>
+		/// <summary>Amount of space that we should put to the left of the add tab button when rendering the content area of the tab.</summary>
 		public int AddButtonMarginLeft
 		{
 			get;
 			set;
 		}
 
-		/// <summary>
-		/// Amount of space that we should leave to the right of the add tab button when rendering the content area of the tab.
-		/// </summary>
+		/// <summary>Amount of space that we should leave to the right of the add tab button when rendering the content area of the tab.</summary>
 		public int AddButtonMarginRight
 		{
 			get;
 			set;
 		}
 
-		/// <summary>
-		/// Amount of space that we should leave between the top of the content area and the top of the add tab button.
-		/// </summary>
+		/// <summary>Amount of space that we should leave between the top of the content area and the top of the add tab button.</summary>
 		public int AddButtonMarginTop
 		{
 			get;
@@ -298,7 +196,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		}
 
 		/// <summary>
-		/// If the renderer overlaps the tabs (like Chrome), this is the width that the tabs should overlap by.  For renderers that do not overlap tabs (like 
+		/// If the renderer overlaps the tabs (like Chrome), this is the width that the tabs should overlap by.  For renderers that do not overlap tabs (like
 		/// Firefox), this should be left at 0.
 		/// </summary>
 		public virtual int OverlapWidth
@@ -309,43 +207,99 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			}
 		}
 
-        /// <summary>
-        /// Horizontal distance that a tab must be dragged before it starts to be repositioned.
-        /// </summary>
-        public int TabRepositionDragDistance
-        {
-            get;
-            set;
-        }
+		/// <summary>Horizontal distance that a tab must be dragged before it starts to be repositioned.</summary>
+		public int TabRepositionDragDistance
+		{
+			get;
+			set;
+		}
 
+		/// <summary>Distance that a user must drag a tab outside of the tab area before it shows up as "torn" from its parent window.</summary>
 		public int TabTearDragDistance
 		{
 			get;
 			set;
 		}
 
-        /// <summary>
-        /// Flag indicating whether or not a tab is being repositioned.
-        /// </summary>
-        public bool IsTabRepositioning
-        {
-            get
-            {
-	            return _isTabRepositioning;
-            }
+		/// <summary>Flag indicating whether or not a tab is being repositioned.</summary>
+		public bool IsTabRepositioning
+		{
+			get
+			{
+				return _isTabRepositioning;
+			}
 
-            internal set
-            {
-	            _isTabRepositioning = value;
+			internal set
+			{
+				_isTabRepositioning = value;
 
-	            if (!_isTabRepositioning)
-		            _dragStart = null;
-            }
-        }
+				if (!_isTabRepositioning)
+					_dragStart = null;
+			}
+		}
+
+		/// <summary>Width of the content area of the tabs.</summary>
+		public int TabContentWidth
+		{
+			get
+			{
+				return _tabContentWidth;
+			}
+		}
+
+		/// <summary>Maximum area that the tabs can occupy.  Excludes the add button.</summary>
+		public Rectangle MaxTabArea
+		{
+			get
+			{
+				return _maxTabArea;
+			}
+		}
+
+		/// <summary>Initialize the <see cref="_dragStart" /> and <see cref="_tabClickOffset" /> fields in case the user starts dragging a tab.</summary>
+		/// <param name="sender">Object from which this event originated.</param>
+		/// <param name="e">Arguments associated with the event.</param>
+		protected internal virtual void Overlay_MouseDown(object sender, MouseEventArgs e)
+		{
+			_dragStart = e.Location;
+			_tabClickOffset = _parentWindow._overlay.GetRelativeCursorPosition(e.Location).X - _parentWindow.SelectedTab.Area.Location.X;
+		}
 
 		/// <summary>
-		/// When items are added to the tabs collection, we need to ensure that the <see cref="_parentWindow" />'s minimum width is set so that we can display 
-		/// at least each tab and its close buttons.
+		/// End the drag operation by resetting the <see cref="_dragStart" /> and <see cref="_tabClickOffset" /> fields and setting
+		/// <see cref="IsTabRepositioning" /> to false.
+		/// </summary>
+		/// <param name="sender">Object from which this event originated.</param>
+		/// <param name="e">Arguments associated with the event.</param>
+		protected internal virtual void Overlay_MouseUp(object sender, MouseEventArgs e)
+		{
+			_dragStart = null;
+			_tabClickOffset = null;
+
+			bool wasRepositioning = IsTabRepositioning;
+
+			IsTabRepositioning = false;
+
+			if (wasRepositioning)
+				_parentWindow._overlay.Render(true);
+		}
+
+		/// <summary>
+		/// If the user is dragging the mouse, see if they have passed the <see cref="TabRepositionDragDistance" /> threshold and, if so, officially begin the
+		/// tab drag operation.
+		/// </summary>
+		/// <param name="sender">Object from which this event originated.</param>
+		/// <param name="e">Arguments associated with the event.</param>
+		protected internal virtual void Overlay_MouseMove(object sender, MouseEventArgs e)
+		{
+			if (_dragStart != null && !IsTabRepositioning &&
+			    (Math.Abs(e.X - _dragStart.Value.X) > TabRepositionDragDistance || Math.Abs(e.Y - _dragStart.Value.Y) > TabRepositionDragDistance))
+				IsTabRepositioning = true;
+		}
+
+		/// <summary>
+		/// When items are added to the tabs collection, we need to ensure that the <see cref="_parentWindow" />'s minimum width is set so that we can display at
+		/// least each tab and its close buttons.
 		/// </summary>
 		/// <param name="sender">List of tabs in the <see cref="_parentWindow" />.</param>
 		/// <param name="e">Arguments associated with the event.</param>
@@ -358,34 +312,35 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
 			int minimumWidth = tabs.Sum(
 				tab => (tab.Active
-				        	? _activeLeftSideImage.Width
-				        	: _inactiveLeftSideImage.Width) + (tab.Active
-				        	                                   	? _activeRightSideImage.Width
-				        	                                   	: _inactiveRightSideImage.Width) +
+					? _activeLeftSideImage.Width
+					: _inactiveLeftSideImage.Width) + (tab.Active
+						? _activeRightSideImage.Width
+						: _inactiveRightSideImage.Width) +
 				       (tab.ShowCloseButton
-				        	? tab.CloseButtonArea.Width + CloseButtonMarginLeft
-				        	: 0));
+					       ? tab.CloseButtonArea.Width + CloseButtonMarginLeft
+					       : 0));
 
 			minimumWidth += OverlapWidth;
 
-		    minimumWidth += (_parentWindow.ControlBox
-		                         ? SystemInformation.CaptionButtonSize.Width
-		                         : 0) -
-		                    (_parentWindow.MinimizeBox
-		                         ? SystemInformation.CaptionButtonSize.Width
-		                         : 0) -
-		                    (_parentWindow.MaximizeBox
-		                         ? SystemInformation.CaptionButtonSize.Width
-		                         : 0) + (ShowAddButton
-		                                     ? _addButtonImage.Width + AddButtonMarginLeft +
-		                                       AddButtonMarginRight
-		                                     : 0);
+			minimumWidth += (_parentWindow.ControlBox
+				? SystemInformation.CaptionButtonSize.Width
+				: 0) -
+			                (_parentWindow.MinimizeBox
+				                ? SystemInformation.CaptionButtonSize.Width
+				                : 0) -
+			                (_parentWindow.MaximizeBox
+				                ? SystemInformation.CaptionButtonSize.Width
+				                : 0) + (ShowAddButton
+					                ? _addButtonImage.Width + AddButtonMarginLeft +
+					                  AddButtonMarginRight
+					                : 0);
 
 			_parentWindow.MinimumSize = new Size(minimumWidth, 0);
 		}
 
 		/// <summary>
-		/// Called from the <see cref="_parentWindow" /> to determine which, if any, of the <paramref name="tabs" /> the <paramref name="cursor" /> is over.
+		/// Called from the <see cref="_parentWindow" /> to determine which, if any, of the <paramref name="tabs" /> the <paramref name="cursor" /> is
+		/// over.
 		/// </summary>
 		/// <param name="tabs">The list of tabs that we should check.</param>
 		/// <param name="cursor">The relative position of the cursor within the window.</param>
@@ -413,15 +368,19 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		}
 
 		/// <summary>
-		/// Helper method to detect whether the <paramref name="cursor" /> is within the given <paramref name="area" /> and, if it is, whether it is over a 
+		/// Helper method to detect whether the <paramref name="cursor" /> is within the given <paramref name="area" /> and, if it is, whether it is over a
 		/// non-transparent pixel in the given <paramref name="image" />.
 		/// </summary>
 		/// <param name="area">Screen area that we should check to see if the <paramref name="cursor" /> is within.</param>
-		/// <param name="image">Image contained within <paramref name="area" /> that we should check to see if the <paramref name="cursor" /> is over a non-
-		/// transparent pixel.</param>
+		/// <param name="image">
+		/// Image contained within <paramref name="area" /> that we should check to see if the <paramref name="cursor" /> is over a non-
+		/// transparent pixel.
+		/// </param>
 		/// <param name="cursor">Current location of the cursor.</param>
-		/// <returns>True if the <paramref name="cursor" /> is within the given <paramref name="area" /> and is over a non-transparent pixel in the 
-		/// <paramref name="image" />.</returns>
+		/// <returns>
+		/// True if the <paramref name="cursor" /> is within the given <paramref name="area" /> and is over a non-transparent pixel in the
+		/// <paramref name="image" />.
+		/// </returns>
 		protected bool IsOverNonTransparentArea(Rectangle area, Bitmap image, Point cursor)
 		{
 			if (!area.Contains(cursor))
@@ -435,36 +394,33 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			return pixel.A > 0;
 		}
 
-		/// <summary>
-		/// Tests whether the <paramref name="cursor" /> is hovering over the add tab button.
-		/// </summary>
+		/// <summary>Tests whether the <paramref name="cursor" /> is hovering over the add tab button.</summary>
 		/// <param name="cursor">Current location of the cursor.</param>
-		/// <returns>True if the <paramref name="cursor" /> is within <see cref="_addButtonArea" /> and is over a non-transparent pixel of 
-		/// <see cref="_addButtonHoverImage" />, false otherwise.</returns>
+		/// <returns>
+		/// True if the <paramref name="cursor" /> is within <see cref="_addButtonArea" /> and is over a non-transparent pixel of
+		/// <see cref="_addButtonHoverImage" />, false otherwise.
+		/// </returns>
 		public virtual bool IsOverAddButton(Point cursor)
 		{
 			return IsOverNonTransparentArea(_addButtonArea, _addButtonHoverImage, cursor);
 		}
 
-		/// <summary>
-		/// Tests whether the <paramref name="cursor" /> is hovering over the given <paramref name="tab" />.
-		/// </summary>
+		/// <summary>Tests whether the <paramref name="cursor" /> is hovering over the given <paramref name="tab" />.</summary>
 		/// <param name="tab">Tab that we are to see if the cursor is hovering over.</param>
 		/// <param name="cursor">Current location of the cursor.</param>
-		/// <returns>True if the <paramref name="cursor" /> is within the <see cref="TitleBarTab.Area" /> of the <paramref name="tab" /> and is over a non-
-		/// transparent pixel of <see cref="TitleBarTab.TabImage" />, false otherwise.</returns>
+		/// <returns>
+		/// True if the <paramref name="cursor" /> is within the <see cref="TitleBarTab.Area" /> of the <paramref name="tab" /> and is over a non- transparent
+		/// pixel of <see cref="TitleBarTab.TabImage" />, false otherwise.
+		/// </returns>
 		protected virtual bool IsOverTab(TitleBarTab tab, Point cursor)
 		{
 			return IsOverNonTransparentArea(tab.Area, tab.TabImage, cursor);
 		}
 
-		/// <summary>
-		/// Checks to see if the <paramref name="cursor"/> is over the <see cref="TitleBarTab.CloseButtonArea"/> of the given <paramref name="tab"/>.
-		/// </summary>
-		/// <param name="tab">The tab whose <see cref="TitleBarTab.CloseButtonArea"/> we are to check to see if it contains <paramref name="cursor"/>.</param>
+		/// <summary>Checks to see if the <paramref name="cursor" /> is over the <see cref="TitleBarTab.CloseButtonArea" /> of the given <paramref name="tab" />.</summary>
+		/// <param name="tab">The tab whose <see cref="TitleBarTab.CloseButtonArea" /> we are to check to see if it contains <paramref name="cursor" />.</param>
 		/// <param name="cursor">Current position of the cursor.</param>
-		/// <returns>True if the <paramref name="tab"/>'s <see cref="TitleBarTab.CloseButtonArea"/> contains <paramref name="cursor"/>, false 
-		/// otherwise.</returns>
+		/// <returns>True if the <paramref name="tab" />'s <see cref="TitleBarTab.CloseButtonArea" /> contains <paramref name="cursor" />, false otherwise.</returns>
 		public virtual bool IsOverCloseButton(TitleBarTab tab, Point cursor)
 		{
 			if (!tab.ShowCloseButton)
@@ -476,14 +432,12 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			return absoluteCloseButtonArea.Contains(cursor);
 		}
 
-		/// <summary>
-		/// Renders the list of <paramref name="tabs" /> to the screen using the given <paramref name="graphicsContext" />.
-		/// </summary>
+		/// <summary>Renders the list of <paramref name="tabs" /> to the screen using the given <paramref name="graphicsContext" />.</summary>
 		/// <param name="tabs">List of tabs that we are to render.</param>
 		/// <param name="graphicsContext">Graphics context that we should use while rendering.</param>
 		/// <param name="cursor">Current location of the cursor on the screen.</param>
 		/// <param name="forceRedraw">Flag indicating whether or not the redraw should be forced.</param>
-		/// <param name="offset">Offset within <paramref name="graphicsContext"/> that the tabs should be rendered.</param>
+		/// <param name="offset">Offset within <paramref name="graphicsContext" /> that the tabs should be rendered.</param>
 		public virtual void Render(List<TitleBarTab> tabs, Graphics graphicsContext, Point offset, Point cursor, bool forceRedraw = false)
 		{
 			if (_suspendRendering)
@@ -494,6 +448,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
 			Point screenCoordinates = _parentWindow.PointToScreen(_parentWindow.ClientRectangle.Location);
 
+			// Calculate the maximum tab area, excluding the add button and any minimize/maximize/close buttons in the window
 			_maxTabArea.Location = new Point(SystemInformation.BorderSize.Width + offset.X + screenCoordinates.X, offset.Y + screenCoordinates.Y);
 			_maxTabArea.Width = (_parentWindow.ClientRectangle.Width - offset.X -
 			                     (ShowAddButton
@@ -531,62 +486,65 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
 			int selectedIndex = tabs.FindIndex(t => t.Active);
 
-            if (selectedIndex != -1)
-            {
-                Rectangle tabArea = new Rectangle(
-	                SystemInformation.BorderSize.Width + offset.X +
-	                (selectedIndex * (tabContentWidth + _activeLeftSideImage.Width + _activeRightSideImage.Width - OverlapWidth)),
-	                offset.Y, tabContentWidth + _activeLeftSideImage.Width + _activeRightSideImage.Width,
-	                _activeCenterImage.Height);
+			if (selectedIndex != -1)
+			{
+				Rectangle tabArea = new Rectangle(
+					SystemInformation.BorderSize.Width + offset.X +
+					(selectedIndex * (tabContentWidth + _activeLeftSideImage.Width + _activeRightSideImage.Width - OverlapWidth)),
+					offset.Y, tabContentWidth + _activeLeftSideImage.Width + _activeRightSideImage.Width,
+					_activeCenterImage.Height);
 
-                if (IsTabRepositioning && _tabClickOffset != null)
-                {
-                    // Make sure that the user doesn't move the tab past the beginning or end of the tab list
-                    tabArea.X = cursor.X - _tabClickOffset.Value;
-                    tabArea.X = Math.Max(SystemInformation.BorderSize.Width + offset.X, tabArea.X);
-	                tabArea.X =
-		                Math.Min(
-			                SystemInformation.BorderSize.Width + (_parentWindow.WindowState == FormWindowState.Maximized
-				                ? _parentWindow.ClientRectangle.Width - (_parentWindow.ControlBox
-					                ? SystemInformation.CaptionButtonSize.Width
-					                : 0) -
-				                  (_parentWindow.MinimizeBox
-					                  ? SystemInformation.CaptionButtonSize.Width
-					                  : 0) -
-				                  (_parentWindow.MaximizeBox
-					                  ? SystemInformation.CaptionButtonSize.Width
-					                  : 0)
-				                : _parentWindow.ClientRectangle.Width) - tabArea.Width, tabArea.X);
+				if (IsTabRepositioning && _tabClickOffset != null)
+				{
+					// Make sure that the user doesn't move the tab past the beginning of the list or the outside of the window
+					tabArea.X = cursor.X - _tabClickOffset.Value;
+					tabArea.X = Math.Max(SystemInformation.BorderSize.Width + offset.X, tabArea.X);
+					tabArea.X =
+						Math.Min(
+							SystemInformation.BorderSize.Width + (_parentWindow.WindowState == FormWindowState.Maximized
+								? _parentWindow.ClientRectangle.Width - (_parentWindow.ControlBox
+									? SystemInformation.CaptionButtonSize.Width
+									: 0) -
+								  (_parentWindow.MinimizeBox
+									  ? SystemInformation.CaptionButtonSize.Width
+									  : 0) -
+								  (_parentWindow.MaximizeBox
+									  ? SystemInformation.CaptionButtonSize.Width
+									  : 0)
+								: _parentWindow.ClientRectangle.Width) - tabArea.Width, tabArea.X);
 
-                    int dropIndex = 0;
+					int dropIndex = 0;
 
-                    // Figure out which slot the active tab is being "dropped" over
-                    if (tabArea.X - SystemInformation.BorderSize.Width - offset.X - TabRepositionDragDistance > 0)
-                        dropIndex =
-                            Math.Min(Convert.ToInt32(
-                                Math.Round(
-                                    Convert.ToDouble(tabArea.X - SystemInformation.BorderSize.Width - offset.X - TabRepositionDragDistance) /
-                                    Convert.ToDouble(tabArea.Width - OverlapWidth))), tabs.Count - 1);
+					// Figure out which slot the active tab is being "dropped" over
+					if (tabArea.X - SystemInformation.BorderSize.Width - offset.X - TabRepositionDragDistance > 0)
+					{
+						dropIndex =
+							Math.Min(
+								Convert.ToInt32(
+									Math.Round(
+										Convert.ToDouble(tabArea.X - SystemInformation.BorderSize.Width - offset.X - TabRepositionDragDistance) /
+										Convert.ToDouble(tabArea.Width - OverlapWidth))), tabs.Count - 1);
+					}
 
-                    // If the tab has been moved over another slot, move the tab object in the window's tab list
-                    if (dropIndex != selectedIndex)
-                    {
-                        TitleBarTab tab = tabs[selectedIndex];
-                        
-                        _parentWindow.Tabs.SuppressEvents();
-                        _parentWindow.Tabs.Remove(tab);
-                        _parentWindow.Tabs.Insert(dropIndex, tab);
-                        _parentWindow.Tabs.ResumeEvents();
-                    }
-                }
+					// If the tab has been moved over another slot, move the tab object in the window's tab list
+					if (dropIndex != selectedIndex)
+					{
+						TitleBarTab tab = tabs[selectedIndex];
 
-                activeTabs.Add(new Tuple<TitleBarTab, Rectangle>(tabs[selectedIndex], tabArea));
-            }
+						_parentWindow.Tabs.SuppressEvents();
+						_parentWindow.Tabs.Remove(tab);
+						_parentWindow.Tabs.Insert(dropIndex, tab);
+						_parentWindow.Tabs.ResumeEvents();
+					}
+				}
+
+				activeTabs.Add(new Tuple<TitleBarTab, Rectangle>(tabs[selectedIndex], tabArea));
+			}
 
 			// Loop through the tabs in reverse order since we need the ones farthest on the left to overlap those to their right
 			foreach (TitleBarTab tab in ((IEnumerable<TitleBarTab>) tabs).Reverse())
 			{
-                Rectangle tabArea =
+				Rectangle tabArea =
 					new Rectangle(
 						SystemInformation.BorderSize.Width + offset.X +
 						(i * (tabContentWidth + _activeLeftSideImage.Width + _activeRightSideImage.Width - OverlapWidth)),
@@ -597,18 +555,18 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 				if (redraw)
 					tab.TabImage = null;
 
-                // In this first pass, we only render the inactive tabs since we need the active tabs to show up on top of everything else
-                if (!tab.Active)
-                    Render(graphicsContext, tab, tabArea, cursor);
+				// In this first pass, we only render the inactive tabs since we need the active tabs to show up on top of everything else
+				if (!tab.Active)
+					Render(graphicsContext, tab, tabArea, cursor);
 
-			    i--;
+				i--;
 			}
 
 			// In the second pass, render all of the active tabs identified in the previous pass
-            foreach (Tuple<TitleBarTab, Rectangle> tab in activeTabs)
-                Render(graphicsContext, tab.Item1, tab.Item2, cursor);
+			foreach (Tuple<TitleBarTab, Rectangle> tab in activeTabs)
+				Render(graphicsContext, tab.Item1, tab.Item2, cursor);
 
-		    _previousTabCount = tabs.Count;
+			_previousTabCount = tabs.Count;
 
 			// Render the add tab button to the screen
 			if (ShowAddButton && !IsTabRepositioning)
@@ -626,17 +584,15 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 					cursorOverAddButton
 						? _addButtonHoverImage
 						: _addButtonImage, _addButtonArea, 0, 0, cursorOverAddButton
-						                                         	? _addButtonHoverImage.Width
-						                                         	: _addButtonImage.Width,
+							? _addButtonHoverImage.Width
+							: _addButtonImage.Width,
 					cursorOverAddButton
 						? _addButtonHoverImage.Height
 						: _addButtonImage.Height, GraphicsUnit.Pixel);
 			}
 		}
 
-		/// <summary>
-		/// Internal method for rendering an individual <paramref name="tab" /> to the screen.
-		/// </summary>
+		/// <summary>Internal method for rendering an individual <paramref name="tab" /> to the screen.</summary>
 		/// <param name="graphicsContext">Graphics context to use when rendering the tab.</param>
 		/// <param name="tab">Individual tab that we are to render.</param>
 		/// <param name="area">Area of the screen that the tab should be rendered to.</param>
@@ -653,8 +609,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 				// status have changed
 				tab.TabImage = new Bitmap(
 					area.Width, tab.Active
-					            	? _activeCenterImage.Height
-					            	: _inactiveCenterImage.Height);
+						? _activeCenterImage.Height
+						: _inactiveCenterImage.Height);
 
 				using (Graphics tabGraphicsContext = Graphics.FromImage(tab.TabImage))
 				{
@@ -663,81 +619,83 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 						tab.Active
 							? _activeLeftSideImage
 							: _inactiveLeftSideImage, new Rectangle(
-							                          	0, 0, tab.Active
-							                          	      	? _activeLeftSideImage
-							                          	      	  	.Width
-							                          	      	: _inactiveLeftSideImage
-							                          	      	  	.Width,
-							                          	tab.Active
-							                          		? _activeLeftSideImage.
-							                          		  	Height
-							                          		: _inactiveLeftSideImage
-							                          		  	.Height), 0, 0,
+								0, 0, tab.Active
+									? _activeLeftSideImage
+										.Width
+									: _inactiveLeftSideImage
+										.Width,
+								tab.Active
+									? _activeLeftSideImage.
+										Height
+									: _inactiveLeftSideImage
+										.Height), 0, 0,
 						tab.Active
 							? _activeLeftSideImage.Width
 							: _inactiveLeftSideImage.Width, tab.Active
-							                                	? _activeLeftSideImage.Height
-							                                	: _inactiveLeftSideImage.Height,
+								? _activeLeftSideImage.Height
+								: _inactiveLeftSideImage.Height,
 						GraphicsUnit.Pixel);
+
 					tabGraphicsContext.DrawImage(
 						tab.Active
 							? _activeCenterImage
 							: _inactiveCenterImage, new Rectangle(
-							                        	(tab.Active
-							                        	 	? _activeLeftSideImage.
-							                        	 	  	Width
-							                        	 	: _inactiveLeftSideImage
-							                        	 	  	.Width), 0,
-							                        	_tabContentWidth, tab.Active
-							                        	                  	? _activeCenterImage
-							                        	                  	  	.
-							                        	                  	  	Height
-							                        	                  	: _inactiveCenterImage
-							                        	                  	  	.
-							                        	                  	  	Height),
+								(tab.Active
+									? _activeLeftSideImage.
+										Width
+									: _inactiveLeftSideImage
+										.Width), 0,
+								_tabContentWidth, tab.Active
+									? _activeCenterImage
+										.
+										Height
+									: _inactiveCenterImage
+										.
+										Height),
 						0, 0, _tabContentWidth, tab.Active
-						                        	? _activeCenterImage.Height
-						                        	: _inactiveCenterImage.Height,
+							? _activeCenterImage.Height
+							: _inactiveCenterImage.Height,
 						GraphicsUnit.Pixel);
+
 					tabGraphicsContext.DrawImage(
 						tab.Active
 							? _activeRightSideImage
 							: _inactiveRightSideImage, new Rectangle(
-							                           	(tab.Active
-							                           	 	? _activeLeftSideImage
-							                           	 	  	.Width
-							                           	 	: _inactiveLeftSideImage
-							                           	 	  	.Width) +
-							                           	_tabContentWidth, 0,
-							                           	tab.Active
-							                           		? _activeRightSideImage
-							                           		  	.Width
-							                           		: _inactiveRightSideImage
-							                           		  	.Width,
-							                           	tab.Active
-							                           		? _activeRightSideImage
-							                           		  	.Height
-							                           		: _inactiveRightSideImage
-							                           		  	.Height), 0, 0,
+								(tab.Active
+									? _activeLeftSideImage
+										.Width
+									: _inactiveLeftSideImage
+										.Width) +
+								_tabContentWidth, 0,
+								tab.Active
+									? _activeRightSideImage
+										.Width
+									: _inactiveRightSideImage
+										.Width,
+								tab.Active
+									? _activeRightSideImage
+										.Height
+									: _inactiveRightSideImage
+										.Height), 0, 0,
 						tab.Active
 							? _activeRightSideImage.Width
 							: _inactiveRightSideImage.Width, tab.Active
-							                                 	? _activeRightSideImage.Height
-							                                 	: _inactiveRightSideImage.
-							                                 	  	Height,
+								? _activeRightSideImage.Height
+								: _inactiveRightSideImage.
+									Height,
 						GraphicsUnit.Pixel);
 
 					// Draw the close button
 					if (tab.ShowCloseButton)
 					{
 						Image closeButtonImage = IsOverCloseButton(tab, cursor)
-						                         	? _closeButtonHoverImage
-						                         	: _closeButtonImage;
+							? _closeButtonHoverImage
+							: _closeButtonImage;
 
 						tab.CloseButtonArea = new Rectangle(
 							area.Width - (tab.Active
-							              	? _activeRightSideImage.Width
-							              	: _inactiveRightSideImage.Width) -
+								? _activeRightSideImage.Width
+								: _inactiveRightSideImage.Width) -
 							CloseButtonMarginRight - closeButtonImage.Width,
 							CloseButtonMarginTop, closeButtonImage.Width,
 							closeButtonImage.Height);
@@ -759,10 +717,10 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
 			// Render the icon for the tab's content, if it exists and there's room for it in the tab's content area
 			if (tab.Content.ShowIcon && _tabContentWidth > 16 + IconMarginLeft + (tab.ShowCloseButton
-			                                                                      	? CloseButtonMarginLeft +
-			                                                                      	  tab.CloseButtonArea.Width +
-			                                                                      	  CloseButtonMarginRight
-			                                                                      	: 0))
+				? CloseButtonMarginLeft +
+				  tab.CloseButtonArea.Width +
+				  CloseButtonMarginRight
+				: 0))
 			{
 				graphicsContext.DrawIcon(
 					new Icon(tab.Content.Icon, 16, 16),
@@ -771,58 +729,52 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
 			// Render the caption for the tab's content if there's room for it in the tab's content area
 			if (_tabContentWidth > (tab.Content.ShowIcon
-			                        	? 16 + IconMarginLeft + IconMarginRight
-			                        	: 0) + CaptionMarginLeft + CaptionMarginRight + (tab.ShowCloseButton
-			                        	                                                 	? CloseButtonMarginLeft +
-			                        	                                                 	  tab.CloseButtonArea.Width +
-			                        	                                                 	  CloseButtonMarginRight
-			                        	                                                 	: 0))
+				? 16 + IconMarginLeft + IconMarginRight
+				: 0) + CaptionMarginLeft + CaptionMarginRight + (tab.ShowCloseButton
+					? CloseButtonMarginLeft +
+					  tab.CloseButtonArea.Width +
+					  CloseButtonMarginRight
+					: 0))
 			{
 				graphicsContext.DrawString(
 					tab.Caption, SystemFonts.CaptionFont, Brushes.Black,
 					new Rectangle(
 						area.X + OverlapWidth + CaptionMarginLeft + (tab.Content.ShowIcon
-						                                             	? IconMarginLeft +
-						                                             	  16 +
-						                                             	  IconMarginRight
-						                                             	: 0),
+							? IconMarginLeft +
+							  16 +
+							  IconMarginRight
+							: 0),
 						CaptionMarginTop + area.Y,
 						_tabContentWidth - (tab.Content.ShowIcon
-						                    	? IconMarginLeft + 16 + IconMarginRight
-						                    	: 0) - (tab.ShowCloseButton
-						                    	        	? _closeButtonImage.Width +
-						                    	        	  CloseButtonMarginRight +
-						                    	        	  CloseButtonMarginLeft
-						                    	        	: 0), tab.TabImage.Height),
+							? IconMarginLeft + 16 + IconMarginRight
+							: 0) - (tab.ShowCloseButton
+								? _closeButtonImage.Width +
+								  CloseButtonMarginRight +
+								  CloseButtonMarginLeft
+								: 0), tab.TabImage.Height),
 					new StringFormat(StringFormatFlags.NoWrap)
-						{
-							Trimming = StringTrimming.EllipsisCharacter
-						});
+					{
+						Trimming = StringTrimming.EllipsisCharacter
+					});
 			}
 		}
 
-		public int TabContentWidth
-		{
-			get
-			{
-				return _tabContentWidth;
-			}
-		}
-
-		public Rectangle MaxTabArea
-		{
-			get
-			{
-				return _maxTabArea;
-			}
-		}
-
+		/// <summary>
+		/// Called when a torn tab is dragged into the <see cref="TitleBarTabs.TabDropArea" /> of <see cref="_parentWindow" />.  Places the tab in the list and
+		/// sets <see cref="IsTabRepositioning" /> to true to simulate the user continuing to drag the tab around in the window.
+		/// </summary>
+		/// <param name="tab">Tab that was dragged into this window.</param>
+		/// <param name="cursorLocation">Location of the user's cursor.</param>
 		internal virtual void CombineTab(TitleBarTab tab, Point cursorLocation)
 		{
+			// Stop rendering to prevent weird stuff from happening like the wrong tab being focused
 			_suspendRendering = true;
 
+			// Find out where to insert the tab in the list
 			int dropIndex = _parentWindow.Tabs.FindIndex(t => t.Area.Left <= cursorLocation.X && t.Area.Right >= cursorLocation.X);
 
+			// Simulate the user having clicked in the middle of the tab when they started dragging it so that the tab will move correctly within the window
+			// when the user continues to move the mouse
 			_tabClickOffset = _parentWindow.Tabs.First().Area.Width / 2;
 			IsTabRepositioning = true;
 
@@ -837,6 +789,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			else
 				_parentWindow.Tabs.Insert(dropIndex, tab);
 
+			// Resume rendering
 			_suspendRendering = false;
 
 			_parentWindow.SelectedTabIndex = dropIndex;

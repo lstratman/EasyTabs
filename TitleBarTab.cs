@@ -1,35 +1,23 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
 using System.Windows.Forms;
 
 namespace Stratman.Windows.Forms.TitleBarTabs
 {
-	/// <summary>
-	/// Wraps a <see cref="Form" /> instance (<see cref="_content" />), that represents the content that should be displayed within a tab instance.
-	/// </summary>
+	/// <summary>Wraps a <see cref="Form" /> instance (<see cref="_content" />), that represents the content that should be displayed within a tab instance.</summary>
 	public class TitleBarTab
 	{
-		/// <summary>
-		/// Flag indicating whether or not this tab is active.
-		/// </summary>
+		/// <summary>Flag indicating whether or not this tab is active.</summary>
 		protected bool _active;
 
-		/// <summary>
-		/// Content that should be displayed within the tab.
-		/// </summary>
+		/// <summary>Content that should be displayed within the tab.</summary>
 		protected Form _content;
 
-		/// <summary>
-		/// Parent window that contains this tab.
-		/// </summary>
+		/// <summary>Parent window that contains this tab.</summary>
 		protected TitleBarTabs _parent;
 
-		/// <summary>
-		/// Default constructor that initializes the various properties.
-		/// </summary>
+		/// <summary>Default constructor that initializes the various properties.</summary>
 		/// <param name="parent">Parent window that contains this tab.</param>
 		public TitleBarTab(TitleBarTabs parent)
 		{
@@ -37,19 +25,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			Parent = parent;
 		}
 
-		public virtual Bitmap GetImage()
-		{
-			Bitmap tabContents = new Bitmap(Content.Size.Width, Content.Size.Height);
-			Graphics contentsGraphics = Graphics.FromImage(tabContents);
-
-			contentsGraphics.CopyFromScreen(Content.PointToScreen(Point.Empty).X, Content.PointToScreen(Point.Empty).Y, 0, 0, Content.Size);
-
-			return tabContents;
-		}
-
-		/// <summary>
-		/// Parent window that contains this tab.
-		/// </summary>
+		/// <summary>Parent window that contains this tab.</summary>
 		public TitleBarTabs Parent
 		{
 			get
@@ -66,19 +42,15 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			}
 		}
 
-		/// <summary>
-		/// Flag indicating whether or not we should display the close button for this tab.
-		/// </summary>
+		/// <summary>Flag indicating whether or not we should display the close button for this tab.</summary>
 		public bool ShowCloseButton
 		{
 			get;
 			set;
 		}
 
-		/// <summary>
-		/// The caption that's displayed in the tab's title (simply uses the <see cref="Form.Text" /> of
-		/// <see cref="Content" />).
-		/// </summary>
+		/// <summary>The caption that's displayed in the tab's title (simply uses the <see cref="Form.Text" /> of
+		/// <see cref="Content" />).</summary>
 		public string Caption
 		{
 			get
@@ -92,9 +64,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			}
 		}
 
-		/// <summary>
-		/// Flag indicating whether or not this tab is active.
-		/// </summary>
+		/// <summary>Flag indicating whether or not this tab is active.</summary>
 		public bool Active
 		{
 			get
@@ -111,9 +81,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			}
 		}
 
-		/// <summary>
-		/// The icon that's displayed in the tab's title (simply uses the <see cref="Form.Icon" /> of <see cref="Content" />).
-		/// </summary>
+		/// <summary>The icon that's displayed in the tab's title (simply uses the <see cref="Form.Icon" /> of <see cref="Content" />).</summary>
 		public Icon Icon
 		{
 			get
@@ -127,36 +95,28 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			}
 		}
 
-		/// <summary>
-		/// The area in which the tab is rendered in the client window.
-		/// </summary>
+		/// <summary>The area in which the tab is rendered in the client window.</summary>
 		internal Rectangle Area
 		{
 			get;
 			set;
 		}
 
-		/// <summary>
-		/// The area of the close button for this tab in the client window.
-		/// </summary>
+		/// <summary>The area of the close button for this tab in the client window.</summary>
 		internal Rectangle CloseButtonArea
 		{
 			get;
 			set;
 		}
 
-		/// <summary>
-		/// Pre-rendered image of the tab's background.
-		/// </summary>
+		/// <summary>Pre-rendered image of the tab's background.</summary>
 		internal Bitmap TabImage
 		{
 			get;
 			set;
 		}
 
-		/// <summary>
-		/// The content that should be displayed for this tab.
-		/// </summary>
+		/// <summary>The content that should be displayed for this tab.</summary>
 		public Form Content
 		{
 			get
@@ -166,11 +126,11 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
 			set
 			{
-                if (_content != null)
-                {
-                    _content.FormClosing -= Content_Closing;
-                    _content.TextChanged -= Content_TextChanged;
-                }
+				if (_content != null)
+				{
+					_content.FormClosing -= Content_Closing;
+					_content.TextChanged -= Content_TextChanged;
+				}
 
 				_content = value;
 
@@ -184,20 +144,32 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		}
 
 		/// <summary>
-		/// Event that is fired when <see cref="Content"/>'s <see cref="Form.Closing"/> event is fired.
+		/// Called from <see cref="TornTabForm" /> when we need to generate a thumbnail for a tab when it is torn out of its parent window.  We simply call
+		/// <see cref="Graphics.CopyFromScreen(System.Drawing.Point,System.Drawing.Point,System.Drawing.Size)" /> to copy the screen contents to a
+		/// <see cref="Bitmap" />.
 		/// </summary>
+		/// <returns>An image of the tab's contents.</returns>
+		public virtual Bitmap GetImage()
+		{
+			Bitmap tabContents = new Bitmap(Content.Size.Width, Content.Size.Height);
+			Graphics contentsGraphics = Graphics.FromImage(tabContents);
+
+			contentsGraphics.CopyFromScreen(Content.PointToScreen(Point.Empty).X, Content.PointToScreen(Point.Empty).Y, 0, 0, Content.Size);
+
+			return tabContents;
+		}
+
+		/// <summary>Event that is fired when <see cref="Content" />'s <see cref="Form.Closing" /> event is fired.</summary>
 		public event CancelEventHandler Closing;
 
-		/// <summary>
-		/// Event that is fired when <see cref="Content"/>'s <see cref="Control.TextChanged"/> event is fired.
-		/// </summary>
+		/// <summary>Event that is fired when <see cref="Content" />'s <see cref="Control.TextChanged" /> event is fired.</summary>
 		public event EventHandler TextChanged;
 
 		/// <summary>
-		/// Event handler that is invoked when <see cref="Content"/>'s <see cref="Control.TextChanged"/> event is fired, which in turn fires this class' 
-		/// <see cref="TextChanged"/> event.
+		/// Event handler that is invoked when <see cref="Content" />'s <see cref="Control.TextChanged" /> event is fired, which in turn fires this class'
+		/// <see cref="TextChanged" /> event.
 		/// </summary>
-		/// <param name="sender">Object from which this event originated (<see cref="Content"/> in this case).</param>
+		/// <param name="sender">Object from which this event originated (<see cref="Content" /> in this case).</param>
 		/// <param name="e">Arguments associated with the event.</param>
 		private void Content_TextChanged(object sender, EventArgs e)
 		{
@@ -206,10 +178,10 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		}
 
 		/// <summary>
-		/// Event handler that is invoked when <see cref="Content"/>'s <see cref="Form.Closing"/> event is fired, which in turn fires this class' 
-		/// <see cref="Closing"/> event.
+		/// Event handler that is invoked when <see cref="Content" />'s <see cref="Form.Closing" /> event is fired, which in turn fires this class'
+		/// <see cref="Closing" /> event.
 		/// </summary>
-		/// <param name="sender">Object from which this event originated (<see cref="Content"/> in this case).</param>
+		/// <param name="sender">Object from which this event originated (<see cref="Content" /> in this case).</param>
 		/// <param name="e">Arguments associated with the event.</param>
 		protected void Content_Closing(object sender, CancelEventArgs e)
 		{
@@ -217,6 +189,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 				Closing(this, e);
 		}
 
+		/// <summary>Unsubscribes the tab from any event handlers that may have been attached to its <see cref="Closing" /> or <see cref="TextChanged" /> events.</summary>
 		public void ClearSubscriptions()
 		{
 			Closing = null;
