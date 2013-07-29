@@ -192,7 +192,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 				using (ProcessModule curModule = curProcess.MainModule)
 				{
 					_hookproc = MouseHookCallback;
-					_hookId = User32.SetWindowsHookEx(WH.WH_MOUSE_LL, _hookproc, Kernel32.GetModuleHandleA(curModule.ModuleName), 0);
+					_hookId = User32.SetWindowsHookEx(WH.WH_MOUSE_LL, _hookproc, Kernel32.GetModuleHandle(curModule.ModuleName), 0);
 				}
 			}
 		}
