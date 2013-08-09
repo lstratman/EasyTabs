@@ -641,6 +641,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
 							OnMouseDown(new MouseEventArgs(MouseButtons.Left, 1, Cursor.Position.X, Cursor.Position.Y, 0));
 						}
+
+						_parentForm.Activate();
 					}
 
 					break;
