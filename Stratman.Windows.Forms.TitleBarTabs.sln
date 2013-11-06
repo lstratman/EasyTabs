@@ -12,6 +12,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{4FD84D
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ReSharper Settings", "ReSharper Settings", "{FD0ECAF1-69C2-4868-9AF4-13CDF3CA23AB}"
+	ProjectSection(SolutionItems) = preProject
+		Stratman.Windows.Forms.TitleBarTabs.sln.DotSettings = Stratman.Windows.Forms.TitleBarTabs.sln.DotSettings
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
