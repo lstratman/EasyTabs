@@ -1,8 +1,8 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>TitleBarTabs</id>
-        <version>1.1.2</version>
+        <version>1.1.3</version>
         <title>.NET Title Bar Tabs</title>
         <authors>Luke Stratman</authors>
         <licenseUrl>https://github.com/lstratman/.NETTitleBarTabs/blob/master/BSD.txt</licenseUrl>
@@ -10,7 +10,8 @@
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Library to enable .NET WinForms apps to easily render a set of tabs in their titlebar space, similar to Chrome, Firefox, Trillian, etc.</description>
         <summary />
-        <releaseNotes>- Updated to the latest release of the Win32Interop libraries.</releaseNotes>
+        <releaseNotes>- Handling low-level mouse hook messages is now done in another consumer thread to prevent the hook proc from being silently uninstalled by Windows for taking too long to process messages.
+- Clicking on the tabs while the parent window is out of focus will bring focus back to the parent window.</releaseNotes>
         <copyright>(c) 2013, Luke Stratman</copyright>
         <dependencies>
             <dependency id="Win32Interop.Dwmapi" version="1.0.1" />
