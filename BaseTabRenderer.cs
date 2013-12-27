@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -59,6 +59,9 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
 		/// <summary>Flag indicating whether or not a tab is being repositioned.</summary>
 		protected bool _isTabRepositioning = false;
+
+		/// <summary>Flag indicating whether or not a tab was being repositioned.</summary>
+		protected bool _wasTabRepositioning = false;
 
 		protected Rectangle _maxTabArea = new Rectangle();
 
@@ -261,6 +264,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		/// <param name="e">Arguments associated with the event.</param>
 		protected internal virtual void Overlay_MouseDown(object sender, MouseEventArgs e)
 		{
+			_wasTabRepositioning = false;
 			_dragStart = e.Location;
 			_tabClickOffset = _parentWindow._overlay.GetRelativeCursorPosition(e.Location).X - _parentWindow.SelectedTab.Area.Location.X;
 		}
@@ -276,11 +280,11 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			_dragStart = null;
 			_tabClickOffset = null;
 
-			bool wasRepositioning = IsTabRepositioning;
+			_wasTabRepositioning = IsTabRepositioning;
 
 			IsTabRepositioning = false;
 
-			if (wasRepositioning)
+			if (_wasTabRepositioning)
 				_parentWindow._overlay.Render(true);
 		}
 
@@ -402,7 +406,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		/// </returns>
 		public virtual bool IsOverAddButton(Point cursor)
 		{
-			return IsOverNonTransparentArea(_addButtonArea, _addButtonHoverImage, cursor);
+			return !_wasTabRepositioning && IsOverNonTransparentArea(_addButtonArea, _addButtonHoverImage, cursor);
 		}
 
 		/// <summary>Tests whether the <paramref name="cursor" /> is hovering over the given <paramref name="tab" />.</summary>
@@ -414,7 +418,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		/// </returns>
 		protected virtual bool IsOverTab(TitleBarTab tab, Point cursor)
 		{
-			return IsOverNonTransparentArea(tab.Area, tab.TabImage, cursor);
+            return IsOverNonTransparentArea(tab.Area, tab.TabImage, cursor);
 		}
 
 		/// <summary>Checks to see if the <paramref name="cursor" /> is over the <see cref="TitleBarTab.CloseButtonArea" /> of the given <paramref name="tab" />.</summary>
@@ -423,7 +427,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		/// <returns>True if the <paramref name="tab" />'s <see cref="TitleBarTab.CloseButtonArea" /> contains <paramref name="cursor" />, false otherwise.</returns>
 		public virtual bool IsOverCloseButton(TitleBarTab tab, Point cursor)
 		{
-			if (!tab.ShowCloseButton)
+			if (!tab.ShowCloseButton || _wasTabRepositioning)
 				return false;
 
 			Rectangle absoluteCloseButtonArea = new Rectangle(
