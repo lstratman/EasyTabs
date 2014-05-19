@@ -7,6 +7,6 @@ The library comes with a renderer for Chrome-like tabs (ChromeTabRenderer), but 
 
 You can include this functionality in your project via NuGet:
 
-    PM> Install-Package TitleBarTabs
+    PM> Install-Package EasyTabs
 
 This project is licensed under the terms of the [BSD license](BSD.txt)
