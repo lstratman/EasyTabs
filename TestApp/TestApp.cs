@@ -8,7 +8,7 @@ namespace TestApp
         {
             InitializeComponent();
 
-			AeroPeekEnabled = false;
+            AeroPeekEnabled = true;
             TabRenderer = new ChromeTabRenderer(this);
             Icon = Resources.DefaultIcon;
         }

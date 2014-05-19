@@ -779,7 +779,10 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
 			// Simulate the user having clicked in the middle of the tab when they started dragging it so that the tab will move correctly within the window
 			// when the user continues to move the mouse
+			if (_parentWindow.Tabs.Count > 0)
 			_tabClickOffset = _parentWindow.Tabs.First().Area.Width / 2;
+			else
+				_tabClickOffset = 0;
 			IsTabRepositioning = true;
 
 			tab.Parent = _parentWindow;

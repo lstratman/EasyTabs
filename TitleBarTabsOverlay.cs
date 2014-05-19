@@ -285,7 +285,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 // ReSharper restore PossibleInvalidOperationException
 					bool reRender = false;
 
-					if (_tornTab != null)
+					if (_tornTab != null && _dropAreas != null)
 					{
 						// ReSharper disable ForCanBeConvertedToForeach
 						for (int i = 0; i < _dropAreas.Length; i++)

@@ -461,7 +461,9 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			foreach (
 				TitleBarTab rdcWindow in Tabs.Where(rdcWindow => rdcWindow.Content.Handle == e.WindowHandle && _previews.ContainsKey(rdcWindow.Content)))
 			{
-				e.SetImage(_previews[rdcWindow.Content]);
+				TabbedThumbnail preview = TaskbarManager.Instance.TabbedThumbnail.GetThumbnailPreview(rdcWindow.Content);
+				preview.SetImage(_previews[rdcWindow.Content]);
+
 				break;
 			}
 		}
@@ -541,10 +543,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		{
 			foreach (TitleBarTab tab in Tabs.Where(tab => tab.Content.Handle == e.WindowHandle))
 			{
-				tab.Content.Close();
-
-				if (e.TabbedThumbnail != null)
-					TaskbarManager.Instance.TabbedThumbnail.RemoveThumbnailPreview(e.TabbedThumbnail);
+				CloseTab(tab);
 
 				break;
 			}
@@ -583,13 +582,20 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		/// <returns>Thumbnail created for <paramref name="tab" />.</returns>
 		protected virtual TabbedThumbnail CreateThumbnailPreview(TitleBarTab tab)
 		{
-			TabbedThumbnail preview = new TabbedThumbnail(Handle, tab.Content)
+			TabbedThumbnail preview = TaskbarManager.Instance.TabbedThumbnail.GetThumbnailPreview(tab.Content);
+			if (preview != null)
+			{
+				TaskbarManager.Instance.TabbedThumbnail.RemoveThumbnailPreview(tab.Content);
+			}
+
+			preview = new TabbedThumbnail(Handle, tab.Content)
 			                          {
 				                          Title = tab.Content.Text,
 				                          Tooltip = tab.Content.Text
 			                          };
 
-			preview.SetWindowIcon(tab.Content.Icon);
+			// TODO: Need Fix Disposed
+			//preview.SetWindowIcon(tab.Content.Icon);
 			preview.TabbedThumbnailActivated += preview_TabbedThumbnailActivated;
 			preview.TabbedThumbnailClosed += preview_TabbedThumbnailClosed;
 			preview.TabbedThumbnailBitmapRequested += preview_TabbedThumbnailBitmapRequested;
@@ -628,7 +634,11 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		/// <param name="e">Arguments associated with the event.</param>
 		private void TitleBarTabs_Closing(object sender, CancelEventArgs e)
 		{
-			CloseTab((TitleBarTab) sender);
+			TitleBarTab tab = (TitleBarTab)sender;
+			CloseTab(tab);
+
+			if (!tab.Content.IsDisposed && AeroPeekEnabled)
+				TaskbarManager.Instance.TabbedThumbnail.RemoveThumbnailPreview(tab.Content);
 
 			if (_overlay != null)
 				_overlay.Render(true);
@@ -734,8 +744,6 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			if (_previousActiveTab != null && closingTab.Content == _previousActiveTab.Content)
 				_previousActiveTab = null;
 
-			if (!closingTab.Content.IsDisposed && AeroPeekEnabled)
-				TaskbarManager.Instance.TabbedThumbnail.RemoveThumbnailPreview(closingTab.Content);
 
 			if (Tabs.Count == 0 && ExitOnLastTabClose)
 				Close();
