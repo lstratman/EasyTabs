@@ -10,12 +10,11 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
-using EasyTabs;
 using Win32Interop.Enums;
 using Win32Interop.Methods;
 using Win32Interop.Structs;
 
-namespace Stratman.Windows.Forms.TitleBarTabs
+namespace EasyTabs
 {
 	/// <summary>
 	/// Borderless overlay window that is moved with and rendered on top of the non-client area of a  <see cref="TitleBarTabs" /> instance that's responsible
@@ -24,14 +23,12 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 	public class TitleBarTabsOverlay : Form
 	{
 		/// <summary>All of the parent forms and their overlays so that we don't create duplicate overlays across the application domain.</summary>
-		protected static Dictionary<EasyTabs.TitleBarTabs, TitleBarTabsOverlay> _parents = new Dictionary<EasyTabs.TitleBarTabs, TitleBarTabsOverlay>();
+		protected static Dictionary<TitleBarTabs, TitleBarTabsOverlay> _parents = new Dictionary<TitleBarTabs, TitleBarTabsOverlay>();
 
 		/// <summary>Tab that has been torn off from this window and is being dragged.</summary>
 		protected static TitleBarTab _tornTab;
 
-		/// <summary>
-		/// Thumbnail representation of <see cref="_tornTab" /> used when dragging.
-		/// </summary>
+		/// <summary>Thumbnail representation of <see cref="_tornTab" /> used when dragging.</summary>
 		protected static TornTabForm _tornTabForm;
 
 		/// <summary>
@@ -40,14 +37,10 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		/// </summary>
 		protected static bool _wasDragging = false;
 
-		/// <summary>
-		/// Flag indicating whether or not <see cref="_hookproc" /> has been installed as a hook.
-		/// </summary>
+		/// <summary>Flag indicating whether or not <see cref="_hookproc" /> has been installed as a hook.</summary>
 		protected static bool _hookProcInstalled;
 
-		/// <summary>
-		/// Semaphore to control access to <see cref="_tornTab" />.
-		/// </summary>
+		/// <summary>Semaphore to control access to <see cref="_tornTab" />.</summary>
 		protected static object _tornTabLock = new object();
 
 		/// <summary>Flag indicating whether or not the underlying window is active.</summary>
@@ -60,46 +53,34 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		/// When a tab is torn from the window, this is where we store the areas on all open windows where tabs can be dropped to combine the tab with that
 		/// window.
 		/// </summary>
-		protected Tuple<EasyTabs.TitleBarTabs, Rectangle>[] _dropAreas = null;
+		protected Tuple<TitleBarTabs, Rectangle>[] _dropAreas = null;
 
-		/// <summary>
-		/// Pointer to the low-level mouse hook callback (<see cref="MouseHookCallback" />).
-		/// </summary>
+		/// <summary>Pointer to the low-level mouse hook callback (<see cref="MouseHookCallback" />).</summary>
 		protected IntPtr _hookId;
 
-		/// <summary>
-		/// Delegate of <see cref="MouseHookCallback" />; declared as a member variable to keep it from being garbage collected.
-		/// </summary>
+		/// <summary>Delegate of <see cref="MouseHookCallback" />; declared as a member variable to keep it from being garbage collected.</summary>
 		protected HOOKPROC _hookproc = null;
 
 		/// <summary>Index of the tab, if any, whose close button is being hovered over.</summary>
 		protected int _isOverCloseButtonForTab = -1;
 
-		/// <summary>
-		/// Queue of mouse events reported by <see cref="_hookproc" /> that need to be processed.
-		/// </summary>
+		/// <summary>Queue of mouse events reported by <see cref="_hookproc" /> that need to be processed.</summary>
 		protected BlockingCollection<MouseEvent> _mouseEvents = new BlockingCollection<MouseEvent>();
 
-		/// <summary>
-		/// Consumer thread for processing events in <see cref="_mouseEvents" />.
-		/// </summary>
+		/// <summary>Consumer thread for processing events in <see cref="_mouseEvents" />.</summary>
 		protected Thread _mouseEventsThread = null;
 
 		/// <summary>Parent form for the overlay.</summary>
-		protected EasyTabs.TitleBarTabs _parentForm;
+		protected TitleBarTabs _parentForm;
 
-		/// <summary>
-		/// Blank default constructor to ensure that the overlays are only initialized through <see cref="GetInstance" />.
-		/// </summary>
+		/// <summary>Blank default constructor to ensure that the overlays are only initialized through <see cref="GetInstance" />.</summary>
 		protected TitleBarTabsOverlay()
 		{
 		}
 
-		/// <summary>
-		/// Creates the overlay window and attaches it to <paramref name="parentForm" />.
-		/// </summary>
+		/// <summary>Creates the overlay window and attaches it to <paramref name="parentForm" />.</summary>
 		/// <param name="parentForm">Parent form that the overlay should be rendered on top of.</param>
-		protected TitleBarTabsOverlay(EasyTabs.TitleBarTabs parentForm)
+		protected TitleBarTabsOverlay(TitleBarTabs parentForm)
 		{
 			_parentForm = parentForm;
 
@@ -116,7 +97,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
 		/// <summary>
 		/// Makes sure that the window is created with an <see cref="WS_EX.WS_EX_LAYERED" /> flag set so that it can be alpha-blended properly with the content (
-		///     <see cref="_parentForm" />) underneath the overlay.
+		/// <see cref="_parentForm" />) underneath the overlay.
 		/// </summary>
 		protected override CreateParams CreateParams
 		{
@@ -137,13 +118,13 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 				if (Application.RenderWithVisualStyles && Environment.OSVersion.Version.Major >= 6)
 				{
 					return _active
-						       ? SystemColors.GradientActiveCaption
-						       : SystemColors.GradientInactiveCaption;
+						? SystemColors.GradientActiveCaption
+						: SystemColors.GradientInactiveCaption;
 				}
 
 				return _active
-					       ? SystemColors.ActiveCaption
-					       : SystemColors.InactiveCaption;
+					? SystemColors.ActiveCaption
+					: SystemColors.InactiveCaption;
 			}
 		}
 
@@ -153,10 +134,14 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			get
 			{
 				if (_aeroEnabled)
+				{
 					return DisplayType.Aero;
+				}
 
 				if (Application.RenderWithVisualStyles && Environment.OSVersion.Version.Major >= 6)
+				{
 					return DisplayType.Basic;
+				}
 
 				return DisplayType.Classic;
 			}
@@ -168,12 +153,12 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			get
 			{
 				return _active
-					       ? SystemInformation.IsTitleBarGradientEnabled
-						         ? SystemColors.GradientActiveCaption
-						         : SystemColors.ActiveCaption
-					       : SystemInformation.IsTitleBarGradientEnabled
-						         ? SystemColors.GradientInactiveCaption
-						         : SystemColors.InactiveCaption;
+					? SystemInformation.IsTitleBarGradientEnabled
+						? SystemColors.GradientActiveCaption
+						: SystemColors.ActiveCaption
+					: SystemInformation.IsTitleBarGradientEnabled
+						? SystemColors.GradientInactiveCaption
+						: SystemColors.InactiveCaption;
 			}
 		}
 
@@ -191,23 +176,22 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			}
 		}
 
-		/// <summary>
-		/// Retrieves or creates the overlay for <paramref name="parentForm" />.
-		/// </summary>
+		/// <summary>Retrieves or creates the overlay for <paramref name="parentForm" />.</summary>
 		/// <param name="parentForm">Parent form that we are to create the overlay for.</param>
-		/// <returns>
-		/// Newly-created or previously existing overlay for <paramref name="parentForm" />.
-		/// </returns>
-		public static TitleBarTabsOverlay GetInstance(EasyTabs.TitleBarTabs parentForm)
+		/// <returns>Newly-created or previously existing overlay for <paramref name="parentForm" />.</returns>
+		public static TitleBarTabsOverlay GetInstance(TitleBarTabs parentForm)
 		{
 			if (!_parents.ContainsKey(parentForm))
+			{
 				_parents.Add(parentForm, new TitleBarTabsOverlay(parentForm));
+			}
 
 			return _parents[parentForm];
 		}
 
 		/// <summary>
-		/// Attaches the various event handlers to <see cref="_parentForm" /> so that the overlay is moved in synchronization to <see cref="_parentForm" />.
+		/// Attaches the various event handlers to <see cref="_parentForm" /> so that the overlay is moved in synchronization to
+		/// <see cref="_parentForm" />.
 		/// </summary>
 		protected void AttachHandlers()
 		{
@@ -225,9 +209,9 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			{
 				// Spin up a consumer thread to process mouse events from _mouseEvents
 				_mouseEventsThread = new Thread(InterpretMouseEvents)
-					                     {
-						                     Name = "Low level mouse hooks processing thread"
-					                     };
+				                     {
+					                     Name = "Low level mouse hooks processing thread"
+				                     };
 				_mouseEventsThread.Start();
 
 				using (Process curProcess = Process.GetCurrentProcess())
@@ -246,19 +230,21 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		/// Event handler that is called when <see cref="_parentForm" /> is in the process of closing.  This uninstalls <see cref="_hookproc" /> from the low-
 		/// level hooks list and stops the consumer thread that processes those events.
 		/// </summary>
-		/// <param name="sender">
-		/// Object from which this event originated, <see cref="_parentForm" /> in this case.
-		/// </param>
+		/// <param name="sender">Object from which this event originated, <see cref="_parentForm" /> in this case.</param>
 		/// <param name="e">Arguments associated with this event.</param>
 		private void _parentForm_Closing(object sender, CancelEventArgs e)
 		{
-			EasyTabs.TitleBarTabs form = (EasyTabs.TitleBarTabs) sender;
+			TitleBarTabs form = (TitleBarTabs) sender;
 
 			if (form == null)
+			{
 				return;
+			}
 
 			if (_parents.ContainsKey(form))
+			{
 				_parents.Remove(form);
+			}
 
 			// Uninstall the mouse hook
 			User32.UnhookWindowsHookEx(_hookId);
@@ -268,9 +254,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			_mouseEventsThread.Abort();
 		}
 
-		/// <summary>
-		/// Consumer method that processes mouse events in <see cref="_mouseEvents" /> that are recorded by <see cref="MouseHookCallback" />.
-		/// </summary>
+		/// <summary>Consumer method that processes mouse events in <see cref="_mouseEvents" /> that are recorded by <see cref="MouseHookCallback" />.</summary>
 		protected void InterpretMouseEvents()
 		{
 			foreach (MouseEvent mouseEvent in _mouseEvents.GetConsumingEnumerable())
@@ -315,16 +299,18 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 									Invoke(
 										new Action(
 											() =>
+											{
+												_dropAreas[i1].Item1.TabRenderer.CombineTab(tabToCombine, cursorPosition);
+
+												tabToCombine = null;
+												_tornTabForm.Close();
+												_tornTabForm = null;
+
+												if (_parentForm.Tabs.Count == 0)
 												{
-													_dropAreas[i1].Item1.TabRenderer.CombineTab(tabToCombine, cursorPosition);
-
-													tabToCombine = null;
-													_tornTabForm.Close();
-													_tornTabForm = null;
-
-													if (_parentForm.Tabs.Count == 0)
-														_parentForm.Close();
-												}));
+													_parentForm.Close();
+												}
+											}));
 								}
 							}
 						}
@@ -365,60 +351,68 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 						Invoke(
 							new Action(
 								() =>
+								{
+									_wasDragging = true;
+
+									// When determining if a tab has been torn from the window while dragging, we take the drop area for this window and inflate it by the
+									// TabTearDragDistance setting
+									Rectangle dragArea = TabDropArea;
+									dragArea.Inflate(_parentForm.TabRenderer.TabTearDragDistance, _parentForm.TabRenderer.TabTearDragDistance);
+
+									// If the cursor is outside the tear area, tear it away from the current window
+									if (!dragArea.Contains(cursorPosition) && _tornTab == null)
 									{
-										_wasDragging = true;
-
-										// When determining if a tab has been torn from the window while dragging, we take the drop area for this window and inflate it by the
-										// TabTearDragDistance setting
-										Rectangle dragArea = TabDropArea;
-										dragArea.Inflate(_parentForm.TabRenderer.TabTearDragDistance, _parentForm.TabRenderer.TabTearDragDistance);
-
-										// If the cursor is outside the tear area, tear it away from the current window
-										if (!dragArea.Contains(cursorPosition) && _tornTab == null)
+										lock (_tornTabLock)
 										{
-											lock (_tornTabLock)
+											if (_tornTab == null)
 											{
-												if (_tornTab == null)
-												{
-													_parentForm.TabRenderer.IsTabRepositioning = false;
+												_parentForm.TabRenderer.IsTabRepositioning = false;
 
-													// Clear the event handler subscriptions from the tab and then create a thumbnail representation of it to use when dragging
-													_tornTab = _parentForm.SelectedTab;
-													_tornTab.ClearSubscriptions();
-													_tornTabForm = new TornTabForm(_tornTab, _parentForm.TabRenderer);
-												}
-											}
-
-											if (_tornTab != null)
-											{
-												_parentForm.SelectedTabIndex = (_parentForm.SelectedTabIndex == _parentForm.Tabs.Count - 1
-													                                ? _parentForm.SelectedTabIndex - 1
-													                                : _parentForm.SelectedTabIndex + 1);
-												_parentForm.Tabs.Remove(_tornTab);
-
-												// If this tab was the only tab in the window, hide the parent window
-												if (_parentForm.Tabs.Count == 0)
-													_parentForm.Hide();
-
-												_tornTabForm.Show();
-												_dropAreas = (from window in _parentForm.ApplicationContext.OpenWindows.Where(w => w.Tabs.Count > 0)
-												              select new Tuple<EasyTabs.TitleBarTabs, Rectangle>(window, window.TabDropArea)).ToArray();
+												// Clear the event handler subscriptions from the tab and then create a thumbnail representation of it to use when dragging
+												_tornTab = _parentForm.SelectedTab;
+												_tornTab.ClearSubscriptions();
+												_tornTabForm = new TornTabForm(_tornTab, _parentForm.TabRenderer);
 											}
 										}
-									}));
+
+										if (_tornTab != null)
+										{
+											_parentForm.SelectedTabIndex = (_parentForm.SelectedTabIndex == _parentForm.Tabs.Count - 1
+												? _parentForm.SelectedTabIndex - 1
+												: _parentForm.SelectedTabIndex + 1);
+											_parentForm.Tabs.Remove(_tornTab);
+
+											// If this tab was the only tab in the window, hide the parent window
+											if (_parentForm.Tabs.Count == 0)
+											{
+												_parentForm.Hide();
+											}
+
+											_tornTabForm.Show();
+											_dropAreas = (from window in _parentForm.ApplicationContext.OpenWindows.Where(w => w.Tabs.Count > 0)
+											              select new Tuple<TitleBarTabs, Rectangle>(window, window.TabDropArea)).ToArray();
+										}
+									}
+								}));
 					}
 
 					Invoke(new Action(() => OnMouseMove(new MouseEventArgs(MouseButtons.None, 0, cursorPosition.X, cursorPosition.Y, 0))));
 
 					if (_parentForm.TabRenderer.IsTabRepositioning)
+					{
 						reRender = true;
+					}
 
 					if (reRender)
+					{
 						Invoke(new Action(() => Render(cursorPosition, true)));
+					}
 				}
 
 				else if (nCode >= 0 && (int) WM.WM_LBUTTONDOWN == (int) wParam)
+				{
 					_wasDragging = false;
+				}
 
 				else if (nCode >= 0 && (int) WM.WM_LBUTTONUP == (int) wParam)
 				{
@@ -441,42 +435,44 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 							Invoke(
 								new Action(
 									() =>
+									{
+										TitleBarTabs newWindow = (TitleBarTabs) Activator.CreateInstance(_parentForm.GetType());
+
+										// Set the initial window position and state properly
+										if (newWindow.WindowState == FormWindowState.Maximized)
 										{
-											EasyTabs.TitleBarTabs newWindow = (EasyTabs.TitleBarTabs) Activator.CreateInstance(_parentForm.GetType());
+											Screen screen = Screen.AllScreens.First(s => s.WorkingArea.Contains(Cursor.Position));
 
-											// Set the initial window position and state properly
-											if (newWindow.WindowState == FormWindowState.Maximized)
-											{
-												Screen screen = Screen.AllScreens.First(s => s.WorkingArea.Contains(Cursor.Position));
+											newWindow.StartPosition = FormStartPosition.Manual;
+											newWindow.WindowState = FormWindowState.Normal;
+											newWindow.Left = screen.WorkingArea.Left;
+											newWindow.Top = screen.WorkingArea.Top;
+											newWindow.Width = screen.WorkingArea.Width;
+											newWindow.Height = screen.WorkingArea.Height;
+										}
 
-												newWindow.StartPosition = FormStartPosition.Manual;
-												newWindow.WindowState = FormWindowState.Normal;
-												newWindow.Left = screen.WorkingArea.Left;
-												newWindow.Top = screen.WorkingArea.Top;
-												newWindow.Width = screen.WorkingArea.Width;
-												newWindow.Height = screen.WorkingArea.Height;
-											}
+										else
+										{
+											newWindow.Left = Cursor.Position.X;
+											newWindow.Top = Cursor.Position.Y;
+										}
 
-											else
-											{
-												newWindow.Left = Cursor.Position.X;
-												newWindow.Top = Cursor.Position.Y;
-											}
+										tabToRelease.Parent = newWindow;
+										_parentForm.ApplicationContext.OpenWindow(newWindow);
 
-											tabToRelease.Parent = newWindow;
-											_parentForm.ApplicationContext.OpenWindow(newWindow);
+										newWindow.Show();
+										newWindow.Tabs.Add(tabToRelease);
+										newWindow.SelectedTabIndex = 0;
+										newWindow.ResizeTabContents();
 
-											newWindow.Show();
-											newWindow.Tabs.Add(tabToRelease);
-											newWindow.SelectedTabIndex = 0;
-											newWindow.ResizeTabContents();
+										_tornTabForm.Close();
+										_tornTabForm = null;
 
-											_tornTabForm.Close();
-											_tornTabForm = null;
-
-											if (_parentForm.Tabs.Count == 0)
-												_parentForm.Close();
-										}));
+										if (_parentForm.Tabs.Count == 0)
+										{
+											_parentForm.Close();
+										}
+									}));
 						}
 					}
 
@@ -485,9 +481,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			}
 		}
 
-		/// <summary>
-		/// Hook callback to process <see cref="WM.WM_MOUSEMOVE" /> messages to highlight/un-highlight the close button on each tab.
-		/// </summary>
+		/// <summary>Hook callback to process <see cref="WM.WM_MOUSEMOVE" /> messages to highlight/un-highlight the close button on each tab.</summary>
 		/// <param name="nCode">The message being received.</param>
 		/// <param name="wParam">Additional information about the message.</param>
 		/// <param name="lParam">Additional information about the message.</param>
@@ -495,14 +489,16 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		protected IntPtr MouseHookCallback(int nCode, IntPtr wParam, IntPtr lParam)
 		{
 			MouseEvent mouseEvent = new MouseEvent
-				                        {
-					                        nCode = nCode,
-					                        wParam = wParam,
-					                        lParam = lParam
-				                        };
+			                        {
+				                        nCode = nCode,
+				                        wParam = wParam,
+				                        lParam = lParam
+			                        };
 
 			if (nCode >= 0 && (int) WM.WM_MOUSEMOVE == (int) wParam)
+			{
 				mouseEvent.MouseData = (MSLLHOOKSTRUCT) Marshal.PtrToStructure(lParam, typeof (MSLLHOOKSTRUCT));
+			}
 
 			_mouseEvents.Add(mouseEvent);
 
@@ -514,7 +510,9 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		protected virtual void DrawTitleBarBackground(Graphics graphics)
 		{
 			if (DisplayType == DisplayType.Aero)
+			{
 				return;
+			}
 
 			Rectangle fillArea;
 
@@ -523,28 +521,38 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 				fillArea = new Rectangle(
 					new Point(
 						1, Top == 0
-							   ? SystemInformation.CaptionHeight - 1
-							   : (SystemInformation.CaptionHeight + SystemInformation.VerticalResizeBorderThickness) - (Top - _parentForm.Top) - 1),
+							? SystemInformation.CaptionHeight - 1
+							: (SystemInformation.CaptionHeight + SystemInformation.VerticalResizeBorderThickness) - (Top - _parentForm.Top) - 1),
 					new Size(Width - 2, _parentForm.Padding.Top));
 			}
 
 			else
+			{
 				fillArea = new Rectangle(new Point(1, 0), new Size(Width - 2, Height - 1));
+			}
 
 			if (fillArea.Height <= 0)
+			{
 				return;
+			}
 
 			// Adjust the margin so that the gradient stops immediately prior to the control box in the titlebar
 			int rightMargin = 3;
 
 			if (_parentForm.ControlBox && _parentForm.MinimizeBox)
+			{
 				rightMargin += SystemInformation.CaptionButtonSize.Width;
+			}
 
 			if (_parentForm.ControlBox && _parentForm.MaximizeBox)
+			{
 				rightMargin += SystemInformation.CaptionButtonSize.Width;
+			}
 
 			if (_parentForm.ControlBox)
+			{
 				rightMargin += SystemInformation.CaptionButtonSize.Width;
+			}
 
 			LinearGradientBrush gradient = new LinearGradientBrush(
 				new Point(24, 0), new Point(fillArea.Width - rightMargin + 1, 0), TitleBarColor, TitleBarGradientColor);
@@ -564,7 +572,8 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		}
 
 		/// <summary>
-		/// Event handler that is called when <see cref="_parentForm" />'s <see cref="Control.SystemColorsChanged" /> event is fired which re-renders the tabs.
+		/// Event handler that is called when <see cref="_parentForm" />'s <see cref="Control.SystemColorsChanged" /> event is fired which re-renders
+		/// the tabs.
 		/// </summary>
 		/// <param name="sender">Object from which the event originated.</param>
 		/// <param name="e">Arguments associated with the event.</param>
@@ -576,22 +585,24 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
 		/// <summary>
 		/// Event handler that is called when <see cref="_parentForm" />'s <see cref="Control.SizeChanged" />, <see cref="Control.VisibleChanged" />, or
-		///     <see cref="Control.Move" /> events are fired which re-renders the tabs.
+		/// <see cref="Control.Move" /> events are fired which re-renders the tabs.
 		/// </summary>
 		/// <param name="sender">Object from which the event originated.</param>
 		/// <param name="e">Arguments associated with the event.</param>
 		private void _parentForm_Refresh(object sender, EventArgs e)
 		{
 			if (_parentForm.WindowState == FormWindowState.Minimized)
+			{
 				Visible = false;
+			}
 
 			else
+			{
 				OnPosition();
+			}
 		}
 
-		/// <summary>
-		/// Sets the position of the overlay window to match that of <see cref="_parentForm" /> so that it moves in tandem with it.
-		/// </summary>
+		/// <summary>Sets the position of the overlay window to match that of <see cref="_parentForm" /> so that it moves in tandem with it.</summary>
 		protected void OnPosition()
 		{
 			if (!IsDisposed)
@@ -599,15 +610,15 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 				// If the form is in a non-maximized state, we position the tabs below the minimize/maximize/close
 				// buttons
 				Top = _parentForm.Top + (DisplayType == DisplayType.Classic
-					                         ? SystemInformation.VerticalResizeBorderThickness
-					                         : _parentForm.WindowState == FormWindowState.Maximized
-						                           ? SystemInformation.VerticalResizeBorderThickness
-						                           : SystemInformation.CaptionHeight);
+					? SystemInformation.VerticalResizeBorderThickness
+					: _parentForm.WindowState == FormWindowState.Maximized
+						? SystemInformation.VerticalResizeBorderThickness
+						: SystemInformation.CaptionHeight);
 				Left = _parentForm.Left + SystemInformation.HorizontalResizeBorderThickness - SystemInformation.BorderSize.Width;
 				Width = _parentForm.Width - (SystemInformation.VerticalResizeBorderThickness * 2) + (SystemInformation.BorderSize.Width * 2);
 				Height = _parentForm.TabRenderer.TabHeight + (DisplayType == DisplayType.Classic && _parentForm.WindowState != FormWindowState.Maximized
-					                                              ? SystemInformation.CaptionButtonSize.Height
-					                                              : 0);
+					? SystemInformation.CaptionButtonSize.Height
+					: 0);
 
 				Render();
 			}
@@ -615,7 +626,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
 		/// <summary>
 		/// Renders the tabs and then calls <see cref="User32.UpdateLayeredWindow" /> to blend the tab content with the underlying window (
-		///     <see cref="_parentForm" />).
+		/// <see cref="_parentForm" />).
 		/// </summary>
 		/// <param name="forceRedraw">Flag indicating whether a full render should be forced.</param>
 		public void Render(bool forceRedraw = false)
@@ -625,7 +636,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
 		/// <summary>
 		/// Renders the tabs and then calls <see cref="User32.UpdateLayeredWindow" /> to blend the tab content with the underlying window (
-		///     <see cref="_parentForm" />).
+		/// <see cref="_parentForm" />).
 		/// </summary>
 		/// <param name="cursorPosition">Current position of the cursor.</param>
 		/// <param name="forceRedraw">Flag indicating whether a full render should be forced.</param>
@@ -644,10 +655,10 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 						// Since classic mode themes draw over the *entire* titlebar, not just the area immediately behind the tabs, we have to offset the tabs
 						// when rendering in the window
 						Point offset = _parentForm.WindowState != FormWindowState.Maximized && DisplayType == DisplayType.Classic
-							               ? new Point(0, SystemInformation.CaptionButtonSize.Height)
-							               : _parentForm.WindowState != FormWindowState.Maximized
-								                 ? new Point(0, SystemInformation.VerticalResizeBorderThickness - SystemInformation.BorderSize.Height)
-								                 : new Point(0, 0);
+							? new Point(0, SystemInformation.CaptionButtonSize.Height)
+							: _parentForm.WindowState != FormWindowState.Maximized
+								? new Point(0, SystemInformation.VerticalResizeBorderThickness - SystemInformation.BorderSize.Height)
+								: new Point(0, 0);
 
 						// Render the tabs into the bitmap
 						_parentForm.TabRenderer.Render(_parentForm.Tabs, graphics, offset, cursorPosition, forceRedraw);
@@ -658,13 +669,19 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 							int boxWidth = 0;
 
 							if (_parentForm.ControlBox)
+							{
 								boxWidth += SystemInformation.CaptionButtonSize.Width;
+							}
 
 							if (_parentForm.MinimizeBox)
+							{
 								boxWidth += SystemInformation.CaptionButtonSize.Width;
+							}
 
 							if (_parentForm.MaximizeBox)
+							{
 								boxWidth += SystemInformation.CaptionButtonSize.Width;
+							}
 
 							CompositingMode oldCompositingMode = graphics.CompositingMode;
 
@@ -686,30 +703,30 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 							oldBitmap = Gdi32.SelectObject(memDc, bitmapHandle);
 
 							SIZE size = new SIZE
-								            {
-									            cx = bitmap.Width,
-									            cy = bitmap.Height
-								            };
+							            {
+								            cx = bitmap.Width,
+								            cy = bitmap.Height
+							            };
 
 							POINT pointSource = new POINT
-								                    {
-									                    x = 0,
-									                    y = 0
-								                    };
+							                    {
+								                    x = 0,
+								                    y = 0
+							                    };
 							POINT topPos = new POINT
-								               {
-									               x = Left,
-									               y = Top
-								               };
+							               {
+								               x = Left,
+								               y = Top
+							               };
 							BLENDFUNCTION blend = new BLENDFUNCTION
-								                      {
-									                      // We want to blend the bitmap's content with the screen content under it
-									                      BlendOp = Convert.ToByte((int) AC.AC_SRC_OVER),
-									                      BlendFlags = 0,
-									                      SourceConstantAlpha = 255,
-									                      // We use the bitmap's alpha channel for blending instead of a pre-defined transparency key
-									                      AlphaFormat = Convert.ToByte((int) AC.AC_SRC_ALPHA)
-								                      };
+							                      {
+								                      // We want to blend the bitmap's content with the screen content under it
+								                      BlendOp = Convert.ToByte((int) AC.AC_SRC_OVER),
+								                      BlendFlags = 0,
+								                      SourceConstantAlpha = 255,
+								                      // We use the bitmap's alpha channel for blending instead of a pre-defined transparency key
+								                      AlphaFormat = Convert.ToByte((int) AC.AC_SRC_ALPHA)
+							                      };
 
 							// Blend the tab content with the underlying content
 							if (!User32.UpdateLayeredWindow(
@@ -759,7 +776,9 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 					// If we were over a tab, set the capture state for the window so that we'll actually receive a WM_LBUTTONUP message
 					if (_parentForm.TabRenderer.OverTab(_parentForm.Tabs, relativeCursorPosition) == null &&
 					    !_parentForm.TabRenderer.IsOverAddButton(relativeCursorPosition))
+					{
 						_parentForm.ForwardMessage(ref m);
+					}
 
 					else
 					{
@@ -800,7 +819,9 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
 					if (_parentForm.TabRenderer.OverTab(_parentForm.Tabs, relativeCursorPosition2) == null &&
 					    !_parentForm.TabRenderer.IsOverAddButton(relativeCursorPosition2))
+					{
 						_parentForm.ForwardMessage(ref m);
+					}
 
 					else
 					{
@@ -820,18 +841,20 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 							{
 								_parentForm.OnTabClicked(
 									new TitleBarTabEventArgs
-										{
-											Tab = clickedTab,
-											TabIndex = _parentForm.SelectedTabIndex,
-											Action = TabControlAction.Selected,
-											WasDragging = _wasDragging
-										});
+									{
+										Tab = clickedTab,
+										TabIndex = _parentForm.SelectedTabIndex,
+										Action = TabControlAction.Selected,
+										WasDragging = _wasDragging
+									});
 							}
 						}
 
 							// Otherwise, if the user clicked the add button, call CreateTab to add a new tab to the list and select it
 						else if (_parentForm.TabRenderer.IsOverAddButton(relativeCursorPosition2))
+						{
 							_parentForm.AddNewTab();
+						}
 
 						OnMouseUp(new MouseEventArgs(MouseButtons.Left, 1, Cursor.Position.X, Cursor.Position.Y, 0));
 					}
@@ -844,9 +867,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			}
 		}
 
-		/// <summary>
-		/// Event handler that is called when <see cref="_parentForm" />'s <see cref="Form.Activated" /> event is fired.
-		/// </summary>
+		/// <summary>Event handler that is called when <see cref="_parentForm" />'s <see cref="Form.Activated" /> event is fired.</summary>
 		/// <param name="sender">Object from which this event originated.</param>
 		/// <param name="e">Arguments associated with the event.</param>
 		private void _parentForm_Activated(object sender, EventArgs e)
@@ -855,9 +876,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			Render();
 		}
 
-		/// <summary>
-		/// Event handler that is called when <see cref="_parentForm" />'s <see cref="Form.Deactivate" /> event is fired.
-		/// </summary>
+		/// <summary>Event handler that is called when <see cref="_parentForm" />'s <see cref="Form.Deactivate" /> event is fired.</summary>
 		/// <param name="sender">Object from which this event originated.</param>
 		/// <param name="e">Arguments associated with the event.</param>
 		private void _parentForm_Deactivate(object sender, EventArgs e)
@@ -866,9 +885,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 			Render();
 		}
 
-		/// <summary>
-		/// Event handler that is called when <see cref="_parentForm" />'s <see cref="Component.Disposed" /> event is fired.
-		/// </summary>
+		/// <summary>Event handler that is called when <see cref="_parentForm" />'s <see cref="Component.Disposed" /> event is fired.</summary>
 		/// <param name="sender">Object from which this event originated.</param>
 		/// <param name="e">Arguments associated with the event.</param>
 		private void _parentForm_Disposed(object sender, EventArgs e)
@@ -877,7 +894,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
 		/// <summary>
 		/// Contains information on mouse events captured by <see cref="TitleBarTabsOverlay.MouseHookCallback" /> and processed by
-		///     <see cref="TitleBarTabsOverlay.InterpretMouseEvents" />.
+		/// <see cref="TitleBarTabsOverlay.InterpretMouseEvents" />.
 		/// </summary>
 		protected class MouseEvent
 		{

@@ -7,7 +7,6 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Forms;
 using Microsoft.WindowsAPICodePack.Taskbar;
-using Stratman.Windows.Forms.TitleBarTabs;
 using Win32Interop.Enums;
 using Win32Interop.Methods;
 using Win32Interop.Structs;
@@ -108,7 +107,9 @@ namespace EasyTabs
 				if (!_aeroPeekEnabled)
 				{
 					foreach (TitleBarTab tab in Tabs)
+					{
 						TaskbarManager.Instance.TabbedThumbnail.RemoveThumbnailPreview(tab.Content);
+					}
 
 					_previews.Clear();
 				}
@@ -116,10 +117,14 @@ namespace EasyTabs
 				else
 				{
 					foreach (TitleBarTab tab in Tabs)
+					{
 						CreateThumbnailPreview(tab);
+					}
 
 					if (SelectedTab != null)
+					{
 						TaskbarManager.Instance.TabbedThumbnail.SetActiveTab(SelectedTab.Content);
+					}
 				}
 			}
 		}
@@ -189,7 +194,9 @@ namespace EasyTabs
 
 					// If the subscribers to the event cancelled it, return before we do anything else
 					if (e.Cancel)
+					{
 						return;
+					}
 
 					selectedTab.Active = false;
 
@@ -217,7 +224,9 @@ namespace EasyTabs
 
 					// If the subscribers to the event cancelled it, return before we do anything else
 					if (e.Cancel)
+					{
 						return;
+					}
 
 					Tabs[value].Active = true;
 
@@ -232,7 +241,9 @@ namespace EasyTabs
 				}
 
 				if (_overlay != null)
+				{
 					_overlay.Render();
+				}
 			}
 		}
 
@@ -314,15 +325,21 @@ namespace EasyTabs
 		protected void SetFrameSize()
 		{
 			if (TabRenderer == null || WindowState == FormWindowState.Minimized)
+			{
 				return;
+			}
 
 			int topPadding;
 
 			if (WindowState == FormWindowState.Maximized)
+			{
 				topPadding = TabRenderer.TabHeight - SystemInformation.CaptionHeight;
+			}
 
 			else
+			{
 				topPadding = (TabRenderer.TabHeight + SystemInformation.CaptionButtonSize.Height) - SystemInformation.CaptionHeight;
+			}
 
 			Padding = new Padding(
 				Padding.Left, topPadding > 0
@@ -351,7 +368,9 @@ namespace EasyTabs
 				foreach (
 					TabbedThumbnail preview in
 						Tabs.Select(tab => TaskbarManager.Instance.TabbedThumbnail.GetThumbnailPreview(tab.Content)).Where(preview => preview != null))
+				{
 					preview.PeekOffset = new Vector(Padding.Left, Padding.Top - 1);
+				}
 			}
 		}
 
@@ -382,7 +401,9 @@ namespace EasyTabs
 		protected internal void OnTabClicked(TitleBarTabEventArgs e)
 		{
 			if (TabClicked != null)
+			{
 				TabClicked(this, e);
+			}
 		}
 
 		/// <summary>
@@ -393,10 +414,14 @@ namespace EasyTabs
 		protected void OnTabDeselecting(TitleBarTabCancelEventArgs e)
 		{
 			if (_previousActiveTab != null && AeroPeekEnabled)
+			{
 				UpdateTabThumbnail(_previousActiveTab);
+			}
 
 			if (TabDeselecting != null)
+			{
 				TabDeselecting(this, e);
+			}
 		}
 
 		/// <summary>Generate a new thumbnail image for <paramref name="tab" />.</summary>
@@ -406,7 +431,9 @@ namespace EasyTabs
 			TabbedThumbnail preview = TaskbarManager.Instance.TabbedThumbnail.GetThumbnailPreview(tab.Content);
 
 			if (preview == null)
+			{
 				return;
+			}
 
 			Bitmap bitmap = TabbedThumbnailScreenCapture.GrabWindowBitmap(tab.Content.Handle, tab.Content.Size);
 
@@ -414,7 +441,9 @@ namespace EasyTabs
 
 			// If we already had a preview image for the tab, dispose of it
 			if (_previews.ContainsKey(tab.Content) && _previews[tab.Content] != null)
+			{
 				_previews[tab.Content].Dispose();
+			}
 
 			_previews[tab.Content] = bitmap;
 		}
@@ -424,7 +453,9 @@ namespace EasyTabs
 		protected void OnTabDeselected(TitleBarTabEventArgs e)
 		{
 			if (TabDeselected != null)
+			{
 				TabDeselected(this, e);
+			}
 		}
 
 		/// <summary>Callback for the <see cref="TabSelecting" /> event.</summary>
@@ -432,7 +463,9 @@ namespace EasyTabs
 		protected void OnTabSelecting(TitleBarTabCancelEventArgs e)
 		{
 			if (TabSelecting != null)
+			{
 				TabSelecting(this, e);
+			}
 		}
 
 		/// <summary>
@@ -443,12 +476,16 @@ namespace EasyTabs
 		protected void OnTabSelected(TitleBarTabEventArgs e)
 		{
 			if (SelectedTabIndex != -1 && _previews.ContainsKey(SelectedTab.Content) && AeroPeekEnabled)
+			{
 				TaskbarManager.Instance.TabbedThumbnail.SetActiveTab(SelectedTab.Content);
+			}
 
 			_previousActiveTab = SelectedTab;
 
 			if (TabSelected != null)
+			{
 				TabSelected(this, e);
+			}
 		}
 
 		/// <summary>
@@ -487,7 +524,9 @@ namespace EasyTabs
 		public void ResizeTabContents(TitleBarTab tab = null)
 		{
 			if (tab == null)
+			{
 				tab = SelectedTab;
+			}
 
 			if (tab != null)
 			{
@@ -528,10 +567,14 @@ namespace EasyTabs
 
 			// Restore the window if it was minimized
 			if (WindowState == FormWindowState.Minimized)
+			{
 				User32.ShowWindow(Handle, 3);
+			}
 
 			else
+			{
 				Focus();
+			}
 		}
 
 		/// <summary>
@@ -567,12 +610,16 @@ namespace EasyTabs
 					currentTab.Closing += TitleBarTabs_Closing;
 
 					if (AeroPeekEnabled)
+					{
 						TaskbarManager.Instance.TabbedThumbnail.SetActiveTab(CreateThumbnailPreview(currentTab));
+					}
 				}
 			}
 
 			if (_overlay != null)
+			{
 				_overlay.Render(true);
+			}
 		}
 
 		/// <summary>
@@ -590,10 +637,10 @@ namespace EasyTabs
 			}
 
 			preview = new TabbedThumbnail(Handle, tab.Content)
-			                          {
-				                          Title = tab.Content.Text,
-				                          Tooltip = tab.Content.Text
-			                          };
+			          {
+				          Title = tab.Content.Text,
+				          Tooltip = tab.Content.Text
+			          };
 
 			// TODO: Need Fix Disposed
 			//preview.SetWindowIcon(tab.Content.Icon);
@@ -620,11 +667,15 @@ namespace EasyTabs
 				TabbedThumbnail preview = TaskbarManager.Instance.TabbedThumbnail.GetThumbnailPreview((Form) sender);
 
 				if (preview != null)
+				{
 					preview.Title = (sender as Form).Text;
+				}
 			}
 
 			if (_overlay != null)
+			{
 				_overlay.Render(true);
+			}
 		}
 
 		/// <summary>
@@ -635,14 +686,18 @@ namespace EasyTabs
 		/// <param name="e">Arguments associated with the event.</param>
 		private void TitleBarTabs_Closing(object sender, CancelEventArgs e)
 		{
-			TitleBarTab tab = (TitleBarTab)sender;
+			TitleBarTab tab = (TitleBarTab) sender;
 			CloseTab(tab);
 
 			if (!tab.Content.IsDisposed && AeroPeekEnabled)
+			{
 				TaskbarManager.Instance.TabbedThumbnail.RemoveThumbnailPreview(tab.Content);
+			}
 
 			if (_overlay != null)
+			{
 				_overlay.Render(true);
+			}
 		}
 
 		/// <summary>
@@ -654,7 +709,9 @@ namespace EasyTabs
 		{
 			// If no tab renderer has been set yet or the window state hasn't changed, don't do anything
 			if (_previousWindowState != null && WindowState != _previousWindowState.Value)
+			{
 				SetFrameSize();
+			}
 
 			_previousWindowState = WindowState;
 
@@ -689,7 +746,9 @@ namespace EasyTabs
 					// If they were over the minimize/maximize/close buttons or the system menu, let the message pass
 					if (!(hitResult == HT.HTCLOSE || hitResult == HT.HTMINBUTTON || hitResult == HT.HTMAXBUTTON || hitResult == HT.HTMENU ||
 					      hitResult == HT.HTSYSMENU))
+					{
 						m.Result = new IntPtr((int) HitTest(m));
+					}
 
 					callDwp = false;
 
@@ -698,13 +757,17 @@ namespace EasyTabs
 					// Catch the case where the user is clicking the minimize button and use this opportunity to update the AeroPeek thumbnail for the current tab
 				case WM.WM_NCLBUTTONDOWN:
 					if (((HT) m.WParam.ToInt32()) == HT.HTMINBUTTON && AeroPeekEnabled && SelectedTab != null)
+					{
 						UpdateTabThumbnail(SelectedTab);
+					}
 
 					break;
 			}
 
 			if (callDwp)
+			{
 				base.WndProc(ref m);
+			}
 		}
 
 		/// <summary>Calls <see cref="CreateTab" />, adds the resulting tab to the <see cref="Tabs" /> collection, and activates it.</summary>
@@ -728,13 +791,19 @@ namespace EasyTabs
 			Tabs.Remove(closingTab);
 
 			if (selectedTabIndex > removeIndex)
+			{
 				SelectedTabIndex = selectedTabIndex - 1;
+			}
 
 			else if (selectedTabIndex == removeIndex)
+			{
 				SelectedTabIndex = Math.Min(selectedTabIndex, Tabs.Count - 1);
+			}
 
 			else
+			{
 				SelectedTabIndex = selectedTabIndex;
+			}
 
 			if (_previews.ContainsKey(closingTab.Content))
 			{
@@ -743,11 +812,14 @@ namespace EasyTabs
 			}
 
 			if (_previousActiveTab != null && closingTab.Content == _previousActiveTab.Content)
+			{
 				_previousActiveTab = null;
-
+			}
 
 			if (Tabs.Count == 0 && ExitOnLastTabClose)
+			{
 				Close();
+			}
 		}
 
 		private HT HitTest(Message m)
@@ -782,14 +854,20 @@ namespace EasyTabs
 			}
 
 			else if (point.Y < area.Bottom && point.Y > area.Bottom - SystemInformation.VerticalResizeBorderThickness)
+			{
 				row = 2;
+			}
 
 			// Determine if we are on the left border or the right border
 			if (point.X >= area.Left && point.X < area.Left + SystemInformation.HorizontalResizeBorderThickness)
+			{
 				column = 0;
+			}
 
 			else if (point.X < area.Right && point.X >= area.Right - SystemInformation.HorizontalResizeBorderThickness)
+			{
 				column = 2;
+			}
 
 			HT[,] hitTests =
 			{

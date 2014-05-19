@@ -10,10 +10,10 @@ namespace EasyTabs
 	public class TitleBarTabsApplicationContext : ApplicationContext
 	{
 		/// <summary>List of all opened windows.</summary>
-		protected List<EasyTabs.TitleBarTabs> _openWindows = new List<EasyTabs.TitleBarTabs>();
+		protected List<TitleBarTabs> _openWindows = new List<TitleBarTabs>();
 
 		/// <summary>List of all opened windows.</summary>
-		public List<EasyTabs.TitleBarTabs> OpenWindows
+		public List<TitleBarTabs> OpenWindows
 		{
 			get
 			{
@@ -23,10 +23,12 @@ namespace EasyTabs
 
 		/// <summary>Constructor; takes the initial window to display and, if it's not closing, opens it and shows it.</summary>
 		/// <param name="initialFormInstance">Initial window to display.</param>
-		public void Start(EasyTabs.TitleBarTabs initialFormInstance)
+		public void Start(TitleBarTabs initialFormInstance)
 		{
 			if (initialFormInstance.IsClosing)
+			{
 				ExitThread();
+			}
 
 			else
 			{
@@ -40,7 +42,7 @@ namespace EasyTabs
 		/// of it.
 		/// </summary>
 		/// <param name="window">Window that we're opening.</param>
-		public void OpenWindow(EasyTabs.TitleBarTabs window)
+		public void OpenWindow(TitleBarTabs window)
 		{
 			if (!_openWindows.Contains(window))
 			{
@@ -59,10 +61,12 @@ namespace EasyTabs
 		/// <param name="e">Arguments associated with the event.</param>
 		protected void window_FormClosed(object sender, FormClosedEventArgs e)
 		{
-			_openWindows.Remove((EasyTabs.TitleBarTabs) sender);
+			_openWindows.Remove((TitleBarTabs) sender);
 
 			if (_openWindows.Count == 0)
+			{
 				ExitThread();
+			}
 		}
 	}
 }

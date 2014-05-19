@@ -7,7 +7,8 @@ namespace EasyTabs
 {
 	/// <summary>Represents a strongly typed list of objects with events.</summary>
 	/// <typeparam name="T">The type of elements in the list.</typeparam>
-	[Serializable, DebuggerDisplay("Count = {Count}")]
+	[Serializable]
+	[DebuggerDisplay("Count = {Count}")]
 	public class ListWithEvents<T> : List<T>, IList
 	{
 		/// <summary>Synchronization root for thread safety.</summary>
@@ -64,10 +65,14 @@ namespace EasyTabs
 
 					// ReSharper disable CompareNonConstrainedGenericWithNull
 					if (base[index] != null)
+					{
 						equal = base[index].Equals(value);
+					}
 
 					else if (base[index] == null && value == null)
+					{
 						equal = true;
+					}
 					// ReSharper restore CompareNonConstrainedGenericWithNull
 
 					if (!equal)
@@ -100,6 +105,30 @@ namespace EasyTabs
 			}
 
 			return -1;
+		}
+
+		/// <summary>Overloads <see cref="List{T}.Clear" />.</summary>
+		/// <remarks>This operation is thread-safe.</remarks>
+		public new virtual void Clear()
+		{
+			lock (_syncRoot)
+			{
+				base.Clear();
+			}
+
+			OnCleared(EventArgs.Empty);
+		}
+
+		/// <summary>Overloads <see cref="List{T}.RemoveAt" />.</summary>
+		/// <remarks>This operation is thread-safe.</remarks>
+		public new virtual void RemoveAt(int index)
+		{
+			lock (_syncRoot)
+			{
+				base.RemoveAt(index);
+			}
+
+			OnItemRemoved(EventArgs.Empty);
 		}
 
 		/// <summary>Occurs whenever the list's content is modified.</summary>
@@ -148,18 +177,6 @@ namespace EasyTabs
 			}
 		}
 
-		/// <summary>Overloads <see cref="List{T}.Clear" />.</summary>
-		/// <remarks>This operation is thread-safe.</remarks>
-		public new virtual void Clear()
-		{
-			lock (_syncRoot)
-			{
-				base.Clear();
-			}
-
-			OnCleared(EventArgs.Empty);
-		}
-
 		/// <summary>Overloads <see cref="List{T}.Insert" />.</summary>
 		/// <remarks>This operation is thread-safe.</remarks>
 		public new virtual void Insert(int index, T item)
@@ -200,7 +217,9 @@ namespace EasyTabs
 
 			// Raise the event only if the removal was successful
 			if (result)
+			{
 				OnItemRemoved(EventArgs.Empty);
+			}
 
 			return result;
 		}
@@ -218,21 +237,11 @@ namespace EasyTabs
 
 			// Raise the event only if the removal was successful
 			if (count > 0)
-				OnRangeRemoved(EventArgs.Empty);
-
-			return count;
-		}
-
-		/// <summary>Overloads <see cref="List{T}.RemoveAt" />.</summary>
-		/// <remarks>This operation is thread-safe.</remarks>
-		public new virtual void RemoveAt(int index)
-		{
-			lock (_syncRoot)
 			{
-				base.RemoveAt(index);
+				OnRangeRemoved(EventArgs.Empty);
 			}
 
-			OnItemRemoved(EventArgs.Empty);
+			return count;
 		}
 
 		/// <summary>Overloads <see cref="List{T}.RemoveRange" />.</summary>
@@ -250,7 +259,9 @@ namespace EasyTabs
 
 			// Raise the event only if the removal was successful
 			if (listCountOld != listCountNew)
+			{
 				OnRangeRemoved(EventArgs.Empty);
+			}
 		}
 
 		/// <summary>Removes the specified list of entries from the collection.</summary>
@@ -263,8 +274,10 @@ namespace EasyTabs
 		{
 			// ReSharper disable ForCanBeConvertedToForeach
 			for (int i = 0; i < collection.Count; i++)
+			{
 				// ReSharper restore ForCanBeConvertedToForeach
 				Remove(collection[i]);
+			}
 		}
 
 		/// <summary>Stops raising events until <see cref="ResumeEvents" /> is called.</summary>
@@ -284,10 +297,14 @@ namespace EasyTabs
 		protected virtual void OnCleared(EventArgs e)
 		{
 			if (_suppressEvents)
+			{
 				return;
+			}
 
 			if (Cleared != null)
+			{
 				Cleared(this, e);
+			}
 
 			OnCollectionModified(new ListModificationEventArgs(ListModification.Cleared, -1, -1));
 		}
@@ -297,10 +314,14 @@ namespace EasyTabs
 		protected virtual void OnCollectionModified(ListModificationEventArgs e)
 		{
 			if (_suppressEvents)
+			{
 				return;
+			}
 
 			if (CollectionModified != null)
+			{
 				CollectionModified(this, e);
+			}
 		}
 
 		/// <summary>Raises <see cref="CollectionModified" /> and <see cref="ItemAdded" /> events.</summary>
@@ -308,10 +329,14 @@ namespace EasyTabs
 		protected virtual void OnItemAdded(ListItemEventArgs e)
 		{
 			if (_suppressEvents)
+			{
 				return;
+			}
 
 			if (ItemAdded != null)
+			{
 				ItemAdded(this, e);
+			}
 
 			OnCollectionModified(new ListModificationEventArgs(ListModification.ItemAdded, e.ItemIndex, 1));
 		}
@@ -321,10 +346,14 @@ namespace EasyTabs
 		protected virtual void OnItemModified(ListItemEventArgs e)
 		{
 			if (_suppressEvents)
+			{
 				return;
+			}
 
 			if (ItemModified != null)
+			{
 				ItemModified(this, e);
+			}
 
 			OnCollectionModified(new ListModificationEventArgs(ListModification.ItemModified, e.ItemIndex, 1));
 		}
@@ -334,10 +363,14 @@ namespace EasyTabs
 		protected virtual void OnItemRemoved(EventArgs e)
 		{
 			if (_suppressEvents)
+			{
 				return;
+			}
 
 			if (ItemRemoved != null)
+			{
 				ItemRemoved(this, e);
+			}
 
 			OnCollectionModified(new ListModificationEventArgs(ListModification.ItemRemoved, -1, 1));
 		}
@@ -347,10 +380,14 @@ namespace EasyTabs
 		protected virtual void OnRangeAdded(ListRangeEventArgs e)
 		{
 			if (_suppressEvents)
+			{
 				return;
+			}
 
 			if (RangeAdded != null)
+			{
 				RangeAdded(this, e);
+			}
 
 			OnCollectionModified(new ListModificationEventArgs(ListModification.RangeAdded, e.StartIndex, e.Count));
 		}
@@ -360,10 +397,14 @@ namespace EasyTabs
 		protected virtual void OnRangeRemoved(EventArgs e)
 		{
 			if (_suppressEvents)
+			{
 				return;
+			}
 
 			if (RangeRemoved != null)
+			{
 				RangeRemoved(this, e);
+			}
 
 			OnCollectionModified(new ListModificationEventArgs(ListModification.RangeRemoved, -1, -1));
 		}

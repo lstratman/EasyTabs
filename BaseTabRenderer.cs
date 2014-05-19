@@ -60,9 +60,7 @@ namespace EasyTabs
 		/// <summary>Flag indicating whether or not a tab is being repositioned.</summary>
 		protected bool _isTabRepositioning = false;
 
-		/// <summary>Flag indicating whether or not a tab was being repositioned.</summary>
-		protected bool _wasTabRepositioning = false;
-
+		/// <summary>Maximum area on the screen that tabs may take up for this application.</summary>
 		protected Rectangle _maxTabArea = new Rectangle();
 
 		/// <summary>The parent window that this renderer instance belongs to.</summary>
@@ -71,6 +69,7 @@ namespace EasyTabs
 		/// <summary>The number of tabs that were present when we last rendered; used to determine whether or not we need to redraw tab instances.</summary>
 		protected int _previousTabCount;
 
+		/// <summary>Flag indicating whether or not rendering has been suspended while we perform some operation.</summary>
 		protected bool _suspendRendering = false;
 
 		/// <summary>When the user is dragging a tab, this represents the horizontal offset within the tab where the user clicked to start the drag operation.</summary>
@@ -78,6 +77,9 @@ namespace EasyTabs
 
 		/// <summary>The width of the content area that we should use for each tab.</summary>
 		protected int _tabContentWidth;
+
+		/// <summary>Flag indicating whether or not a tab was being repositioned.</summary>
+		protected bool _wasTabRepositioning = false;
 
 		/// <summary>Default constructor that initializes the <see cref="_parentWindow" /> and <see cref="ShowAddButton" /> properties.</summary>
 		/// <param name="parentWindow">The parent window that this renderer instance belongs to.</param>
@@ -237,7 +239,9 @@ namespace EasyTabs
 				_isTabRepositioning = value;
 
 				if (!_isTabRepositioning)
+				{
 					_dragStart = null;
+				}
 			}
 		}
 
@@ -285,7 +289,9 @@ namespace EasyTabs
 			IsTabRepositioning = false;
 
 			if (_wasTabRepositioning)
+			{
 				_parentWindow._overlay.Render(true);
+			}
 		}
 
 		/// <summary>
@@ -298,7 +304,9 @@ namespace EasyTabs
 		{
 			if (_dragStart != null && !IsTabRepositioning &&
 			    (Math.Abs(e.X - _dragStart.Value.X) > TabRepositionDragDistance || Math.Abs(e.Y - _dragStart.Value.Y) > TabRepositionDragDistance))
+			{
 				IsTabRepositioning = true;
+			}
 		}
 
 		/// <summary>
@@ -312,7 +320,9 @@ namespace EasyTabs
 			ListWithEvents<TitleBarTab> tabs = (ListWithEvents<TitleBarTab>) sender;
 
 			if (tabs.Count == 0)
+			{
 				return;
+			}
 
 			int minimumWidth = tabs.Sum(
 				tab => (tab.Active
@@ -365,7 +375,9 @@ namespace EasyTabs
 				}
 
 				if (IsOverTab(tab, cursor))
+				{
 					overTab = tab;
+				}
 			}
 
 			return overTab;
@@ -388,7 +400,9 @@ namespace EasyTabs
 		protected bool IsOverNonTransparentArea(Rectangle area, Bitmap image, Point cursor)
 		{
 			if (!area.Contains(cursor))
+			{
 				return false;
+			}
 
 			// Get the relative location of the cursor within the image and then get the RGBA value of that pixel
 			Point relativePoint = new Point(cursor.X - area.Location.X, cursor.Y - area.Location.Y);
@@ -418,7 +432,7 @@ namespace EasyTabs
 		/// </returns>
 		protected virtual bool IsOverTab(TitleBarTab tab, Point cursor)
 		{
-            return IsOverNonTransparentArea(tab.Area, tab.TabImage, cursor);
+			return IsOverNonTransparentArea(tab.Area, tab.TabImage, cursor);
 		}
 
 		/// <summary>Checks to see if the <paramref name="cursor" /> is over the <see cref="TitleBarTab.CloseButtonArea" /> of the given <paramref name="tab" />.</summary>
@@ -428,7 +442,9 @@ namespace EasyTabs
 		public virtual bool IsOverCloseButton(TitleBarTab tab, Point cursor)
 		{
 			if (!tab.ShowCloseButton || _wasTabRepositioning)
+			{
 				return false;
+			}
 
 			Rectangle absoluteCloseButtonArea = new Rectangle(
 				tab.Area.X + tab.CloseButtonArea.X, tab.Area.Y + tab.CloseButtonArea.Y, tab.CloseButtonArea.Width, tab.CloseButtonArea.Height);
@@ -445,10 +461,14 @@ namespace EasyTabs
 		public virtual void Render(List<TitleBarTab> tabs, Graphics graphicsContext, Point offset, Point cursor, bool forceRedraw = false)
 		{
 			if (_suspendRendering)
+			{
 				return;
+			}
 
 			if (tabs == null || tabs.Count == 0)
+			{
 				return;
+			}
 
 			Point screenCoordinates = _parentWindow.PointToScreen(_parentWindow.ClientRectangle.Location);
 
@@ -479,14 +499,18 @@ namespace EasyTabs
 			bool redraw = (tabContentWidth != _tabContentWidth || forceRedraw);
 
 			if (redraw)
+			{
 				_tabContentWidth = tabContentWidth;
+			}
 
 			int i = tabs.Count - 1;
 			List<Tuple<TitleBarTab, Rectangle>> activeTabs = new List<Tuple<TitleBarTab, Rectangle>>();
 
 			// Render the background image
 			if (_background != null)
+			{
 				graphicsContext.DrawImage(_background, offset.X, offset.Y, _parentWindow.Width, _activeCenterImage.Height);
+			}
 
 			int selectedIndex = tabs.FindIndex(t => t.Active);
 
@@ -557,18 +581,24 @@ namespace EasyTabs
 
 				// If we need to redraw the tab image, null out the property so that it will be recreated in the call to Render() below
 				if (redraw)
+				{
 					tab.TabImage = null;
+				}
 
 				// In this first pass, we only render the inactive tabs since we need the active tabs to show up on top of everything else
 				if (!tab.Active)
+				{
 					Render(graphicsContext, tab, tabArea, cursor);
+				}
 
 				i--;
 			}
 
 			// In the second pass, render all of the active tabs identified in the previous pass
 			foreach (Tuple<TitleBarTab, Rectangle> tab in activeTabs)
+			{
 				Render(graphicsContext, tab.Item1, tab.Item2, cursor);
+			}
 
 			_previousTabCount = tabs.Count;
 
@@ -604,7 +634,9 @@ namespace EasyTabs
 		protected virtual void Render(Graphics graphicsContext, TitleBarTab tab, Rectangle area, Point cursor)
 		{
 			if (_suspendRendering)
+			{
 				return;
+			}
 
 			// If we need to redraw the tab image
 			if (tab.TabImage == null)
@@ -780,9 +812,13 @@ namespace EasyTabs
 			// Simulate the user having clicked in the middle of the tab when they started dragging it so that the tab will move correctly within the window
 			// when the user continues to move the mouse
 			if (_parentWindow.Tabs.Count > 0)
-			_tabClickOffset = _parentWindow.Tabs.First().Area.Width / 2;
+			{
+				_tabClickOffset = _parentWindow.Tabs.First().Area.Width / 2;
+			}
 			else
+			{
 				_tabClickOffset = 0;
+			}
 			IsTabRepositioning = true;
 
 			tab.Parent = _parentWindow;
@@ -794,7 +830,9 @@ namespace EasyTabs
 			}
 
 			else
+			{
 				_parentWindow.Tabs.Insert(dropIndex, tab);
+			}
 
 			// Resume rendering
 			_suspendRendering = false;

@@ -38,7 +38,9 @@ namespace EasyTabs
 				_parent = value;
 
 				if (_content != null)
+				{
 					_content.Parent = _parent;
+				}
 			}
 		}
 
@@ -174,7 +176,9 @@ namespace EasyTabs
 		private void Content_TextChanged(object sender, EventArgs e)
 		{
 			if (TextChanged != null)
+			{
 				TextChanged(this, e);
+			}
 		}
 
 		/// <summary>
@@ -186,7 +190,9 @@ namespace EasyTabs
 		protected void Content_Closing(object sender, CancelEventArgs e)
 		{
 			if (Closing != null)
+			{
 				Closing(this, e);
+			}
 		}
 
 		/// <summary>Unsubscribes the tab from any event handlers that may have been attached to its <see cref="Closing" /> or <see cref="TextChanged" /> events.</summary>
