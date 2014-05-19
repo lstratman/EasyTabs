@@ -1,6 +1,6 @@
 using System;
 
-namespace Stratman.Windows.Forms.TitleBarTabs
+namespace EasyTabs
 {
 	/// <summary>Provides data for the <see cref="ListWithEvents{T}.ItemAdded" /> events.</summary>
 	[Serializable]

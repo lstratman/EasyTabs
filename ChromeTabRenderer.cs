@@ -1,6 +1,6 @@
 ﻿using System.Drawing;
 
-namespace Stratman.Windows.Forms.TitleBarTabs
+namespace EasyTabs
 {
 	/// <summary>Renderer that produces tabs that mimic the appearance of the Chrome browser.</summary>
 	public class ChromeTabRenderer : BaseTabRenderer

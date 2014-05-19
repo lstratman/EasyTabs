@@ -8,8 +8,8 @@
     <ProjectGuid>{690BA0F7-D8FE-4EBE-BA39-8058086C7A09}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Stratman.Windows.Forms.TitleBarTabs</RootNamespace>
-    <AssemblyName>Stratman.Windows.Forms.TitleBarTabs</AssemblyName>
+    <RootNamespace>EasyTabs</RootNamespace>
+    <AssemblyName>EasyTabs</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
@@ -26,7 +26,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\Stratman.Windows.Forms.TitleBarTabs.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\EasyTabs.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -36,7 +36,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\Stratman.Windows.Forms.TitleBarTabs.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\EasyTabs.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
@@ -110,7 +110,7 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="TitleBarTabs.Designer.cs">
-      <DependentUpon>TitleBarTabs.cs</DependentUpon>
+      <DependentUpon>TileBarTabs.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TitleBarTabsApplicationContext.cs" />

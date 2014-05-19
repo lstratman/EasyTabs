@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace Stratman.Windows.Forms.TitleBarTabs
+namespace EasyTabs
 {
 	/// <summary>Represents a strongly typed list of objects with events.</summary>
 	/// <typeparam name="T">The type of elements in the list.</typeparam>

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Windows.Forms;
 
-namespace Stratman.Windows.Forms.TitleBarTabs
+namespace EasyTabs
 {
 	/// <summary>Event arguments class for a cancelable event that occurs on a collection of collection of <see cref="TitleBarTab" />s.</summary>
 	public class TitleBarTabCancelEventArgs : CancelEventArgs

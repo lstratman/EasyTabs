@@ -7,13 +7,14 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Forms;
 using Microsoft.WindowsAPICodePack.Taskbar;
+using Stratman.Windows.Forms.TitleBarTabs;
 using Win32Interop.Enums;
 using Win32Interop.Methods;
 using Win32Interop.Structs;
 using Point = System.Drawing.Point;
 using Size = System.Drawing.Size;
 
-namespace Stratman.Windows.Forms.TitleBarTabs
+namespace EasyTabs
 {
 	/// <summary>
 	/// Base class that contains the functionality to render tabs within a WinForms application's title bar area. This  is done through a borderless overlay

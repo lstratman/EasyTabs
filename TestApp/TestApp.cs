@@ -1,8 +1,8 @@
-﻿using Stratman.Windows.Forms.TitleBarTabs;
+﻿using EasyTabs;
 
 namespace TestApp
 {
-    public partial class TestApp : TitleBarTabs
+	public partial class TestApp : TitleBarTabs
     {
         public TestApp()
         {

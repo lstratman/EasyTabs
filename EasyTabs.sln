@@ -1,7 +1,7 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Stratman.Windows.Forms.TitleBarTabs", "Stratman.Windows.Forms.TitleBarTabs.csproj", "{690BA0F7-D8FE-4EBE-BA39-8058086C7A09}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyTabs", "EasyTabs.csproj", "{690BA0F7-D8FE-4EBE-BA39-8058086C7A09}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApp", "TestApp\TestApp.csproj", "{5BACEE82-6D1F-403B-BF39-C212B07A6CA8}"
 EndProject
@@ -14,7 +14,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{4FD84D
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ReSharper Settings", "ReSharper Settings", "{FD0ECAF1-69C2-4868-9AF4-13CDF3CA23AB}"
 	ProjectSection(SolutionItems) = preProject
-		Stratman.Windows.Forms.TitleBarTabs.sln.DotSettings = Stratman.Windows.Forms.TitleBarTabs.sln.DotSettings
+		EasyTabs.sln.DotSettings = EasyTabs.sln.DotSettings
 	EndProjectSection
 EndProject
 Global

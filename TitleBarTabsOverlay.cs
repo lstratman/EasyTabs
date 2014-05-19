@@ -10,6 +10,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
+using EasyTabs;
 using Win32Interop.Enums;
 using Win32Interop.Methods;
 using Win32Interop.Structs;
@@ -23,7 +24,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 	public class TitleBarTabsOverlay : Form
 	{
 		/// <summary>All of the parent forms and their overlays so that we don't create duplicate overlays across the application domain.</summary>
-		protected static Dictionary<TitleBarTabs, TitleBarTabsOverlay> _parents = new Dictionary<TitleBarTabs, TitleBarTabsOverlay>();
+		protected static Dictionary<EasyTabs.TitleBarTabs, TitleBarTabsOverlay> _parents = new Dictionary<EasyTabs.TitleBarTabs, TitleBarTabsOverlay>();
 
 		/// <summary>Tab that has been torn off from this window and is being dragged.</summary>
 		protected static TitleBarTab _tornTab;
@@ -59,7 +60,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		/// When a tab is torn from the window, this is where we store the areas on all open windows where tabs can be dropped to combine the tab with that
 		/// window.
 		/// </summary>
-		protected Tuple<TitleBarTabs, Rectangle>[] _dropAreas = null;
+		protected Tuple<EasyTabs.TitleBarTabs, Rectangle>[] _dropAreas = null;
 
 		/// <summary>
 		/// Pointer to the low-level mouse hook callback (<see cref="MouseHookCallback" />).
@@ -85,7 +86,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		protected Thread _mouseEventsThread = null;
 
 		/// <summary>Parent form for the overlay.</summary>
-		protected TitleBarTabs _parentForm;
+		protected EasyTabs.TitleBarTabs _parentForm;
 
 		/// <summary>
 		/// Blank default constructor to ensure that the overlays are only initialized through <see cref="GetInstance" />.
@@ -98,7 +99,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		/// Creates the overlay window and attaches it to <paramref name="parentForm" />.
 		/// </summary>
 		/// <param name="parentForm">Parent form that the overlay should be rendered on top of.</param>
-		protected TitleBarTabsOverlay(TitleBarTabs parentForm)
+		protected TitleBarTabsOverlay(EasyTabs.TitleBarTabs parentForm)
 		{
 			_parentForm = parentForm;
 
@@ -197,7 +198,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		/// <returns>
 		/// Newly-created or previously existing overlay for <paramref name="parentForm" />.
 		/// </returns>
-		public static TitleBarTabsOverlay GetInstance(TitleBarTabs parentForm)
+		public static TitleBarTabsOverlay GetInstance(EasyTabs.TitleBarTabs parentForm)
 		{
 			if (!_parents.ContainsKey(parentForm))
 				_parents.Add(parentForm, new TitleBarTabsOverlay(parentForm));
@@ -251,7 +252,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 		/// <param name="e">Arguments associated with this event.</param>
 		private void _parentForm_Closing(object sender, CancelEventArgs e)
 		{
-			TitleBarTabs form = (TitleBarTabs) sender;
+			EasyTabs.TitleBarTabs form = (EasyTabs.TitleBarTabs) sender;
 
 			if (form == null)
 				return;
@@ -401,7 +402,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 
 												_tornTabForm.Show();
 												_dropAreas = (from window in _parentForm.ApplicationContext.OpenWindows.Where(w => w.Tabs.Count > 0)
-												              select new Tuple<TitleBarTabs, Rectangle>(window, window.TabDropArea)).ToArray();
+												              select new Tuple<EasyTabs.TitleBarTabs, Rectangle>(window, window.TabDropArea)).ToArray();
 											}
 										}
 									}));
@@ -441,7 +442,7 @@ namespace Stratman.Windows.Forms.TitleBarTabs
 								new Action(
 									() =>
 										{
-											TitleBarTabs newWindow = (TitleBarTabs) Activator.CreateInstance(_parentForm.GetType());
+											EasyTabs.TitleBarTabs newWindow = (EasyTabs.TitleBarTabs) Activator.CreateInstance(_parentForm.GetType());
 
 											// Set the initial window position and state properly
 											if (newWindow.WindowState == FormWindowState.Maximized)

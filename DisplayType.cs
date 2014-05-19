@@ -1,4 +1,4 @@
-﻿namespace Stratman.Windows.Forms.TitleBarTabs
+﻿namespace EasyTabs
 {
 	/// <summary>The type of theme being used to render the desktop.</summary>
 	public enum DisplayType

@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
-        <id>TitleBarTabs</id>
+        <id>EasyTabs</id>
         <version>1.1.3</version>
-        <title>.NET Title Bar Tabs</title>
+        <title>EasyTabs</title>
         <authors>Luke Stratman</authors>
-        <licenseUrl>https://github.com/lstratman/.NETTitleBarTabs/blob/master/BSD.txt</licenseUrl>
-        <projectUrl>https://github.com/lstratman/.NETTitleBarTabs</projectUrl>
+        <licenseUrl>https://github.com/lstratman/EasyTabs/blob/master/BSD.txt</licenseUrl>
+        <projectUrl>https://github.com/lstratman/EasyTabs</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Library to enable .NET WinForms apps to easily render a set of tabs in their titlebar space, similar to Chrome, Firefox, Trillian, etc.</description>
         <summary />
         <releaseNotes>- Handling low-level mouse hook messages is now done in another consumer thread to prevent the hook proc from being silently uninstalled by Windows for taking too long to process messages.
 - Clicking on the tabs while the parent window is out of focus will bring focus back to the parent window.</releaseNotes>
-        <copyright>(c) 2013, Luke Stratman</copyright>
+        <copyright>(c) 2013-2014, Luke Stratman</copyright>
         <dependencies>
             <dependency id="Win32Interop.Dwmapi" version="1.0.1" />
             <dependency id="Win32Interop.Gdi32" version="1.0.1" />
@@ -24,7 +24,7 @@
     <files>
         <file src="..\bin\Release\Microsoft.WindowsAPICodePack.dll" target="lib\Microsoft.WindowsAPICodePack.dll" />
         <file src="..\bin\Release\Microsoft.WindowsAPICodePack.Shell.dll" target="lib\Microsoft.WindowsAPICodePack.Shell.dll" />
-        <file src="..\bin\Release\Stratman.Windows.Forms.TitleBarTabs.dll" target="lib\Stratman.Windows.Forms.TitleBarTabs.dll" />
-        <file src="..\bin\Release\Stratman.Windows.Forms.TitleBarTabs.XML" target="lib\Stratman.Windows.Forms.TitleBarTabs.XML" />
+        <file src="..\bin\Release\EasyTabs.dll" target="lib\EasyTabs.dll" />
+        <file src="..\bin\Release\EasyTabs.XML" target="lib\EasyTabs.XML" />
     </files>
 </package>

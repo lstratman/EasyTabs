@@ -1,4 +1,4 @@
-namespace Stratman.Windows.Forms.TitleBarTabs
+namespace EasyTabs
 {
 	/// <summary>List of possible <see cref="ListWithEvents{T}" /> modifications.</summary>
 	public enum ListModification

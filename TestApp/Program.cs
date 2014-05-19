@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
-using Stratman.Windows.Forms.TitleBarTabs;
+using EasyTabs;
 
 namespace TestApp
 {

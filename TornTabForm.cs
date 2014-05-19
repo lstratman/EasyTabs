@@ -10,7 +10,7 @@ using Win32Interop.Enums;
 using Win32Interop.Methods;
 using Win32Interop.Structs;
 
-namespace Stratman.Windows.Forms.TitleBarTabs
+namespace EasyTabs
 {
 	/// <summary>
 	/// Contains a semi-transparent window with a thumbnail of a tab that has been torn away from its parent window.  This thumbnail will follow the cursor

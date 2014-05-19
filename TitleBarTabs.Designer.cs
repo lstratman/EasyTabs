@@ -1,4 +1,4 @@
-﻿namespace Stratman.Windows.Forms.TitleBarTabs
+﻿namespace EasyTabs
 {
   partial class TitleBarTabs
   {
