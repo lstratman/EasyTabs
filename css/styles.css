@@ -1,0 +1,179 @@
+body {
+    padding-top: 50px;
+}
+
+.navbar {
+    margin-bottom: 0;
+    background-color: #eee;
+    border-bottom: none;
+}
+
+.navbar .icon-bar {
+    background-color: #333;
+}
+
+.navbar-nav .active a {
+    background-color: #fff;
+    color: #666;
+}
+
+.navbar .navbar-nav>.open>a, 
+.navbar .navbar-nav>.open>a:hover, 
+.navbar .navbar-nav>.open>a:focus {
+    background-color: #ddd;
+    color: #555;
+}
+
+.jumbotron {
+    padding-top: 10px;
+}
+ 
+.carousel-control {
+    opacity: 0;
+    background: #f0f0f0!important;
+}
+
+.carousel-control:hover {
+    opacity: 0.65;
+}
+
+.carousel-control.right span {
+    right: 30%;
+}
+
+#screenshots {
+    border-radius: 3px;
+    box-shadow: 0 0 3px #777;
+}
+
+#screenshots .carousel-control {
+    border-radius: 3px;
+}
+
+#screenshots .carousel-indicators {
+    bottom: -45px;
+}
+
+#screenshots img {
+    border-radius: 5px;
+    width: 400px;
+    height: 274px;
+    background-color: #fff;
+}
+
+.nuget-install {
+    background-color: #202020;
+    border: 4px solid silver;
+    border-radius: 3px;
+    color: #E2E2E2;
+    display: block;
+    padding: 9.5px 15px;
+}
+
+.nuget-install a {
+    text-decoration: none;
+    color: #f0f0f0;
+}
+
+.feature {
+    display: table;
+}
+
+.feature > * {
+    display: table-cell;
+}
+
+.feature-icon {
+    font-size: 20px;
+    width: 1%;
+    padding-right: 10px;
+}
+
+.feature-body h3 {
+    font-size: 24px;
+    margin-bottom: 5px;
+}
+
+.callout {
+    margin: 20px 0;
+    padding: 20px;
+    border-left: 3px solid #eee;
+}
+
+.callout h4 {
+    margin-top: 0;
+    margin-bottom: 5px;
+}
+
+.callout p:last-child {
+    margin-bottom: 0;
+}
+
+.callout-info {
+    background-color: #f4f8fa;
+    border-color: #5bc0de;
+}
+
+.callout-info h4 {
+    color: #5bc0de;
+}
+
+.callout-warning {
+    background-color: #fcf8f2;
+    border-color: #f0ad4e;
+}
+
+.callout-warning h4 {
+    color: #f0ad4e;
+}
+
+.features-sidenav {
+    margin-top: 40px;
+    margin-bottom: 20px;
+}
+
+.features-sidenav.affix {
+    margin-top: 10px;
+}
+
+.main-twitter-button {
+    vertical-align: bottom;
+    display: inline-block;
+}
+
+.quickstart h3 {
+    font-size: 20px;
+    color: #999;
+    margin-top: 15px;
+    font-weight: lighter;
+}
+
+.quickstart .lead-digit {
+    font-weight: bold;
+}
+
+.quickstart pre {
+    border-color: #eee;
+    border: none;
+    padding: 5px 10px;
+}
+
+.quickstart hr {
+    margin: 10px 0;
+}
+
+pre .type {
+    color: #2B91AF;
+}
+
+pre .string {
+    color: #A01714;
+}
+
+pre .keywd {
+    color: #182AFC;
+}
+
+pre .comm {
+    color: #319B44;
+}
