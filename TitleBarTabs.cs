@@ -631,6 +631,7 @@ namespace EasyTabs
 		protected virtual TabbedThumbnail CreateThumbnailPreview(TitleBarTab tab)
 		{
 			TabbedThumbnail preview = TaskbarManager.Instance.TabbedThumbnail.GetThumbnailPreview(tab.Content);
+
 			if (preview != null)
 			{
 				TaskbarManager.Instance.TabbedThumbnail.RemoveThumbnailPreview(tab.Content);
@@ -642,8 +643,8 @@ namespace EasyTabs
 				          Tooltip = tab.Content.Text
 			          };
 
-			// TODO: Need Fix Disposed
-			//preview.SetWindowIcon(tab.Content.Icon);
+			preview.SetWindowIcon((Icon)tab.Content.Icon.Clone());
+
 			preview.TabbedThumbnailActivated += preview_TabbedThumbnailActivated;
 			preview.TabbedThumbnailClosed += preview_TabbedThumbnailClosed;
 			preview.TabbedThumbnailBitmapRequested += preview_TabbedThumbnailBitmapRequested;
