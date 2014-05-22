@@ -656,6 +656,33 @@ namespace EasyTabs
 		}
 
 		/// <summary>
+		/// When a child tab updates its <see cref="Form.Icon"/> property, it should call this method to update the icon in the AeroPeek preview.
+		/// </summary>
+		/// <param name="tab">Tab whose icon was updated.</param>
+		/// <param name="icon">The new icon to use.  If this is left as null, we use <see cref="Form.Icon"/> on <paramref name="tab"/>.</param>
+		public virtual void UpdateThumbnailPreviewIcon(TitleBarTab tab, Icon icon = null)
+		{
+			if (!AeroPeekEnabled)
+			{
+				return;
+			}
+
+			TabbedThumbnail preview = TaskbarManager.Instance.TabbedThumbnail.GetThumbnailPreview(tab.Content);
+
+			if (preview == null)
+			{
+				return;
+			}
+
+			if (icon == null)
+			{
+				icon = tab.Content.Icon;
+			}
+
+			preview.SetWindowIcon((Icon)icon.Clone());
+		}
+
+		/// <summary>
 		/// Event handler that is called when a tab's <see cref="Form.Text" /> property is changed, which re-renders the tab text and updates the title of the
 		/// Aero Peek preview.
 		/// </summary>
@@ -695,6 +722,17 @@ namespace EasyTabs
 				TaskbarManager.Instance.TabbedThumbnail.RemoveThumbnailPreview(tab.Content);
 			}
 
+			if (_overlay != null)
+			{
+				_overlay.Render(true);
+			}
+		}
+
+		/// <summary>
+		/// Calls <see cref="TitleBarTabsOverlay.Render(bool)"/> on <see cref="_overlay"/> to force a redrawing of the tabs.
+		/// </summary>
+		public void RedrawTabs()
+		{
 			if (_overlay != null)
 			{
 				_overlay.Render(true);
