@@ -10,8 +10,10 @@
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Library to enable .NET WinForms apps to easily render a set of tabs in their titlebar space, similar to Chrome, Firefox, Trillian, etc.</description>
         <summary />
-        <releaseNotes>- Handling low-level mouse hook messages is now done in another consumer thread to prevent the hook proc from being silently uninstalled by Windows for taking too long to process messages.
-- Clicking on the tabs while the parent window is out of focus will bring focus back to the parent window.</releaseNotes>
+        <tags>TitleBarTabs</tags>
+        <releaseNotes>- Renamed the package and project to EasyTabs.
+- AeroPeek now functions properly.
+- Minor bugfixes when moving or tearing tabs.</releaseNotes>
         <copyright>(c) 2013-2014, Luke Stratman</copyright>
         <dependencies>
             <dependency id="Win32Interop.Dwmapi" version="1.0.1" />
