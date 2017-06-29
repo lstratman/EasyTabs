@@ -26,10 +26,10 @@ namespace EasyTabs
 			// Set the various positioning properties
 			CloseButtonMarginTop = 6;
 			CloseButtonMarginLeft = 2;
-			AddButtonMarginTop = 5;
-			AddButtonMarginLeft = -3;
-			CaptionMarginTop = 5;
-			IconMarginTop = 6;
+			AddButtonMarginTop = 7;
+			AddButtonMarginLeft = -1;
+			CaptionMarginTop = 6;
+			IconMarginTop = 7;
 			IconMarginRight = 5;
 			AddButtonMarginRight = 5;
 		}
