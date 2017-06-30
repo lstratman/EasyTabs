@@ -815,7 +815,9 @@ namespace EasyTabs
 
 				case WM.WM_LBUTTONUP:
 				case WM.WM_NCLBUTTONUP:
-					Point relativeCursorPosition2 = GetRelativeCursorPosition(Cursor.Position);
+				case WM.WM_MBUTTONUP:
+				case WM.WM_NCMBUTTONUP:
+                    Point relativeCursorPosition2 = GetRelativeCursorPosition(Cursor.Position);
 
 					if (_parentForm.TabRenderer.OverTab(_parentForm.Tabs, relativeCursorPosition2) == null &&
 					    !_parentForm.TabRenderer.IsOverAddButton(relativeCursorPosition2))
@@ -830,33 +832,46 @@ namespace EasyTabs
 
 						if (clickedTab != null)
 						{
-							// If the user clicked the close button, remove the tab from the list
-							if (_parentForm.TabRenderer.IsOverCloseButton(clickedTab, relativeCursorPosition2))
-							{
-								clickedTab.Content.Close();
-								Render();
-							}
+                            // If the user clicks the middle button/scroll wheel over a tab, close it
+						    if ((WM) m.Msg == WM.WM_MBUTTONUP || (WM) m.Msg == WM.WM_NCMBUTTONUP)
+						    {
+						        clickedTab.Content.Close();
+						        Render();
+                            }
 
-							else
-							{
-								_parentForm.OnTabClicked(
-									new TitleBarTabEventArgs
-									{
-										Tab = clickedTab,
-										TabIndex = _parentForm.SelectedTabIndex,
-										Action = TabControlAction.Selected,
-										WasDragging = _wasDragging
-									});
-							}
+						    else
+						    {
+						        // If the user clicked the close button, remove the tab from the list
+						        if (_parentForm.TabRenderer.IsOverCloseButton(clickedTab, relativeCursorPosition2))
+						        {
+						            clickedTab.Content.Close();
+						            Render();
+						        }
+
+						        else
+						        {
+						            _parentForm.OnTabClicked(
+						                new TitleBarTabEventArgs
+						                {
+						                    Tab = clickedTab,
+						                    TabIndex = _parentForm.SelectedTabIndex,
+						                    Action = TabControlAction.Selected,
+						                    WasDragging = _wasDragging
+						                });
+						        }
+						    }
 						}
 
-							// Otherwise, if the user clicked the add button, call CreateTab to add a new tab to the list and select it
+					    // Otherwise, if the user clicked the add button, call CreateTab to add a new tab to the list and select it
 						else if (_parentForm.TabRenderer.IsOverAddButton(relativeCursorPosition2))
 						{
 							_parentForm.AddNewTab();
 						}
 
-						OnMouseUp(new MouseEventArgs(MouseButtons.Left, 1, Cursor.Position.X, Cursor.Position.Y, 0));
+					    if ((WM) m.Msg == WM.WM_LBUTTONUP || (WM) m.Msg == WM.WM_NCLBUTTONUP)
+					    {
+					        OnMouseUp(new MouseEventArgs(MouseButtons.Left, 1, Cursor.Position.X, Cursor.Position.Y, 0));
+					    }
 					}
 
 					break;
