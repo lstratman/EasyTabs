@@ -54,6 +54,14 @@ body {
     bottom: -45px;
 }
 
+#screenshots .carousel-indicators li {
+    border-color: #3276b1;
+}
+
+#screenshots .carousel-indicators .active {
+    background-color: #3276b1;
+}
+
 #screenshots img {
     border-radius: 5px;
     width: 400px;
