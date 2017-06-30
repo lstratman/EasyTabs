@@ -23,9 +23,9 @@
         </dependencies>
     </metadata>
     <files>
-        <file src="..\bin\Release\Microsoft.WindowsAPICodePack.dll" target="lib\Microsoft.WindowsAPICodePack.dll" />
-        <file src="..\bin\Release\Microsoft.WindowsAPICodePack.Shell.dll" target="lib\Microsoft.WindowsAPICodePack.Shell.dll" />
-        <file src="..\bin\Release\EasyTabs.dll" target="lib\EasyTabs.dll" />
-        <file src="..\bin\Release\EasyTabs.XML" target="lib\EasyTabs.XML" />
+        <file src="..\bin\Release\Microsoft.WindowsAPICodePack.dll" target="lib\net40\Microsoft.WindowsAPICodePack.dll" />
+        <file src="..\bin\Release\Microsoft.WindowsAPICodePack.Shell.dll" target="lib\net40\Microsoft.WindowsAPICodePack.Shell.dll" />
+        <file src="..\bin\Release\EasyTabs.dll" target="lib\net40\EasyTabs.dll" />
+        <file src="..\bin\Release\EasyTabs.XML" target="lib\net40\EasyTabs.XML" />
     </files>
 </package>
