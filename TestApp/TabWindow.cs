@@ -33,11 +33,11 @@ namespace TestApp
                 Text = webBrowser.DocumentTitle;
                 urlTextBox.Text = webBrowser.Url.ToString();
 
-                if (webBrowser.Url.Scheme == "http")
+                if (webBrowser.Url.Scheme == "http" || webBrowser.Url.Scheme == "https")
                 {
                     try
                     {
-                        WebRequest webRequest = WebRequest.Create("http://" + webBrowser.Url.Host + "/favicon.ico");
+                        WebRequest webRequest = WebRequest.Create(webBrowser.Url.Scheme + "://" + webBrowser.Url.Host + "/favicon.ico");
                         WebResponse response = webRequest.GetResponse();
                         Stream stream = response.GetResponseStream();
 
