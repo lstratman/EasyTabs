@@ -324,30 +324,25 @@ namespace EasyTabs
 				return;
 			}
 
-			int minimumWidth = tabs.Sum(
-				tab => (tab.Active
-					? _activeLeftSideImage.Width
-					: _inactiveLeftSideImage.Width) + (tab.Active
-						? _activeRightSideImage.Width
-						: _inactiveRightSideImage.Width) +
-				       (tab.ShowCloseButton
-					       ? tab.CloseButtonArea.Width + CloseButtonMarginLeft
-					       : 0));
+		    int minimumWidth = tabs.Sum(
+		        tab => GetTabLeftImage(tab).Width + GetTabRightImage(tab).Width + (tab.ShowCloseButton
+		                   ? tab.CloseButtonArea.Width + CloseButtonMarginLeft
+		                   : 0));
 
 			minimumWidth += OverlapWidth;
 
-			minimumWidth += (_parentWindow.ControlBox
-				? SystemInformation.CaptionButtonSize.Width
-				: 0) -
-			                (_parentWindow.MinimizeBox
-				                ? SystemInformation.CaptionButtonSize.Width
-				                : 0) -
-			                (_parentWindow.MaximizeBox
-				                ? SystemInformation.CaptionButtonSize.Width
-				                : 0) + (ShowAddButton
-					                ? _addButtonImage.Width + AddButtonMarginLeft +
-					                  AddButtonMarginRight
-					                : 0);
+		    minimumWidth += (_parentWindow.ControlBox
+		                        ? SystemInformation.CaptionButtonSize.Width
+		                        : 0) -
+		                    (_parentWindow.MinimizeBox
+		                        ? SystemInformation.CaptionButtonSize.Width
+		                        : 0) -
+		                    (_parentWindow.MaximizeBox
+		                        ? SystemInformation.CaptionButtonSize.Width
+		                        : 0) + (ShowAddButton
+		                        ? _addButtonImage.Width + AddButtonMarginLeft +
+		                          AddButtonMarginRight
+		                        : 0);
 
 			_parentWindow.MinimumSize = new Size(minimumWidth, 0);
 		}
@@ -474,29 +469,29 @@ namespace EasyTabs
 
 			// Calculate the maximum tab area, excluding the add button and any minimize/maximize/close buttons in the window
 			_maxTabArea.Location = new Point(SystemInformation.BorderSize.Width + offset.X + screenCoordinates.X, offset.Y + screenCoordinates.Y);
-			_maxTabArea.Width = (_parentWindow.ClientRectangle.Width - offset.X -
-			                     (ShowAddButton
-				                     ? _addButtonImage.Width + AddButtonMarginLeft +
-				                       AddButtonMarginRight
-				                     : 0) - (tabs.Count() * OverlapWidth) -
-			                     (_parentWindow.ControlBox
-				                     ? SystemInformation.CaptionButtonSize.Width
-				                     : 0) -
-			                     (_parentWindow.MinimizeBox
-				                     ? SystemInformation.CaptionButtonSize.Width
-				                     : 0) -
-			                     (_parentWindow.MaximizeBox
-				                     ? SystemInformation.CaptionButtonSize.Width
-				                     : 0));
-			_maxTabArea.Height = _activeCenterImage.Height;
+		    _maxTabArea.Width = _parentWindow.ClientRectangle.Width - offset.X -
+		                        (ShowAddButton
+		                            ? _addButtonImage.Width + AddButtonMarginLeft +
+		                              AddButtonMarginRight
+		                            : 0) - (tabs.Count() * OverlapWidth) -
+		                        (_parentWindow.ControlBox
+		                            ? SystemInformation.CaptionButtonSize.Width
+		                            : 0) -
+		                        (_parentWindow.MinimizeBox
+		                            ? SystemInformation.CaptionButtonSize.Width
+		                            : 0) -
+		                        (_parentWindow.MaximizeBox
+		                            ? SystemInformation.CaptionButtonSize.Width
+		                            : 0);
+			_maxTabArea.Height = TabHeight;
 
 			// Get the width of the content area for each tab by taking the parent window's client width, subtracting the left and right border widths and the 
 			// add button area (if applicable) and then dividing by the number of tabs
-			int tabContentWidth = Math.Min(_activeCenterImage.Width, Convert.ToInt32(Math.Floor(Convert.ToDouble(_maxTabArea.Width / tabs.Count()))));
+			int tabContentWidth = Math.Min(_activeCenterImage.Width, Convert.ToInt32(Math.Floor(Convert.ToDouble(_maxTabArea.Width / tabs.Count))));
 
 			// Determine if we need to redraw the TabImage properties for each tab by seeing if the content width that we calculated above is equal to content 
 			// width we had in the previous rendering pass
-			bool redraw = (tabContentWidth != _tabContentWidth || forceRedraw);
+			bool redraw = tabContentWidth != _tabContentWidth || forceRedraw;
 
 			if (redraw)
 			{
@@ -509,18 +504,24 @@ namespace EasyTabs
 			// Render the background image
 			if (_background != null)
 			{
-				graphicsContext.DrawImage(_background, offset.X, offset.Y, _parentWindow.Width, _activeCenterImage.Height);
+				graphicsContext.DrawImage(_background, offset.X, offset.Y, _parentWindow.Width, TabHeight);
 			}
 
 			int selectedIndex = tabs.FindIndex(t => t.Active);
 
 			if (selectedIndex != -1)
 			{
-				Rectangle tabArea = new Rectangle(
+			    TitleBarTab selectedTab = tabs[selectedIndex];
+
+			    Image tabLeftImage = GetTabLeftImage(selectedTab);
+			    Image tabRightImage = GetTabRightImage(selectedTab);
+			    Image tabCenterImage = GetTabCenterImage(selectedTab);
+
+                Rectangle tabArea = new Rectangle(
 					SystemInformation.BorderSize.Width + offset.X +
-					(selectedIndex * (tabContentWidth + _activeLeftSideImage.Width + _activeRightSideImage.Width - OverlapWidth)),
-					offset.Y, tabContentWidth + _activeLeftSideImage.Width + _activeRightSideImage.Width,
-					_activeCenterImage.Height);
+					selectedIndex * (tabContentWidth + tabLeftImage.Width + tabRightImage.Width - OverlapWidth),
+					offset.Y, tabContentWidth + tabLeftImage.Width + tabRightImage.Width,
+					tabCenterImage.Height);
 
 				if (IsTabRepositioning && _tabClickOffset != null)
 				{
@@ -572,12 +573,16 @@ namespace EasyTabs
 			// Loop through the tabs in reverse order since we need the ones farthest on the left to overlap those to their right
 			foreach (TitleBarTab tab in ((IEnumerable<TitleBarTab>) tabs).Reverse())
 			{
-				Rectangle tabArea =
+			    Image tabLeftImage = GetTabLeftImage(tab);
+			    Image tabCenterImage = GetTabCenterImage(tab);
+			    Image tabRightImage = GetTabRightImage(tab);
+
+                Rectangle tabArea =
 					new Rectangle(
 						SystemInformation.BorderSize.Width + offset.X +
-						(i * (tabContentWidth + _activeLeftSideImage.Width + _activeRightSideImage.Width - OverlapWidth)),
-						offset.Y, tabContentWidth + _activeLeftSideImage.Width + _activeRightSideImage.Width,
-						_activeCenterImage.Height);
+						(i * (tabContentWidth + tabLeftImage.Width + tabRightImage.Width - OverlapWidth)),
+						offset.Y, tabContentWidth + tabLeftImage.Width + tabRightImage.Width,
+						tabCenterImage.Height);
 
 				// If we need to redraw the tab image, null out the property so that it will be recreated in the call to Render() below
 				if (redraw)
@@ -588,7 +593,7 @@ namespace EasyTabs
 				// In this first pass, we only render the inactive tabs since we need the active tabs to show up on top of everything else
 				if (!tab.Active)
 				{
-					Render(graphicsContext, tab, tabArea, cursor);
+					Render(graphicsContext, tab, tabArea, cursor, tabLeftImage, tabCenterImage, tabRightImage);
 				}
 
 				i--;
@@ -597,7 +602,11 @@ namespace EasyTabs
 			// In the second pass, render all of the active tabs identified in the previous pass
 			foreach (Tuple<TitleBarTab, Rectangle> tab in activeTabs)
 			{
-				Render(graphicsContext, tab.Item1, tab.Item2, cursor);
+			    Image tabLeftImage = GetTabLeftImage(tab.Item1);
+			    Image tabCenterImage = GetTabCenterImage(tab.Item1);
+			    Image tabRightImage = GetTabRightImage(tab.Item1);
+
+                Render(graphicsContext, tab.Item1, tab.Item2, cursor, tabLeftImage, tabCenterImage, tabRightImage);
 			}
 
 			_previousTabCount = tabs.Count;
@@ -626,12 +635,15 @@ namespace EasyTabs
 			}
 		}
 
-		/// <summary>Internal method for rendering an individual <paramref name="tab" /> to the screen.</summary>
-		/// <param name="graphicsContext">Graphics context to use when rendering the tab.</param>
-		/// <param name="tab">Individual tab that we are to render.</param>
-		/// <param name="area">Area of the screen that the tab should be rendered to.</param>
-		/// <param name="cursor">Current position of the cursor.</param>
-		protected virtual void Render(Graphics graphicsContext, TitleBarTab tab, Rectangle area, Point cursor)
+        /// <summary>Internal method for rendering an individual <paramref name="tab" /> to the screen.</summary>
+        /// <param name="graphicsContext">Graphics context to use when rendering the tab.</param>
+        /// <param name="tab">Individual tab that we are to render.</param>
+        /// <param name="area">Area of the screen that the tab should be rendered to.</param>
+        /// <param name="cursor">Current position of the cursor.</param>
+        /// <param name="tabLeftImage">Image to use for the left side of the tab.</param>
+        /// <param name="tabCenterImage">Image to use for the center of the tab.</param>
+        /// <param name="tabRightImage">Image to use for the right side of the tab.</param>
+        protected virtual void Render(Graphics graphicsContext, TitleBarTab tab, Rectangle area, Point cursor, Image tabLeftImage, Image tabCenterImage, Image tabRightImage)
 		{
 			if (_suspendRendering)
 			{
@@ -641,85 +653,23 @@ namespace EasyTabs
 			// If we need to redraw the tab image
 			if (tab.TabImage == null)
 			{
-				// We render the tab to an internal property so that we don't necessarily have to redraw it in every rendering pass, only if its width or 
-				// status have changed
-				tab.TabImage = new Bitmap(
-					area.Width, tab.Active
-						? _activeCenterImage.Height
-						: _inactiveCenterImage.Height);
+                // We render the tab to an internal property so that we don't necessarily have to redraw it in every rendering pass, only if its width or 
+                // status have changed
+                tab.TabImage = new Bitmap(area.Width, tabCenterImage.Height);
 
 				using (Graphics tabGraphicsContext = Graphics.FromImage(tab.TabImage))
 				{
-					// Draw the left, center, and right portions of the tab
-					tabGraphicsContext.DrawImage(
-						tab.Active
-							? _activeLeftSideImage
-							: _inactiveLeftSideImage, new Rectangle(
-								0, 0, tab.Active
-									? _activeLeftSideImage
-										.Width
-									: _inactiveLeftSideImage
-										.Width,
-								tab.Active
-									? _activeLeftSideImage.
-										Height
-									: _inactiveLeftSideImage
-										.Height), 0, 0,
-						tab.Active
-							? _activeLeftSideImage.Width
-							: _inactiveLeftSideImage.Width, tab.Active
-								? _activeLeftSideImage.Height
-								: _inactiveLeftSideImage.Height,
-						GraphicsUnit.Pixel);
+                    // Draw the left, center, and right portions of the tab
+				    tabGraphicsContext.DrawImage(
+				        tabLeftImage, new Rectangle(0, 0, tabLeftImage.Width, tabLeftImage.Height), 0, 0, tabLeftImage.Width, tabLeftImage.Height, GraphicsUnit.Pixel);
 
-					tabGraphicsContext.DrawImage(
-						tab.Active
-							? _activeCenterImage
-							: _inactiveCenterImage, new Rectangle(
-								(tab.Active
-									? _activeLeftSideImage.
-										Width
-									: _inactiveLeftSideImage
-										.Width), 0,
-								_tabContentWidth, tab.Active
-									? _activeCenterImage
-										.
-										Height
-									: _inactiveCenterImage
-										.
-										Height),
-						0, 0, _tabContentWidth, tab.Active
-							? _activeCenterImage.Height
-							: _inactiveCenterImage.Height,
-						GraphicsUnit.Pixel);
+				    tabGraphicsContext.DrawImage(
+				        tabCenterImage, new Rectangle(tabLeftImage.Width, 0, _tabContentWidth, tabCenterImage.Height), 0, 0, _tabContentWidth, tabCenterImage.Height,
+				        GraphicsUnit.Pixel);
 
-					tabGraphicsContext.DrawImage(
-						tab.Active
-							? _activeRightSideImage
-							: _inactiveRightSideImage, new Rectangle(
-								(tab.Active
-									? _activeLeftSideImage
-										.Width
-									: _inactiveLeftSideImage
-										.Width) +
-								_tabContentWidth, 0,
-								tab.Active
-									? _activeRightSideImage
-										.Width
-									: _inactiveRightSideImage
-										.Width,
-								tab.Active
-									? _activeRightSideImage
-										.Height
-									: _inactiveRightSideImage
-										.Height), 0, 0,
-						tab.Active
-							? _activeRightSideImage.Width
-							: _inactiveRightSideImage.Width, tab.Active
-								? _activeRightSideImage.Height
-								: _inactiveRightSideImage.
-									Height,
-						GraphicsUnit.Pixel);
+				    tabGraphicsContext.DrawImage(
+				        tabRightImage, new Rectangle(tabLeftImage.Width + _tabContentWidth, 0, tabRightImage.Width, tabRightImage.Height), 0, 0, tabRightImage.Width,
+				        tabRightImage.Height, GraphicsUnit.Pixel);
 
 					// Draw the close button
 					if (tab.ShowCloseButton)
@@ -728,13 +678,9 @@ namespace EasyTabs
 							? _closeButtonHoverImage
 							: _closeButtonImage;
 
-						tab.CloseButtonArea = new Rectangle(
-							area.Width - (tab.Active
-								? _activeRightSideImage.Width
-								: _inactiveRightSideImage.Width) -
-							CloseButtonMarginRight - closeButtonImage.Width,
-							CloseButtonMarginTop, closeButtonImage.Width,
-							closeButtonImage.Height);
+					    tab.CloseButtonArea = new Rectangle(
+					        area.Width - tabRightImage.Width - CloseButtonMarginRight - closeButtonImage.Width, CloseButtonMarginTop, closeButtonImage.Width,
+					        closeButtonImage.Height);
 
 						tabGraphicsContext.DrawImage(
 							closeButtonImage, tab.CloseButtonArea, 0, 0,
@@ -795,13 +741,49 @@ namespace EasyTabs
 			}
 		}
 
-		/// <summary>
-		/// Called when a torn tab is dragged into the <see cref="TitleBarTabs.TabDropArea" /> of <see cref="_parentWindow" />.  Places the tab in the list and
-		/// sets <see cref="IsTabRepositioning" /> to true to simulate the user continuing to drag the tab around in the window.
-		/// </summary>
-		/// <param name="tab">Tab that was dragged into this window.</param>
-		/// <param name="cursorLocation">Location of the user's cursor.</param>
-		internal virtual void CombineTab(TitleBarTab tab, Point cursorLocation)
+        /// <summary>
+        /// Gets the image to use for the left side of the <paramref name="tab"/>.
+        /// </summary>
+        /// <param name="tab">Tab that we are retrieving the image for.</param>
+        /// <returns>The image for the left side of <paramref name="tab"/>.</returns>
+	    protected virtual Image GetTabLeftImage(TitleBarTab tab)
+	    {
+	        return tab.Active
+	            ? _activeLeftSideImage
+	            : _inactiveLeftSideImage;
+	    }
+
+	    /// <summary>
+	    /// Gets the image to use for the center of the <paramref name="tab"/>.
+	    /// </summary>
+	    /// <param name="tab">Tab that we are retrieving the image for.</param>
+	    /// <returns>The image for the center of <paramref name="tab"/>.</returns>
+	    protected virtual Image GetTabCenterImage(TitleBarTab tab)
+	    {
+	        return tab.Active
+	            ? _activeCenterImage
+	            : _inactiveCenterImage;
+	    }
+
+	    /// <summary>
+	    /// Gets the image to use for the right side of the <paramref name="tab"/>.
+	    /// </summary>
+	    /// <param name="tab">Tab that we are retrieving the image for.</param>
+	    /// <returns>The image for the right side of <paramref name="tab"/>.</returns>
+	    protected virtual Image GetTabRightImage(TitleBarTab tab)
+	    {
+	        return tab.Active
+	            ? _activeRightSideImage
+	            : _inactiveRightSideImage;
+	    }
+
+        /// <summary>
+        /// Called when a torn tab is dragged into the <see cref="TitleBarTabs.TabDropArea" /> of <see cref="_parentWindow" />.  Places the tab in the list and
+        /// sets <see cref="IsTabRepositioning" /> to true to simulate the user continuing to drag the tab around in the window.
+        /// </summary>
+        /// <param name="tab">Tab that was dragged into this window.</param>
+        /// <param name="cursorLocation">Location of the user's cursor.</param>
+        internal virtual void CombineTab(TitleBarTab tab, Point cursorLocation)
 		{
 			// Stop rendering to prevent weird stuff from happening like the wrong tab being focused
 			_suspendRendering = true;
