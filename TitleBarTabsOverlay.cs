@@ -607,15 +607,20 @@ namespace EasyTabs
 		{
 			if (!IsDisposed)
 			{
-				// If the form is in a non-maximized state, we position the tabs below the minimize/maximize/close
-				// buttons
-				Top = _parentForm.Top + (DisplayType == DisplayType.Classic
+			    // 92 is SM_CXPADDEDBORDER, which returns the amount of extra border padding around captioned windows
+                int borderPadding = DisplayType == DisplayType.Classic
+			        ? 0
+			        : User32.GetSystemMetrics(92);
+
+                // If the form is in a non-maximized state, we position the tabs below the minimize/maximize/close
+                // buttons
+                Top = _parentForm.Top + (DisplayType == DisplayType.Classic
 					? SystemInformation.VerticalResizeBorderThickness
 					: _parentForm.WindowState == FormWindowState.Maximized
-						? SystemInformation.VerticalResizeBorderThickness
-						: SystemInformation.CaptionHeight);
-				Left = _parentForm.Left + SystemInformation.HorizontalResizeBorderThickness - SystemInformation.BorderSize.Width;
-				Width = _parentForm.Width - (SystemInformation.VerticalResizeBorderThickness * 2) + (SystemInformation.BorderSize.Width * 2);
+                        ? SystemInformation.VerticalResizeBorderThickness + borderPadding
+                        : SystemInformation.CaptionHeight + borderPadding);
+				Left = _parentForm.Left + SystemInformation.HorizontalResizeBorderThickness - SystemInformation.BorderSize.Width + borderPadding;
+				Width = _parentForm.Width - ((SystemInformation.VerticalResizeBorderThickness + borderPadding) * 2) + (SystemInformation.BorderSize.Width * 2);
 				Height = _parentForm.TabRenderer.TabHeight + (DisplayType == DisplayType.Classic && _parentForm.WindowState != FormWindowState.Maximized
 					? SystemInformation.CaptionButtonSize.Height
 					: 0);
