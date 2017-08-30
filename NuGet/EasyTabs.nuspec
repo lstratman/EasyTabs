@@ -11,7 +11,7 @@
         <description>Library to enable .NET WinForms apps to easily render a set of tabs in their titlebar space, similar to Chrome, Firefox, Trillian, etc.</description>
         <summary />
         <tags>TitleBarTabs</tags>
-        <releaseNotes>- .NET 4.5 application tab overlay positioning fixes.</releaseNotes>
+        <releaseNotes>- Project settings now optimize the code when compiling in release.</releaseNotes>
         <copyright>(c) 2013-2017, Luke Stratman</copyright>
         <dependencies>
             <dependency id="Win32Interop.Dwmapi" version="1.0.1" />
