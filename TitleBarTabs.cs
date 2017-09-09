@@ -462,6 +462,8 @@ namespace EasyTabs
 		/// <param name="e">Arguments associated with the event.</param>
 		protected void OnTabSelecting(TitleBarTabCancelEventArgs e)
 		{
+            ResizeTabContents(e.Tab);
+
 			if (TabSelecting != null)
 			{
 				TabSelecting(this, e);
