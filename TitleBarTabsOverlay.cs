@@ -728,7 +728,8 @@ namespace EasyTabs
 								                      // We want to blend the bitmap's content with the screen content under it
 								                      BlendOp = Convert.ToByte((int) AC.AC_SRC_OVER),
 								                      BlendFlags = 0,
-								                      SourceConstantAlpha = 255,
+                                                      // Follow the parent forms' opacity level
+								                      SourceConstantAlpha = (byte)(_parentForm.Opacity * 255),
 								                      // We use the bitmap's alpha channel for blending instead of a pre-defined transparency key
 								                      AlphaFormat = Convert.ToByte((int) AC.AC_SRC_ALPHA)
 							                      };
