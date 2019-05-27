@@ -13,6 +13,7 @@ using System.Windows.Forms;
 using Win32Interop.Enums;
 using Win32Interop.Methods;
 using Win32Interop.Structs;
+using Timer = System.Timers.Timer;
 
 namespace EasyTabs
 {
@@ -22,6 +23,8 @@ namespace EasyTabs
 	/// </summary>
 	public class TitleBarTabsOverlay : Form
 	{
+		protected Timer showTooltipTimer;
+
 		/// <summary>All of the parent forms and their overlays so that we don't create duplicate overlays across the application domain.</summary>
 		protected static Dictionary<TitleBarTabs, TitleBarTabsOverlay> _parents = new Dictionary<TitleBarTabs, TitleBarTabsOverlay>();
 
@@ -93,6 +96,13 @@ namespace EasyTabs
 
 			Show(_parentForm);
 			AttachHandlers();
+
+			showTooltipTimer = new Timer
+			{
+				AutoReset = false
+			};
+
+			showTooltipTimer.Elapsed += ShowTooltipTimer_Elapsed;
 		}
 
 		/// <summary>
@@ -209,9 +219,10 @@ namespace EasyTabs
 			{
 				// Spin up a consumer thread to process mouse events from _mouseEvents
 				_mouseEventsThread = new Thread(InterpretMouseEvents)
-				                     {
-					                     Name = "Low level mouse hooks processing thread"
-				                     };
+				{
+					Name = "Low level mouse hooks processing thread"
+				};
+				_mouseEventsThread.Priority = ThreadPriority.Highest;
 				_mouseEventsThread.Start();
 
 				using (Process curProcess = Process.GetCurrentProcess())
@@ -254,6 +265,76 @@ namespace EasyTabs
 			_mouseEventsThread.Abort();
 		}
 
+		private void HideTooltip()
+		{
+			showTooltipTimer.Stop();
+
+			if (_parentForm.InvokeRequired)
+			{
+				_parentForm.Invoke(new Action(() =>
+				{
+					_parentForm.Tooltip.Hide(_parentForm);
+				}));
+			}
+
+			else
+			{
+				_parentForm.Tooltip.Hide(_parentForm);
+			}
+		}
+
+		private void ShowTooltip(TitleBarTabs tabsForm, string caption)
+		{
+			Point tooltipLocation = new Point(Cursor.Position.X + 7, Cursor.Position.Y + 55);
+			tabsForm.Tooltip.Show(caption, tabsForm, tabsForm.PointToClient(tooltipLocation), tabsForm.Tooltip.AutoPopDelay);
+		}
+
+		private void ShowTooltipTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+		{
+			if (!_parentForm.ShowTooltips)
+			{
+				return;
+			}
+
+			Point relativeCursorPosition = GetRelativeCursorPosition(Cursor.Position);
+			TitleBarTab hoverTab = _parentForm.TabRenderer.OverTab(_parentForm.Tabs, relativeCursorPosition);
+
+			if (hoverTab != null)
+			{
+				TitleBarTabs hoverTabForm = hoverTab.Parent;
+
+				if (hoverTabForm.InvokeRequired)
+				{
+					hoverTabForm.Invoke(new Action(() =>
+					{
+						ShowTooltip(hoverTabForm, hoverTab.Caption);
+					}));
+				}
+
+				else
+				{
+					ShowTooltip(hoverTabForm, hoverTab.Caption);
+				}
+			}
+		}
+
+		private void StartTooltipTimer()
+		{
+			if (!_parentForm.ShowTooltips)
+			{
+				return;
+			}
+
+			Point relativeCursorPosition = GetRelativeCursorPosition(Cursor.Position);
+			TitleBarTab hoverTab = _parentForm.TabRenderer.OverTab(_parentForm.Tabs, relativeCursorPosition);
+
+			if (hoverTab != null)
+			{
+				showTooltipTimer.Interval = hoverTab.Parent.Tooltip.AutomaticDelay;
+				showTooltipTimer.Start();
+			}
+		}
+
 		/// <summary>Consumer method that processes mouse events in <see cref="_mouseEvents" /> that are recorded by <see cref="MouseHookCallback" />.</summary>
 		protected void InterpretMouseEvents()
 		{
@@ -265,16 +346,18 @@ namespace EasyTabs
 
 				if (nCode >= 0 && (int) WM.WM_MOUSEMOVE == (int) wParam)
 				{
-// ReSharper disable PossibleInvalidOperationException
+					HideTooltip();
+
+					// ReSharper disable PossibleInvalidOperationException
 					Point cursorPosition = new Point(hookStruct.Value.pt.x, hookStruct.Value.pt.y);
-// ReSharper restore PossibleInvalidOperationException
+					// ReSharper restore PossibleInvalidOperationException
 					bool reRender = false;
 
 					if (_tornTab != null && _dropAreas != null)
 					{
 						// ReSharper disable ForCanBeConvertedToForeach
 						for (int i = 0; i < _dropAreas.Length; i++)
-							// ReSharper restore ForCanBeConvertedToForeach
+						// ReSharper restore ForCanBeConvertedToForeach
 						{
 							// If the cursor is within the drop area, combine the tab for the window that belongs to that drop area
 							if (_dropAreas[i].Item2.Contains(cursorPosition))
@@ -318,22 +401,24 @@ namespace EasyTabs
 
 					else if (!_parentForm.TabRenderer.IsTabRepositioning)
 					{
+						StartTooltipTimer();
+
 						// If we were over a close button previously, check to see if the cursor is still over that tab's
 						// close button; if not, re-render
 						if (_isOverCloseButtonForTab != -1 &&
-						    (_isOverCloseButtonForTab >= _parentForm.Tabs.Count ||
-						     !_parentForm.TabRenderer.IsOverCloseButton(_parentForm.Tabs[_isOverCloseButtonForTab], GetRelativeCursorPosition(cursorPosition))))
+							(_isOverCloseButtonForTab >= _parentForm.Tabs.Count ||
+							!_parentForm.TabRenderer.IsOverCloseButton(_parentForm.Tabs[_isOverCloseButtonForTab], GetRelativeCursorPosition(cursorPosition))))
 						{
 							reRender = true;
 							_isOverCloseButtonForTab = -1;
 						}
 
-							// Otherwise, see if any tabs' close button is being hovered over
+						// Otherwise, see if any tabs' close button is being hovered over
 						else
 						{
 							// ReSharper disable ForCanBeConvertedToForeach
 							for (int i = 0; i < _parentForm.Tabs.Count; i++)
-								// ReSharper restore ForCanBeConvertedToForeach
+							// ReSharper restore ForCanBeConvertedToForeach
 							{
 								if (_parentForm.TabRenderer.IsOverCloseButton(_parentForm.Tabs[i], GetRelativeCursorPosition(cursorPosition)))
 								{
@@ -390,7 +475,7 @@ namespace EasyTabs
 
 											_tornTabForm.Show();
 											_dropAreas = (from window in _parentForm.ApplicationContext.OpenWindows.Where(w => w.Tabs.Count > 0)
-											              select new Tuple<TitleBarTabs, Rectangle>(window, window.TabDropArea)).ToArray();
+														  select new Tuple<TitleBarTabs, Rectangle>(window, window.TabDropArea)).ToArray();
 										}
 									}
 								}));
@@ -489,11 +574,11 @@ namespace EasyTabs
 		protected IntPtr MouseHookCallback(int nCode, IntPtr wParam, IntPtr lParam)
 		{
 			MouseEvent mouseEvent = new MouseEvent
-			                        {
-				                        nCode = nCode,
-				                        wParam = wParam,
-				                        lParam = lParam
-			                        };
+			{
+				nCode = nCode,
+				wParam = wParam,
+				lParam = lParam
+			};
 
 			if (nCode >= 0 && (int) WM.WM_MOUSEMOVE == (int) wParam)
 			{
@@ -607,18 +692,18 @@ namespace EasyTabs
 		{
 			if (!IsDisposed)
 			{
-			    // 92 is SM_CXPADDEDBORDER, which returns the amount of extra border padding around captioned windows
-                int borderPadding = DisplayType == DisplayType.Classic
-			        ? 0
-			        : User32.GetSystemMetrics(92);
+				// 92 is SM_CXPADDEDBORDER, which returns the amount of extra border padding around captioned windows
+				int borderPadding = DisplayType == DisplayType.Classic
+					? 0
+					: User32.GetSystemMetrics(92);
 
-                // If the form is in a non-maximized state, we position the tabs below the minimize/maximize/close
-                // buttons
-                Top = _parentForm.Top + (DisplayType == DisplayType.Classic
+				// If the form is in a non-maximized state, we position the tabs below the minimize/maximize/close
+				// buttons
+				Top = _parentForm.Top + (DisplayType == DisplayType.Classic
 					? SystemInformation.VerticalResizeBorderThickness
 					: _parentForm.WindowState == FormWindowState.Maximized
-                        ? SystemInformation.VerticalResizeBorderThickness + borderPadding
-                        : SystemInformation.CaptionHeight + borderPadding);
+						? SystemInformation.VerticalResizeBorderThickness + borderPadding
+						: SystemInformation.CaptionHeight + borderPadding);
 				Left = _parentForm.Left + SystemInformation.HorizontalResizeBorderThickness - SystemInformation.BorderSize.Width + borderPadding;
 				Width = _parentForm.Width - ((SystemInformation.VerticalResizeBorderThickness + borderPadding) * 2) + (SystemInformation.BorderSize.Width * 2);
 				Height = _parentForm.TabRenderer.TabHeight + (DisplayType == DisplayType.Classic && _parentForm.WindowState != FormWindowState.Maximized
@@ -708,31 +793,31 @@ namespace EasyTabs
 							oldBitmap = Gdi32.SelectObject(memDc, bitmapHandle);
 
 							SIZE size = new SIZE
-							            {
-								            cx = bitmap.Width,
-								            cy = bitmap.Height
-							            };
+							{
+								cx = bitmap.Width,
+								cy = bitmap.Height
+							};
 
 							POINT pointSource = new POINT
-							                    {
-								                    x = 0,
-								                    y = 0
-							                    };
+							{
+								x = 0,
+								y = 0
+							};
 							POINT topPos = new POINT
-							               {
-								               x = Left,
-								               y = Top
-							               };
+							{
+								x = Left,
+								y = Top
+							};
 							BLENDFUNCTION blend = new BLENDFUNCTION
-							                      {
-								                      // We want to blend the bitmap's content with the screen content under it
-								                      BlendOp = Convert.ToByte((int) AC.AC_SRC_OVER),
-								                      BlendFlags = 0,
-                                                      // Follow the parent forms' opacity level
-								                      SourceConstantAlpha = (byte)(_parentForm.Opacity * 255),
-								                      // We use the bitmap's alpha channel for blending instead of a pre-defined transparency key
-								                      AlphaFormat = Convert.ToByte((int) AC.AC_SRC_ALPHA)
-							                      };
+							{
+								// We want to blend the bitmap's content with the screen content under it
+								BlendOp = Convert.ToByte((int) AC.AC_SRC_OVER),
+								BlendFlags = 0,
+								// Follow the parent forms' opacity level
+								SourceConstantAlpha = (byte)(_parentForm.Opacity * 255),
+								// We use the bitmap's alpha channel for blending instead of a pre-defined transparency key
+								AlphaFormat = Convert.ToByte((int) AC.AC_SRC_ALPHA)
+							};
 
 							// Blend the tab content with the underlying content
 							if (!User32.UpdateLayeredWindow(
@@ -743,7 +828,7 @@ namespace EasyTabs
 							}
 						}
 
-							// Clean up after ourselves
+						// Clean up after ourselves
 						finally
 						{
 							User32.ReleaseDC(IntPtr.Zero, screenDc);
@@ -781,7 +866,7 @@ namespace EasyTabs
 
 					// If we were over a tab, set the capture state for the window so that we'll actually receive a WM_LBUTTONUP message
 					if (_parentForm.TabRenderer.OverTab(_parentForm.Tabs, relativeCursorPosition) == null &&
-					    !_parentForm.TabRenderer.IsOverAddButton(relativeCursorPosition))
+						!_parentForm.TabRenderer.IsOverAddButton(relativeCursorPosition))
 					{
 						_parentForm.ForwardMessage(ref m);
 					}
@@ -814,7 +899,7 @@ namespace EasyTabs
 					_parentForm.ForwardMessage(ref m);
 					break;
 
-					// We always return HTCAPTION for the hit test message so that the underlying window doesn't have its focus removed
+				// We always return HTCAPTION for the hit test message so that the underlying window doesn't have its focus removed
 				case WM.WM_NCHITTEST:
 					m.Result = new IntPtr((int) HT.HTCAPTION);
 					break;
@@ -823,10 +908,10 @@ namespace EasyTabs
 				case WM.WM_NCLBUTTONUP:
 				case WM.WM_MBUTTONUP:
 				case WM.WM_NCMBUTTONUP:
-                    Point relativeCursorPosition2 = GetRelativeCursorPosition(Cursor.Position);
+					Point relativeCursorPosition2 = GetRelativeCursorPosition(Cursor.Position);
 
 					if (_parentForm.TabRenderer.OverTab(_parentForm.Tabs, relativeCursorPosition2) == null &&
-					    !_parentForm.TabRenderer.IsOverAddButton(relativeCursorPosition2))
+						!_parentForm.TabRenderer.IsOverAddButton(relativeCursorPosition2))
 					{
 						_parentForm.ForwardMessage(ref m);
 					}
@@ -838,46 +923,46 @@ namespace EasyTabs
 
 						if (clickedTab != null)
 						{
-                            // If the user clicks the middle button/scroll wheel over a tab, close it
-						    if ((WM) m.Msg == WM.WM_MBUTTONUP || (WM) m.Msg == WM.WM_NCMBUTTONUP)
-						    {
-						        clickedTab.Content.Close();
-						        Render();
-                            }
+							// If the user clicks the middle button/scroll wheel over a tab, close it
+							if ((WM) m.Msg == WM.WM_MBUTTONUP || (WM) m.Msg == WM.WM_NCMBUTTONUP)
+							{
+								clickedTab.Content.Close();
+								Render();
+							}
 
-						    else
-						    {
-						        // If the user clicked the close button, remove the tab from the list
-						        if (_parentForm.TabRenderer.IsOverCloseButton(clickedTab, relativeCursorPosition2))
-						        {
-						            clickedTab.Content.Close();
-						            Render();
-						        }
+							else
+							{
+								// If the user clicked the close button, remove the tab from the list
+								if (_parentForm.TabRenderer.IsOverCloseButton(clickedTab, relativeCursorPosition2))
+								{
+									clickedTab.Content.Close();
+									Render();
+								}
 
-						        else
-						        {
-						            _parentForm.OnTabClicked(
-						                new TitleBarTabEventArgs
-						                {
-						                    Tab = clickedTab,
-						                    TabIndex = _parentForm.SelectedTabIndex,
-						                    Action = TabControlAction.Selected,
-						                    WasDragging = _wasDragging
-						                });
-						        }
-						    }
+								else
+								{
+									_parentForm.OnTabClicked(
+										new TitleBarTabEventArgs
+										{
+											Tab = clickedTab,
+											TabIndex = _parentForm.SelectedTabIndex,
+											Action = TabControlAction.Selected,
+											WasDragging = _wasDragging
+										});
+								}
+							}
 						}
 
-					    // Otherwise, if the user clicked the add button, call CreateTab to add a new tab to the list and select it
+						// Otherwise, if the user clicked the add button, call CreateTab to add a new tab to the list and select it
 						else if (_parentForm.TabRenderer.IsOverAddButton(relativeCursorPosition2))
 						{
 							_parentForm.AddNewTab();
 						}
 
-					    if ((WM) m.Msg == WM.WM_LBUTTONUP || (WM) m.Msg == WM.WM_NCLBUTTONUP)
-					    {
-					        OnMouseUp(new MouseEventArgs(MouseButtons.Left, 1, Cursor.Position.X, Cursor.Position.Y, 0));
-					    }
+						if ((WM) m.Msg == WM.WM_LBUTTONUP || (WM) m.Msg == WM.WM_NCLBUTTONUP)
+						{
+							OnMouseUp(new MouseEventArgs(MouseButtons.Left, 1, Cursor.Position.X, Cursor.Position.Y, 0));
+						}
 					}
 
 					break;

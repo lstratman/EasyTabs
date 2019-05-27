@@ -75,6 +75,14 @@ namespace EasyTabs
 			// Set the window style so that we take care of painting the non-client area, a redraw is triggered when the size of the window changes, and the 
 			// window itself has a transparent background color (otherwise the non-client area will simply be black when the window is maximized)
 			SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw, true);
+
+			Tooltip = new ToolTip
+			{
+				AutoPopDelay = 5000,
+				AutomaticDelay = 500
+			};
+
+			ShowTooltips = true;
 		}
 
 		/// <summary>Flag indicating whether composition is enabled on the desktop.</summary>
@@ -127,6 +135,20 @@ namespace EasyTabs
 					}
 				}
 			}
+		}
+
+        /// <summary>Flag indicating whether a tooltip should be shown when hovering over a tab.</summary>
+		public bool ShowTooltips
+		{
+			get;
+			set;
+		}
+
+        /// <summary>Tooltip UI element to show when hovering over a tab.</summary>
+		public ToolTip Tooltip
+		{
+			get;
+			set;
 		}
 
 		/// <summary>List of tabs to display for this window.</summary>
@@ -184,11 +206,11 @@ namespace EasyTabs
 				{
 					// Raise the TabDeselecting event
 					TitleBarTabCancelEventArgs e = new TitleBarTabCancelEventArgs
-					                               {
-						                               Action = TabControlAction.Deselecting,
-						                               Tab = selectedTab,
-						                               TabIndex = selectedTabIndex
-					                               };
+					{
+						Action = TabControlAction.Deselecting,
+						Tab = selectedTab,
+						TabIndex = selectedTabIndex
+					};
 
 					OnTabDeselecting(e);
 
@@ -214,11 +236,11 @@ namespace EasyTabs
 				{
 					// Raise the TabSelecting event
 					TitleBarTabCancelEventArgs e = new TitleBarTabCancelEventArgs
-					                               {
-						                               Action = TabControlAction.Selecting,
-						                               Tab = Tabs[value],
-						                               TabIndex = value
-					                               };
+					{
+						Action = TabControlAction.Selecting,
+						Tab = Tabs[value],
+						TabIndex = value
+					};
 
 					OnTabSelecting(e);
 
@@ -291,10 +313,10 @@ namespace EasyTabs
 		private void SetWindowThemeAttributes(WTNCA attributes)
 		{
 			WTA_OPTIONS options = new WTA_OPTIONS
-			                      {
-				                      dwFlags = attributes,
-				                      dwMask = WTNCA.VALIDBITS
-			                      };
+			{
+				dwFlags = attributes,
+				dwMask = WTNCA.VALIDBITS
+			};
 
 			// The SetWindowThemeAttribute API call takes care of everything
 			Uxtheme.SetWindowThemeAttribute(Handle, WINDOWTHEMEATTRIBUTETYPE.WTA_NONCLIENT, ref options, (uint) Marshal.SizeOf(typeof (WTA_OPTIONS)));
@@ -348,14 +370,14 @@ namespace EasyTabs
 
 			// Set the margins and extend the frame into the client area
 			MARGINS margins = new MARGINS
-			                  {
-				                  cxLeftWidth = 0,
-				                  cxRightWidth = 0,
-				                  cyBottomHeight = 0,
-				                  cyTopHeight = topPadding > 0
-					                  ? topPadding
-					                  : 0
-			                  };
+			{
+				cxLeftWidth = 0,
+				cxRightWidth = 0,
+				cyBottomHeight = 0,
+				cyTopHeight = topPadding > 0
+									  ? topPadding
+									  : 0
+			};
 
 			Dwmapi.DwmExtendFrameIntoClientArea(Handle, ref margins);
 
@@ -462,7 +484,7 @@ namespace EasyTabs
 		/// <param name="e">Arguments associated with the event.</param>
 		protected void OnTabSelecting(TitleBarTabCancelEventArgs e)
 		{
-            ResizeTabContents(e.Tab);
+			ResizeTabContents(e.Tab);
 
 			if (TabSelecting != null)
 			{
@@ -640,10 +662,10 @@ namespace EasyTabs
 			}
 
 			preview = new TabbedThumbnail(Handle, tab.Content)
-			          {
-				          Title = tab.Content.Text,
-				          Tooltip = tab.Content.Text
-			          };
+			{
+				Title = tab.Content.Text,
+				Tooltip = tab.Content.Text
+			};
 
 			preview.SetWindowIcon((Icon)tab.Content.Icon.Clone());
 
@@ -767,7 +789,7 @@ namespace EasyTabs
 
 			switch ((WM) m.Msg)
 			{
-					// When the window is activated, set the size of the non-client area appropriately
+				// When the window is activated, set the size of the non-client area appropriately
 				case WM.WM_ACTIVATE:
 					if ((m.WParam.ToInt64() & 0x0000FFFF) != 0)
 					{
@@ -786,7 +808,7 @@ namespace EasyTabs
 
 					// If they were over the minimize/maximize/close buttons or the system menu, let the message pass
 					if (!(hitResult == HT.HTCLOSE || hitResult == HT.HTMINBUTTON || hitResult == HT.HTMAXBUTTON || hitResult == HT.HTMENU ||
-					      hitResult == HT.HTSYSMENU))
+						  hitResult == HT.HTSYSMENU))
 					{
 						m.Result = new IntPtr((int) HitTest(m));
 					}
@@ -795,7 +817,7 @@ namespace EasyTabs
 
 					break;
 
-					// Catch the case where the user is clicking the minimize button and use this opportunity to update the AeroPeek thumbnail for the current tab
+				// Catch the case where the user is clicking the minimize button and use this opportunity to update the AeroPeek thumbnail for the current tab
 				case WM.WM_NCLBUTTONDOWN:
 					if (((HT) m.WParam.ToInt32()) == HT.HTMINBUTTON && AeroPeekEnabled && SelectedTab != null)
 					{
