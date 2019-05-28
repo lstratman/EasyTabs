@@ -353,7 +353,7 @@ namespace EasyTabs
 
 			int topPadding;
 
-			if (WindowState == FormWindowState.Maximized)
+			if (WindowState == FormWindowState.Maximized || TabRenderer.RendersSizingBox)
 			{
 				topPadding = TabRenderer.TabHeight - SystemInformation.CaptionHeight;
 			}
