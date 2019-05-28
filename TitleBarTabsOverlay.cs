@@ -71,6 +71,8 @@ namespace EasyTabs
 
         protected bool _isOverSizingBox = false;
 
+        protected bool _isOverAddButton = true;
+
 		/// <summary>Queue of mouse events reported by <see cref="_hookproc" /> that need to be processed.</summary>
 		protected BlockingCollection<MouseEvent> _mouseEvents = new BlockingCollection<MouseEvent>();
 
@@ -451,6 +453,18 @@ namespace EasyTabs
                                 _isOverSizingBox = false;
                                 reRender = true;
                             }
+                        }
+
+                        if (_parentForm.TabRenderer.IsOverAddButton(relativeCursorPosition))
+                        {
+                            _isOverAddButton = true;
+                            reRender = true;
+                        }
+
+                        else if (_isOverAddButton)
+                        {
+                            _isOverAddButton = false;
+                            reRender = true;
                         }
                     }
 
