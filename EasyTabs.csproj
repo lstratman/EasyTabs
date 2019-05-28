@@ -156,37 +156,37 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\ChromeLeft.png" />
+    <None Include="Resources\Chrome\Left.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\ChromeCenter.png" />
+    <None Include="Resources\Chrome\Center.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\ChromeRight.png" />
+    <None Include="Resources\Chrome\Right.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\ChromeInactiveCenter.png" />
+    <None Include="Resources\Chrome\InactiveCenter.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\ChromeInactiveLeft.png" />
+    <None Include="Resources\Chrome\InactiveLeft.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\ChromeInactiveRight.png" />
+    <None Include="Resources\Chrome\InactiveRight.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\ChromeClose.png" />
+    <None Include="Resources\Chrome\Close.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\ChromeCloseHover.png" />
+    <None Include="Resources\Chrome\CloseHover.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\ChromeAdd.png" />
+    <None Include="Resources\Chrome\Add.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\ChromeAddHover.png" />
+    <None Include="Resources\Chrome\AddHover.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\ChromeBackground.png" />
+    <None Include="Resources\Chrome\Background.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Windows10\Restore.svg" />
