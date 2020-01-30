@@ -17,6 +17,9 @@ namespace EasyTabs
 		/// is.
 		/// </summary>
 		protected Image _activeCenterImage;
+		
+		//<summary>Color of the title text. To change colors of the entire tab, change it from resource actively or permanently. </summary>
+		protected Color ForeColor = Color.Black;
 
 		/// <summary>Image to display on the left side of an active tab.</summary>
 		protected Image _activeLeftSideImage;
@@ -719,7 +722,7 @@ namespace EasyTabs
 					: 0))
 			{
 				graphicsContext.DrawString(
-					tab.Caption, SystemFonts.CaptionFont, Brushes.Black,
+					tab.Caption, SystemFonts.CaptionFont, new SolidBrush(ForeColor),
 					new Rectangle(
 						area.X + OverlapWidth + CaptionMarginLeft + (tab.Content.ShowIcon
 							? IconMarginLeft +
