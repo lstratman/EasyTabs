@@ -27,6 +27,9 @@ namespace EasyTabs
 			_background = Resources.ChromeBackground;
 			_addButtonImage = new Bitmap(Resources.ChromeAdd);
 			_addButtonHoverImage = new Bitmap(Resources.ChromeAddHover);
+			
+			//To change the text color, use this:
+			_ForeColor = Color.Black;
 
 			// Set the various positioning properties
 			CloseButtonMarginTop = 6;
