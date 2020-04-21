@@ -738,7 +738,9 @@ namespace EasyTabs
 		/// <param name="e">Arguments associated with the event.</param>
 		private void TitleBarTabs_Closing(object sender, CancelEventArgs e)
 		{
-			TitleBarTab tab = (TitleBarTab) sender;
+            if (e.Cancel) return;
+
+            TitleBarTab tab = (TitleBarTab) sender;
 			CloseTab(tab);
 
 			if (!tab.Content.IsDisposed && AeroPeekEnabled)

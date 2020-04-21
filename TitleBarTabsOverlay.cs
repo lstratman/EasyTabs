@@ -245,7 +245,9 @@ namespace EasyTabs
 		/// <param name="e">Arguments associated with this event.</param>
 		private void _parentForm_Closing(object sender, CancelEventArgs e)
 		{
-			TitleBarTabs form = (TitleBarTabs) sender;
+            if (e.Cancel) return;
+
+            TitleBarTabs form = (TitleBarTabs) sender;
 
 			if (form == null)
 			{
