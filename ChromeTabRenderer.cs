@@ -1,16 +1,12 @@
-﻿using Svg;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
-using System.Xml;
 using Win32Interop.Enums;
 
 namespace EasyTabs
 {
-	/// <summary>Renderer that produces tabs that mimic the appearance of the Chrome browser.</summary>
-	public class ChromeTabRenderer : BaseTabRenderer
+    /// <summary>Renderer that produces tabs that mimic the appearance of the Chrome browser.</summary>
+    public class ChromeTabRenderer : BaseTabRenderer
 	{
         WindowsSizingBoxes _windowsSizingBoxes = null;
 
@@ -51,7 +47,15 @@ namespace EasyTabs
         {
             get
             {
-                return _parentWindow.WindowState == FormWindowState.Maximized ? base.TabHeight : base.TabHeight + 8;
+                return _parentWindow.WindowState == FormWindowState.Maximized ? base.TabHeight : base.TabHeight + TopPadding;
+            }
+        }
+
+        public override int TopPadding
+        {
+            get
+            {
+                return _parentWindow.WindowState == FormWindowState.Maximized ? 0 : 8;
             }
         }
 
@@ -64,11 +68,11 @@ namespace EasyTabs
 			}
 		}
 
-        public override bool RendersSizingBox
+        public override bool RendersEntireTitleBar
         {
             get
             {
-                return true;
+                return IsWindows10;
             }
         }
 
@@ -86,7 +90,11 @@ namespace EasyTabs
         public override void Render(List<TitleBarTab> tabs, Graphics graphicsContext, Point offset, Point cursor, bool forceRedraw = false)
         {
             base.Render(tabs, graphicsContext, offset, cursor, forceRedraw);
-            _windowsSizingBoxes.Render(graphicsContext, cursor);
+
+            if (IsWindows10)
+            {
+                _windowsSizingBoxes.Render(graphicsContext, cursor);
+            }
         }
 
         protected override int GetMaxTabAreaWidth(List<TitleBarTab> tabs, Point offset)

@@ -440,7 +440,7 @@ namespace EasyTabs
 							}
 						}
 
-                        if (_isOverCloseButtonForTab == -1 && _parentForm.TabRenderer.RendersSizingBox)
+                        if (_isOverCloseButtonForTab == -1 && _parentForm.TabRenderer.RendersEntireTitleBar)
                         {
                             if (_parentForm.TabRenderer.IsOverSizingBox(relativeCursorPosition))
                             {
@@ -767,14 +767,18 @@ namespace EasyTabs
 					? SystemInformation.VerticalResizeBorderThickness
 					: _parentForm.WindowState == FormWindowState.Maximized
 						? SystemInformation.VerticalResizeBorderThickness + borderPadding
-						: _parentForm.TabRenderer.RendersSizingBox 
-                            ? borderPadding
-                            : SystemInformation.CaptionHeight + borderPadding);
-				Left = _parentForm.Left + SystemInformation.HorizontalResizeBorderThickness - SystemInformation.BorderSize.Width + borderPadding;
-				Width = _parentForm.Width - ((SystemInformation.VerticalResizeBorderThickness + borderPadding) * 2) + (SystemInformation.BorderSize.Width * 2);
-				Height = _parentForm.TabRenderer.TabHeight + (DisplayType == DisplayType.Classic && _parentForm.WindowState != FormWindowState.Maximized && !_parentForm.TabRenderer.RendersSizingBox
+						: _parentForm.TabRenderer.RendersEntireTitleBar 
+                            ? _parentForm.TabRenderer.IsWindows10
+								? SystemInformation.BorderSize.Width
+								: 0
+							: SystemInformation.CaptionHeight + borderPadding);
+				Left = _parentForm.Left + SystemInformation.HorizontalResizeBorderThickness - (_parentForm.TabRenderer.IsWindows10 ? 0 : SystemInformation.BorderSize.Width) + borderPadding;
+				Width = _parentForm.Width - ((SystemInformation.VerticalResizeBorderThickness + borderPadding) * 2) + (_parentForm.TabRenderer.IsWindows10 ? 0 : (SystemInformation.BorderSize.Width * 2));
+				Height = _parentForm.TabRenderer.TabHeight + (DisplayType == DisplayType.Classic && _parentForm.WindowState != FormWindowState.Maximized && !_parentForm.TabRenderer.RendersEntireTitleBar
 					? SystemInformation.CaptionButtonSize.Height
-					: 0);
+					: _parentForm.TabRenderer.IsWindows10
+						? -1 * SystemInformation.BorderSize.Width
+						: 0);
 
 				Render();
 			}
@@ -810,9 +814,9 @@ namespace EasyTabs
 
 						// Since classic mode themes draw over the *entire* titlebar, not just the area immediately behind the tabs, we have to offset the tabs
 						// when rendering in the window
-						Point offset = _parentForm.WindowState != FormWindowState.Maximized && DisplayType == DisplayType.Classic && !_parentForm.TabRenderer.RendersSizingBox
+						Point offset = _parentForm.WindowState != FormWindowState.Maximized && DisplayType == DisplayType.Classic && !_parentForm.TabRenderer.RendersEntireTitleBar
 							? new Point(0, SystemInformation.CaptionButtonSize.Height)
-							: _parentForm.WindowState != FormWindowState.Maximized && !_parentForm.TabRenderer.RendersSizingBox
+							: _parentForm.WindowState != FormWindowState.Maximized && !_parentForm.TabRenderer.RendersEntireTitleBar
                                 ? new Point(0, SystemInformation.VerticalResizeBorderThickness - SystemInformation.BorderSize.Height)
 								: new Point(0, 0);
 

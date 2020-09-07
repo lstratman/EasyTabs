@@ -353,9 +353,9 @@ namespace EasyTabs
 
 			int topPadding;
 
-			if (WindowState == FormWindowState.Maximized || TabRenderer.RendersSizingBox)
+			if (WindowState == FormWindowState.Maximized || TabRenderer.RendersEntireTitleBar)
 			{
-				topPadding = TabRenderer.TabHeight - SystemInformation.CaptionHeight;
+				topPadding = TabRenderer.TabHeight - TabRenderer.TopPadding - SystemInformation.CaptionHeight;
 			}
 
 			else
@@ -379,7 +379,10 @@ namespace EasyTabs
 									  : 0
 			};
 
-			Dwmapi.DwmExtendFrameIntoClientArea(Handle, ref margins);
+			if (!TabRenderer.IsWindows10)
+			{
+				Dwmapi.DwmExtendFrameIntoClientArea(Handle, ref margins);
+			}
 
 			_nonClientAreaHeight = SystemInformation.CaptionHeight + (topPadding > 0
 				? topPadding

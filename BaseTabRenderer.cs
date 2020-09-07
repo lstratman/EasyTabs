@@ -1,3 +1,4 @@
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -13,6 +14,8 @@ namespace EasyTabs
 	/// </summary>
 	public abstract class BaseTabRenderer
 	{
+		bool? _isWindows10 = null;
+
 		/// <summary>
 		/// Background of the content area for the tab when the tab is active; its width also determines how wide the default content area for the tab
 		/// is.
@@ -101,6 +104,22 @@ namespace EasyTabs
 			}
 		}
 
+		public bool IsWindows10
+		{
+			get
+			{
+				if (_isWindows10 == null)
+				{
+					RegistryKey reg = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion");
+					string productName = (string)reg.GetValue("ProductName");
+
+					_isWindows10 = productName.StartsWith("Windows 10");
+				}
+
+				return _isWindows10.Value;
+			}
+		}
+
 		/// <summary>Height of the tab content area; derived from the height of <see cref="_activeCenterImage" />.</summary>
 		public virtual int TabHeight
 		{
@@ -110,92 +129,100 @@ namespace EasyTabs
 			}
 		}
 
+		public virtual int TopPadding
+        {
+			get
+            {
+				return 0;
+            }
+        }
+
 		/// <summary>Flag indicating whether or not we should display the add button.</summary>
-		public bool ShowAddButton
+		public virtual bool ShowAddButton
 		{
 			get;
 			set;
 		}
 
 		/// <summary>Amount of space we should put to the left of the caption when rendering the content area of the tab.</summary>
-		public int CaptionMarginLeft
+		public virtual int CaptionMarginLeft
 		{
 			get;
 			set;
 		}
 
 		/// <summary>Amount of space that we should leave to the right of the caption when rendering the content area of the tab.</summary>
-		public int CaptionMarginRight
+		public virtual int CaptionMarginRight
 		{
 			get;
 			set;
 		}
 
 		/// <summary>Amount of space that we should leave between the top of the content area and the top of the caption text.</summary>
-		public int CaptionMarginTop
+		public virtual int CaptionMarginTop
 		{
 			get;
 			set;
 		}
 
 		/// <summary>Amount of space we should put to the left of the tab icon when rendering the content area of the tab.</summary>
-		public int IconMarginLeft
+		public virtual int IconMarginLeft
 		{
 			get;
 			set;
 		}
 
 		/// <summary>Amount of space that we should leave to the right of the icon when rendering the content area of the tab.</summary>
-		public int IconMarginRight
+		public virtual int IconMarginRight
 		{
 			get;
 			set;
 		}
 
 		/// <summary>Amount of space that we should leave between the top of the content area and the top of the icon.</summary>
-		public int IconMarginTop
+		public virtual int IconMarginTop
 		{
 			get;
 			set;
 		}
 
 		/// <summary>Amount of space that we should put to the left of the close button when rendering the content area of the tab.</summary>
-		public int CloseButtonMarginLeft
+		public virtual int CloseButtonMarginLeft
 		{
 			get;
 			set;
 		}
 
 		/// <summary>Amount of space that we should leave to the right of the close button when rendering the content area of the tab.</summary>
-		public int CloseButtonMarginRight
+		public virtual int CloseButtonMarginRight
 		{
 			get;
 			set;
 		}
 
 		/// <summary>Amount of space that we should leave between the top of the content area and the top of the close button.</summary>
-		public int CloseButtonMarginTop
+		public virtual int CloseButtonMarginTop
 		{
 			get;
 			set;
 		}
 
 		/// <summary>Amount of space that we should put to the left of the add tab button when rendering the content area of the tab.</summary>
-		public int AddButtonMarginLeft
+		public virtual int AddButtonMarginLeft
 		{
 			get;
 			set;
 		}
 
 		/// <summary>Amount of space that we should leave to the right of the add tab button when rendering the content area of the tab.</summary>
-		public int AddButtonMarginRight
+		public virtual int AddButtonMarginRight
 		{
 			get;
 			set;
 		}
 
 		/// <summary>Amount of space that we should leave between the top of the content area and the top of the add tab button.</summary>
-		public int AddButtonMarginTop
+		public virtual int AddButtonMarginTop
 		{
 			get;
 			set;
@@ -214,14 +241,14 @@ namespace EasyTabs
 		}
 
 		/// <summary>Horizontal distance that a tab must be dragged before it starts to be repositioned.</summary>
-		public int TabRepositionDragDistance
+		public virtual int TabRepositionDragDistance
 		{
 			get;
 			set;
 		}
 
 		/// <summary>Distance that a user must drag a tab outside of the tab area before it shows up as "torn" from its parent window.</summary>
-		public int TabTearDragDistance
+		public virtual int TabTearDragDistance
 		{
 			get;
 			set;
@@ -264,7 +291,7 @@ namespace EasyTabs
 			}
 		}
 
-        public virtual bool RendersSizingBox
+        public virtual bool RendersEntireTitleBar
         {
             get
             {
