@@ -9,6 +9,7 @@ namespace EasyTabs
     public class ChromeTabRenderer : BaseTabRenderer
 	{
         WindowsSizingBoxes _windowsSizingBoxes = null;
+        Font _captionFont = null;
 
 		/// <summary>Constructor that initializes the various resources that we use in rendering.</summary>
 		/// <param name="parentWindow">Parent window that this renderer belongs to.</param>
@@ -41,6 +42,20 @@ namespace EasyTabs
 			AddButtonMarginRight = 45;
 
             _windowsSizingBoxes = new WindowsSizingBoxes(parentWindow);
+            _captionFont = new Font("Segoe UI", 9);
+
+            if (_captionFont.Name != "Segoe UI")
+            {
+                _captionFont = new Font(SystemFonts.CaptionFont.Name, 9);
+            }
+        }
+
+        public override Font CaptionFont
+        {
+            get
+            {
+                return _captionFont;
+            }
         }
 
         public override int TabHeight

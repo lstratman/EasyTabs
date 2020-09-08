@@ -120,6 +120,14 @@ namespace EasyTabs
 			}
 		}
 
+		public virtual Font CaptionFont
+        {
+			get
+            {
+				return SystemFonts.CaptionFont;
+            }
+        }
+
 		/// <summary>Height of the tab content area; derived from the height of <see cref="_activeCenterImage" />.</summary>
 		public virtual int TabHeight
 		{
@@ -771,7 +779,7 @@ namespace EasyTabs
 					: 0))
 			{
 				graphicsContext.DrawString(
-					tab.Caption, SystemFonts.CaptionFont, Brushes.Black,
+					tab.Caption, CaptionFont, Brushes.Black,
 					new Rectangle(
 						area.X + OverlapWidth + CaptionMarginLeft + (tab.Content.ShowIcon
 							? IconMarginLeft +
