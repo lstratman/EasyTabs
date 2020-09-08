@@ -14,6 +14,7 @@ namespace TestApp
     public partial class TabWindow : Form
     {
         private readonly ChromiumWebBrowser webBrowser;
+        private bool faviconLoaded = false;
 
 	    protected TitleBarTabs ParentTabs
 	    {
@@ -27,13 +28,15 @@ namespace TestApp
         {
             InitializeComponent();
 
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
             webBrowser = new ChromiumWebBrowser("about:blank")
             {
                 Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right,
-                Location = new Point(0, 36),
+                Location = new Point(0, 38),
                 MinimumSize = new Size(20, 20),
                 Name = "webBrowser",
-                Size = new Size(326, 253),
+                Size = new Size(326, 251),
                 TabIndex = 6
             };
 
@@ -47,24 +50,20 @@ namespace TestApp
         private void WebBrowser_AddressChanged(object sender, AddressChangedEventArgs e)
         {
             Invoke(new Action(() => urlTextBox.Text = e.Address));
-        }
 
-        private void WebBrowser_TitleChanged(object sender, TitleChangedEventArgs e)
-        {
-            Invoke(new Action(() => Text = e.Title));
-        }
-
-        void webBrowser_DocumentCompleted(object sender, LoadingStateChangedEventArgs e)
-        {
-            if (urlTextBox.Text != "about:blank" && !e.IsLoading)
+            if (e.Address != "about.blank" && !faviconLoaded)
             {
-                Uri uri = new Uri(e.Browser.MainFrame.Url);
+                Uri uri = new Uri(e.Address);
 
                 if (uri.Scheme == "http" || uri.Scheme == "https")
                 {
                     try
                     {
-                        WebRequest webRequest = WebRequest.Create(uri.Scheme + "://" + uri.Host + "/favicon.ico");
+                        HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(uri.Scheme + "://" + uri.Host + "/favicon.ico");
+                        webRequest.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.83 Safari/537.36";
+                        webRequest.KeepAlive = false;
+                        webRequest.AllowAutoRedirect = true;
+
                         WebResponse response = webRequest.GetResponse();
                         Stream stream = response.GetResponseStream();
 
@@ -99,10 +98,21 @@ namespace TestApp
                 }
 
                 Invoke(new Action(() => Parent.Refresh()));
+                faviconLoaded = true;
             }
+        }
 
-            else
+        private void WebBrowser_TitleChanged(object sender, TitleChangedEventArgs e)
+        {
+            Invoke(new Action(() => Text = e.Title));
+        }
+
+        void webBrowser_DocumentCompleted(object sender, LoadingStateChangedEventArgs e)
+        {
+            if (urlTextBox.Text == "about:blank")
+            {
                 Invoke(new Action(() => Icon = Resources.DefaultIcon));
+            }
         }
 
         private void backButton_MouseEnter(object sender, EventArgs e)
@@ -124,6 +134,7 @@ namespace TestApp
                 if (!Regex.IsMatch(fullUrl, "^[a-zA-Z0-9]+\\://"))
                     fullUrl = "http://" + fullUrl;
 
+                faviconLoaded = false;
                 webBrowser.Load(fullUrl);
             }
         }

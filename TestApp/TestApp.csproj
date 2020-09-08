@@ -136,6 +136,10 @@
   <ItemGroup>
     <None Include="Resources\ForwardActive.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\UrlBoxLeft.png" />
+    <None Include="Resources\UrlBoxRight.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

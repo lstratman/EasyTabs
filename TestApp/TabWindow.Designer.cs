@@ -32,13 +32,16 @@
             this.toolbarBackground = new System.Windows.Forms.Panel();
             this.forwardButton = new System.Windows.Forms.PictureBox();
             this.backButton = new System.Windows.Forms.PictureBox();
+            this.urlBoxBackground = new System.Windows.Forms.Panel();
+            this.urlBoxRight = new System.Windows.Forms.PictureBox();
+            this.urlBoxLeft = new System.Windows.Forms.PictureBox();
             this.urlTextBox = new System.Windows.Forms.TextBox();
-            this.urlBorder = new System.Windows.Forms.Panel();
-            this.urlBackground = new System.Windows.Forms.Panel();
             this.toolbarBackground.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.forwardButton)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.backButton)).BeginInit();
-            this.urlBorder.SuspendLayout();
+            this.urlBoxBackground.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.urlBoxRight)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.urlBoxLeft)).BeginInit();
             this.SuspendLayout();
             // 
             // toolbarBackground
@@ -46,22 +49,20 @@
             this.toolbarBackground.BackgroundImage = global::TestApp.Resources.ToolbarBackground;
             this.toolbarBackground.Controls.Add(this.forwardButton);
             this.toolbarBackground.Controls.Add(this.backButton);
-            this.toolbarBackground.Controls.Add(this.urlTextBox);
-            this.toolbarBackground.Controls.Add(this.urlBorder);
             this.toolbarBackground.Dock = System.Windows.Forms.DockStyle.Top;
             this.toolbarBackground.Location = new System.Drawing.Point(0, 0);
             this.toolbarBackground.Name = "toolbarBackground";
-            this.toolbarBackground.Size = new System.Drawing.Size(326, 36);
+            this.toolbarBackground.Size = new System.Drawing.Size(326, 38);
             this.toolbarBackground.TabIndex = 2;
             // 
             // forwardButton
             // 
             this.forwardButton.BackColor = System.Drawing.Color.Transparent;
             this.forwardButton.Image = global::TestApp.Resources.ForwardActive;
-            this.forwardButton.Location = new System.Drawing.Point(37, 5);
+            this.forwardButton.Location = new System.Drawing.Point(38, 5);
             this.forwardButton.Margin = new System.Windows.Forms.Padding(4, 4, 3, 3);
             this.forwardButton.Name = "forwardButton";
-            this.forwardButton.Size = new System.Drawing.Size(27, 27);
+            this.forwardButton.Size = new System.Drawing.Size(28, 28);
             this.forwardButton.TabIndex = 3;
             this.forwardButton.TabStop = false;
             this.forwardButton.Click += new System.EventHandler(this.forwardButton_Click);
@@ -75,50 +76,61 @@
             this.backButton.Location = new System.Drawing.Point(6, 5);
             this.backButton.Margin = new System.Windows.Forms.Padding(4, 4, 3, 3);
             this.backButton.Name = "backButton";
-            this.backButton.Size = new System.Drawing.Size(27, 27);
+            this.backButton.Size = new System.Drawing.Size(28, 28);
             this.backButton.TabIndex = 2;
             this.backButton.TabStop = false;
             this.backButton.Click += new System.EventHandler(this.backButton_Click);
             this.backButton.MouseEnter += new System.EventHandler(this.backButton_MouseEnter);
             this.backButton.MouseLeave += new System.EventHandler(this.backButton_MouseLeave);
             // 
+            // urlBoxBackground
+            // 
+            this.urlBoxBackground.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.urlBoxBackground.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(243)))), ((int)(((byte)(244)))));
+            this.urlBoxBackground.Controls.Add(this.urlBoxRight);
+            this.urlBoxBackground.Controls.Add(this.urlBoxLeft);
+            this.urlBoxBackground.Controls.Add(this.urlTextBox);
+            this.urlBoxBackground.ForeColor = System.Drawing.Color.Silver;
+            this.urlBoxBackground.Location = new System.Drawing.Point(71, 5);
+            this.urlBoxBackground.Name = "urlBoxBackground";
+            this.urlBoxBackground.Size = new System.Drawing.Size(249, 28);
+            this.urlBoxBackground.TabIndex = 2;
+            // 
+            // urlBoxRight
+            // 
+            this.urlBoxRight.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.urlBoxRight.Image = global::TestApp.Resources.UrlBoxRight;
+            this.urlBoxRight.Location = new System.Drawing.Point(237, 0);
+            this.urlBoxRight.Name = "urlBoxRight";
+            this.urlBoxRight.Size = new System.Drawing.Size(12, 28);
+            this.urlBoxRight.TabIndex = 4;
+            this.urlBoxRight.TabStop = false;
+            // 
+            // urlBoxLeft
+            // 
+            this.urlBoxLeft.Image = global::TestApp.Resources.UrlBoxLeft;
+            this.urlBoxLeft.Location = new System.Drawing.Point(0, 0);
+            this.urlBoxLeft.Name = "urlBoxLeft";
+            this.urlBoxLeft.Size = new System.Drawing.Size(12, 28);
+            this.urlBoxLeft.TabIndex = 3;
+            this.urlBoxLeft.TabStop = false;
+            // 
             // urlTextBox
             // 
             this.urlTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.urlTextBox.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(243)))), ((int)(((byte)(244)))));
             this.urlTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.urlTextBox.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.urlTextBox.Location = new System.Drawing.Point(79, 8);
+            this.urlTextBox.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.urlTextBox.Location = new System.Drawing.Point(19, 5);
             this.urlTextBox.Margin = new System.Windows.Forms.Padding(9);
             this.urlTextBox.Name = "urlTextBox";
-            this.urlTextBox.Size = new System.Drawing.Size(231, 19);
-            this.urlTextBox.TabIndex = 0;
+            this.urlTextBox.Size = new System.Drawing.Size(213, 18);
+            this.urlTextBox.TabIndex = 1;
             this.urlTextBox.Text = "about:blank";
             this.urlTextBox.WordWrap = false;
             this.urlTextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.urlTextBox_KeyDown);
-            // 
-            // urlBorder
-            // 
-            this.urlBorder.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.urlBorder.BackColor = System.Drawing.Color.Silver;
-            this.urlBorder.Controls.Add(this.urlBackground);
-            this.urlBorder.ForeColor = System.Drawing.Color.Silver;
-            this.urlBorder.Location = new System.Drawing.Point(69, 5);
-            this.urlBorder.Name = "urlBorder";
-            this.urlBorder.Size = new System.Drawing.Size(253, 26);
-            this.urlBorder.TabIndex = 1;
-            // 
-            // urlBackground
-            // 
-            this.urlBackground.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.urlBackground.BackColor = System.Drawing.Color.White;
-            this.urlBackground.ForeColor = System.Drawing.Color.Silver;
-            this.urlBackground.Location = new System.Drawing.Point(1, 1);
-            this.urlBackground.Name = "urlBackground";
-            this.urlBackground.Size = new System.Drawing.Size(251, 24);
-            this.urlBackground.TabIndex = 2;
             // 
             // TabWindow
             // 
@@ -126,15 +138,18 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(326, 289);
+            this.Controls.Add(this.urlBoxBackground);
             this.Controls.Add(this.toolbarBackground);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "TabWindow";
             this.Text = "TabWindow";
             this.toolbarBackground.ResumeLayout(false);
-            this.toolbarBackground.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.forwardButton)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.backButton)).EndInit();
-            this.urlBorder.ResumeLayout(false);
+            this.urlBoxBackground.ResumeLayout(false);
+            this.urlBoxBackground.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.urlBoxRight)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.urlBoxLeft)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -142,10 +157,11 @@
         #endregion
 
         private System.Windows.Forms.Panel toolbarBackground;
-        private System.Windows.Forms.TextBox urlTextBox;
-        private System.Windows.Forms.Panel urlBorder;
-        private System.Windows.Forms.Panel urlBackground;
         private System.Windows.Forms.PictureBox backButton;
         private System.Windows.Forms.PictureBox forwardButton;
+        private System.Windows.Forms.Panel urlBoxBackground;
+        private System.Windows.Forms.TextBox urlTextBox;
+        private System.Windows.Forms.PictureBox urlBoxLeft;
+        private System.Windows.Forms.PictureBox urlBoxRight;
     }
 }
