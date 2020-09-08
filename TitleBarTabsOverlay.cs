@@ -771,14 +771,16 @@ namespace EasyTabs
                             ? _parentForm.TabRenderer.IsWindows10
 								? SystemInformation.BorderSize.Width
 								: 0
-							: SystemInformation.CaptionHeight + borderPadding);
+							: borderPadding);
 				Left = _parentForm.Left + SystemInformation.HorizontalResizeBorderThickness - (_parentForm.TabRenderer.IsWindows10 ? 0 : SystemInformation.BorderSize.Width) + borderPadding;
 				Width = _parentForm.Width - ((SystemInformation.VerticalResizeBorderThickness + borderPadding) * 2) + (_parentForm.TabRenderer.IsWindows10 ? 0 : (SystemInformation.BorderSize.Width * 2));
 				Height = _parentForm.TabRenderer.TabHeight + (DisplayType == DisplayType.Classic && _parentForm.WindowState != FormWindowState.Maximized && !_parentForm.TabRenderer.RendersEntireTitleBar
 					? SystemInformation.CaptionButtonSize.Height
 					: _parentForm.TabRenderer.IsWindows10
 						? -1 * SystemInformation.BorderSize.Width
-						: 0);
+						: _parentForm.WindowState != FormWindowState.Maximized
+							? borderPadding
+							: 0);
 
 				Render();
 			}

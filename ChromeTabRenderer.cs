@@ -25,7 +25,7 @@ namespace EasyTabs
 			_inactiveCenterImage = Resources.ChromeInactiveCenter;
 			_closeButtonImage = Resources.ChromeClose;
 			_closeButtonHoverImage = Resources.ChromeCloseHover;
-			_background = Resources.ChromeBackground;
+			_background = IsWindows10 ? Resources.ChromeBackground : null;
 			_addButtonImage = new Bitmap(Resources.ChromeAdd);
 			_addButtonHoverImage = new Bitmap(Resources.ChromeAddHover);
 
@@ -34,7 +34,7 @@ namespace EasyTabs
 			CloseButtonMarginLeft = 2;
             CloseButtonMarginRight = 4;
 			AddButtonMarginTop = 3;
-			AddButtonMarginLeft = -1;
+			AddButtonMarginLeft = 2;
 			CaptionMarginTop = 9;
             IconMarginLeft = 9;
 			IconMarginTop = 9;

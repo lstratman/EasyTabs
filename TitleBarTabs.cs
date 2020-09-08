@@ -360,7 +360,7 @@ namespace EasyTabs
 
 			else
 			{
-				topPadding = (TabRenderer.TabHeight + SystemInformation.CaptionButtonSize.Height) - SystemInformation.CaptionHeight;
+				topPadding = TabRenderer.TabHeight - SystemInformation.CaptionHeight;
 			}
 
 			Padding = new Padding(
@@ -368,19 +368,19 @@ namespace EasyTabs
 					? topPadding
 					: 0, Padding.Right, Padding.Bottom);
 
-			// Set the margins and extend the frame into the client area
-			MARGINS margins = new MARGINS
-			{
-				cxLeftWidth = 0,
-				cxRightWidth = 0,
-				cyBottomHeight = 0,
-				cyTopHeight = topPadding > 0
-									  ? topPadding
-									  : 0
-			};
-
 			if (!TabRenderer.IsWindows10)
 			{
+				// Set the margins and extend the frame into the client area
+				MARGINS margins = new MARGINS
+				{
+					cxLeftWidth = 1,
+					cxRightWidth = 1,
+					cyBottomHeight = 1,
+					cyTopHeight = topPadding > 0
+										  ? topPadding
+										  : 0
+				};
+
 				Dwmapi.DwmExtendFrameIntoClientArea(Handle, ref margins);
 			}
 
