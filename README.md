@@ -8,7 +8,7 @@ using EasyTabs;
 
 namespace YourNamespace
 {
-	public partial class YourApp : TitleBarTabs
+    public partial class YourApp : TitleBarTabs
     {
         public TestApp()
         {
