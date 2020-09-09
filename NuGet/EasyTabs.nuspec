@@ -5,21 +5,24 @@
         <version>2.0.0-beta1</version>
         <title>EasyTabs</title>
         <authors>Luke Stratman</authors>
-        <licenseUrl>https://github.com/lstratman/EasyTabs/blob/master/BSD.txt</licenseUrl>
-        <projectUrl>https://github.com/lstratman/EasyTabs</projectUrl>
+        <license type="expression">BSD-3-Clause</license>
+        <projectUrl>https://lstratman.github.io/EasyTabs</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Library to enable .NET WinForms apps to easily render a set of tabs in their titlebar space, similar to Chrome, Firefox, Edge, etc.</description>
         <summary />
+        <repository type="git" url="https://github.com/lstratman/EasyTabs.git"/>
         <tags>TitleBarTabs</tags>
         <releaseNotes>- Updated Chrome tab renderer to match the style and behavior of Chrome v85
 - Tooltips are displayed when hovering over tabs</releaseNotes>
         <copyright>(c) 2013-2020, Luke Stratman</copyright>
         <dependencies>
-            <dependency id="Win32Interop.Dwmapi" version="1.0.1" />
-            <dependency id="Win32Interop.Gdi32" version="1.0.1" />
-            <dependency id="Win32Interop.Kernel32" version="1.0.1" />
-            <dependency id="Win32Interop.User32" version="1.0.1" />
-            <dependency id="Win32Interop.Uxtheme" version="1.0.1" />
+            <group targetFramework=".NETFramework4.0">
+                <dependency id="Win32Interop.Dwmapi" version="1.0.1" />
+                <dependency id="Win32Interop.Gdi32" version="1.0.1" />
+                <dependency id="Win32Interop.Kernel32" version="1.0.1" />
+                <dependency id="Win32Interop.User32" version="1.0.1" />
+                <dependency id="Win32Interop.Uxtheme" version="1.0.1" />
+            </group>
         </dependencies>
     </metadata>
     <files>
