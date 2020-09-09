@@ -84,6 +84,9 @@ namespace EasyTabs
 
         protected long _lastLeftButtonClickTicks = 0;
 
+		protected bool _firstClick = true;
+		protected Point[] _lastTwoClickCoordinates = new Point[2];
+
 		/// <summary>Blank default constructor to ensure that the overlays are only initialized through <see cref="GetInstance" />.</summary>
 		protected TitleBarTabsOverlay()
 		{
@@ -533,16 +536,27 @@ namespace EasyTabs
 
                 else if (nCode >= 0 && (int) WM.WM_LBUTTONDBLCLK == (int) wParam)
                 {
-                    Invoke(new Action(() =>
-                    {
-                        _parentForm.WindowState = _parentForm.WindowState == FormWindowState.Maximized
-                            ? FormWindowState.Normal
-                            : FormWindowState.Maximized;
-                    }));
+					if (DesktopBounds.Contains(_lastTwoClickCoordinates[0]) && DesktopBounds.Contains(_lastTwoClickCoordinates[1]))
+					{
+						Invoke(new Action(() =>
+						{
+							_parentForm.WindowState = _parentForm.WindowState == FormWindowState.Maximized
+							? FormWindowState.Normal
+							: FormWindowState.Maximized;
+						}));
+					}
                 }
 
 				else if (nCode >= 0 && (int) WM.WM_LBUTTONDOWN == (int) wParam)
 				{
+					if (!_firstClick)
+                    {
+						_lastTwoClickCoordinates[1] = _lastTwoClickCoordinates[0];
+                    }
+
+					_lastTwoClickCoordinates[0] = Cursor.Position;
+
+					_firstClick = false;
 					_wasDragging = false;
 				}
 
