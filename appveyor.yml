@@ -1,0 +1,15 @@
+version: 2.0.0.{build}
+configuration: Release
+before_build:
+- ps: .\SetAssemblyVersion.ps1 ${env:APPVEYOR_BUILD_VERSION}
+build:
+  project: EasyTabs.sln
+  verbosity: minimal
+environment:
+  NUGET_PACKAGE_VERSION: 2.0.0-beta2
+after_build:
+- cmd: %APPVEYOR_BUILD_FOLDER%\.nuget\NuGet.exe pack %APPVEYOR_BUILD_FOLDER%\NuGet\EasyTabs.nuspec -Version %NUGET_PACKAGE_VERSION% -OutputDirectory %APPVEYOR_BUILD_FOLDER%
+- cmd: 7z a TestApp.zip %APPVEYOR_BUILD_FOLDER%\TestApp\bin\%CONFIGURATION%\*.*
+artifacts:
+- path: *.nupkg
+- path: TestApp.zip
