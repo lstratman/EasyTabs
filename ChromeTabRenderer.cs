@@ -28,6 +28,9 @@ namespace EasyTabs
 			_background = IsWindows10 ? Resources.ChromeBackground : null;
 			_addButtonImage = new Bitmap(Resources.ChromeAdd);
 			_addButtonHoverImage = new Bitmap(Resources.ChromeAddHover);
+			
+			//To change the text color, use this:
+			_ForeColor = Color.Black;
 
 			// Set the various positioning properties
 			CloseButtonMarginTop = 9;
@@ -76,12 +79,12 @@ namespace EasyTabs
 
         /// <summary>Since Chrome tabs overlap, we set this property to the amount that they overlap by.</summary>
         public override int OverlapWidth
-		{
-			get
-			{
-				return 14;
-			}
-		}
+		    {
+			      get
+			      {
+				        return 14;
+			      }
+		    }
 
         public override bool RendersEntireTitleBar
         {
