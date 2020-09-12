@@ -158,5 +158,10 @@ namespace TestApp
         {
             webBrowser.Forward();
         }
+
+        private void TabWindow_FormClosing(object sender, FormClosingEventArgs e)
+        {
+
+        }
     }
 }

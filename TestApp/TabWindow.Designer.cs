@@ -143,6 +143,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "TabWindow";
             this.Text = "TabWindow";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.TabWindow_FormClosing);
             this.toolbarBackground.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.forwardButton)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.backButton)).EndInit();

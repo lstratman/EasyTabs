@@ -216,7 +216,7 @@ namespace EasyTabs
 		/// </summary>
 		protected void AttachHandlers()
 		{
-			_parentForm.Closing += _parentForm_Closing;
+			_parentForm.FormClosing += _parentForm_FormClosing;
 			_parentForm.Disposed += _parentForm_Disposed;
 			_parentForm.Deactivate += _parentForm_Deactivate;
 			_parentForm.Activated += _parentForm_Activated;
@@ -254,9 +254,12 @@ namespace EasyTabs
 		/// </summary>
 		/// <param name="sender">Object from which this event originated, <see cref="_parentForm" /> in this case.</param>
 		/// <param name="e">Arguments associated with this event.</param>
-		private void _parentForm_Closing(object sender, CancelEventArgs e)
+		private void _parentForm_FormClosing(object sender, CancelEventArgs e)
 		{
-            if (e.Cancel) return;
+			if (e.Cancel)
+			{
+				return;
+			}
 
             TitleBarTabs form = (TitleBarTabs) sender;
 

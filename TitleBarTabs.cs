@@ -65,6 +65,8 @@ namespace EasyTabs
 		/// <summary>Default constructor.</summary>
 		protected TitleBarTabs()
 		{
+			FormClosing += new FormClosingEventHandler(TitleBarTabs_FormClosing);
+
 			_previousWindowState = null;
 			ExitOnLastTabClose = true;
 			InitializeComponent();
@@ -961,5 +963,29 @@ namespace EasyTabs
 
 			return hitTests[row, column];
 		}
-	}
+
+        private void TitleBarTabs_FormClosing(object sender, FormClosingEventArgs e)
+        {
+			foreach (TitleBarTab tab in Tabs.ToArray())
+            {
+				if (tab.Content != null)
+                {
+					bool formClosed = false;
+
+                    tab.Content.FormClosed += (_, __) =>
+					{
+						formClosed = true;
+					};
+
+					tab.Content.Close();
+
+					if (!formClosed)
+                    {
+						e.Cancel = true;
+						break;
+                    }
+                }
+            }
+        }
+    }
 }
