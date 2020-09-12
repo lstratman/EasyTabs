@@ -46,8 +46,10 @@ namespace EasyTabs
 		/// <summary>Semaphore to control access to <see cref="_tornTab" />.</summary>
 		protected static object _tornTabLock = new object();
 
-		/// <summary>Flag indicating whether or not the underlying window is active.</summary>
-		protected bool _active = false;
+        protected static uint _doubleClickInterval = User32.GetDoubleClickTime();
+
+        /// <summary>Flag indicating whether or not the underlying window is active.</summary>
+        protected bool _active = false;
 
 		/// <summary>Flag indicating whether we should draw the titlebar background (i.e. we are in a non-Aero environment).</summary>
 		protected bool _aeroEnabled = false;
@@ -67,6 +69,10 @@ namespace EasyTabs
 		/// <summary>Index of the tab, if any, whose close button is being hovered over.</summary>
 		protected int _isOverCloseButtonForTab = -1;
 
+        protected bool _isOverSizingBox = false;
+
+        protected bool _isOverAddButton = true;
+
 		/// <summary>Queue of mouse events reported by <see cref="_hookproc" /> that need to be processed.</summary>
 		protected BlockingCollection<MouseEvent> _mouseEvents = new BlockingCollection<MouseEvent>();
 
@@ -75,6 +81,11 @@ namespace EasyTabs
 
 		/// <summary>Parent form for the overlay.</summary>
 		protected TitleBarTabs _parentForm;
+
+        protected long _lastLeftButtonClickTicks = 0;
+
+		protected bool _firstClick = true;
+		protected Point[] _lastTwoClickCoordinates = new Point[2];
 
 		/// <summary>Blank default constructor to ensure that the overlays are only initialized through <see cref="GetInstance" />.</summary>
 		protected TitleBarTabsOverlay()
@@ -89,7 +100,7 @@ namespace EasyTabs
 
 			// We don't want this window visible in the taskbar
 			ShowInTaskbar = false;
-			FormBorderStyle = FormBorderStyle.Sizable;
+			FormBorderStyle = FormBorderStyle.SizableToolWindow;
 			MinimizeBox = false;
 			MaximizeBox = false;
 			_aeroEnabled = _parentForm.IsCompositionEnabled;
@@ -403,11 +414,13 @@ namespace EasyTabs
 					{
 						StartTooltipTimer();
 
-						// If we were over a close button previously, check to see if the cursor is still over that tab's
-						// close button; if not, re-render
-						if (_isOverCloseButtonForTab != -1 &&
+                        Point relativeCursorPosition = GetRelativeCursorPosition(cursorPosition);
+
+                        // If we were over a close button previously, check to see if the cursor is still over that tab's
+                        // close button; if not, re-render
+                        if (_isOverCloseButtonForTab != -1 &&
 							(_isOverCloseButtonForTab >= _parentForm.Tabs.Count ||
-							!_parentForm.TabRenderer.IsOverCloseButton(_parentForm.Tabs[_isOverCloseButtonForTab], GetRelativeCursorPosition(cursorPosition))))
+							!_parentForm.TabRenderer.IsOverCloseButton(_parentForm.Tabs[_isOverCloseButtonForTab], relativeCursorPosition)))
 						{
 							reRender = true;
 							_isOverCloseButtonForTab = -1;
@@ -416,11 +429,11 @@ namespace EasyTabs
 						// Otherwise, see if any tabs' close button is being hovered over
 						else
 						{
-							// ReSharper disable ForCanBeConvertedToForeach
-							for (int i = 0; i < _parentForm.Tabs.Count; i++)
+                            // ReSharper disable ForCanBeConvertedToForeach
+                            for (int i = 0; i < _parentForm.Tabs.Count; i++)
 							// ReSharper restore ForCanBeConvertedToForeach
 							{
-								if (_parentForm.TabRenderer.IsOverCloseButton(_parentForm.Tabs[i], GetRelativeCursorPosition(cursorPosition)))
+								if (_parentForm.TabRenderer.IsOverCloseButton(_parentForm.Tabs[i], relativeCursorPosition))
 								{
 									_isOverCloseButtonForTab = i;
 									reRender = true;
@@ -429,7 +442,34 @@ namespace EasyTabs
 								}
 							}
 						}
-					}
+
+                        if (_isOverCloseButtonForTab == -1 && _parentForm.TabRenderer.RendersEntireTitleBar)
+                        {
+                            if (_parentForm.TabRenderer.IsOverSizingBox(relativeCursorPosition))
+                            {
+                                _isOverSizingBox = true;
+                                reRender = true;
+                            }
+
+                            else if (_isOverSizingBox)
+                            {
+                                _isOverSizingBox = false;
+                                reRender = true;
+                            }
+                        }
+
+                        if (_parentForm.TabRenderer.IsOverAddButton(relativeCursorPosition))
+                        {
+                            _isOverAddButton = true;
+                            reRender = true;
+                        }
+
+                        else if (_isOverAddButton)
+                        {
+                            _isOverAddButton = false;
+                            reRender = true;
+                        }
+                    }
 
 					else
 					{
@@ -494,8 +534,29 @@ namespace EasyTabs
 					}
 				}
 
+                else if (nCode >= 0 && (int) WM.WM_LBUTTONDBLCLK == (int) wParam)
+                {
+					if (DesktopBounds.Contains(_lastTwoClickCoordinates[0]) && DesktopBounds.Contains(_lastTwoClickCoordinates[1]))
+					{
+						Invoke(new Action(() =>
+						{
+							_parentForm.WindowState = _parentForm.WindowState == FormWindowState.Maximized
+							? FormWindowState.Normal
+							: FormWindowState.Maximized;
+						}));
+					}
+                }
+
 				else if (nCode >= 0 && (int) WM.WM_LBUTTONDOWN == (int) wParam)
 				{
+					if (!_firstClick)
+                    {
+						_lastTwoClickCoordinates[1] = _lastTwoClickCoordinates[0];
+                    }
+
+					_lastTwoClickCoordinates[0] = Cursor.Position;
+
+					_firstClick = false;
 					_wasDragging = false;
 				}
 
@@ -586,6 +647,23 @@ namespace EasyTabs
 			}
 
 			_mouseEvents.Add(mouseEvent);
+
+            if (nCode >= 0 && (int) WM.WM_LBUTTONDOWN == (int) wParam)
+            {
+                long currentTicks = DateTime.Now.Ticks;
+
+                if (_lastLeftButtonClickTicks > 0 && currentTicks - _lastLeftButtonClickTicks < _doubleClickInterval * 10000)
+                {
+                    _mouseEvents.Add(new MouseEvent
+                    {
+                        nCode = nCode,
+                        wParam = new IntPtr((int) WM.WM_LBUTTONDBLCLK),
+                        lParam = lParam
+                    });
+                }
+
+                _lastLeftButtonClickTicks = currentTicks;
+            }
 
 			return User32.CallNextHookEx(_hookId, nCode, wParam, lParam);
 		}
@@ -703,12 +781,20 @@ namespace EasyTabs
 					? SystemInformation.VerticalResizeBorderThickness
 					: _parentForm.WindowState == FormWindowState.Maximized
 						? SystemInformation.VerticalResizeBorderThickness + borderPadding
-						: SystemInformation.CaptionHeight + borderPadding);
-				Left = _parentForm.Left + SystemInformation.HorizontalResizeBorderThickness - SystemInformation.BorderSize.Width + borderPadding;
-				Width = _parentForm.Width - ((SystemInformation.VerticalResizeBorderThickness + borderPadding) * 2) + (SystemInformation.BorderSize.Width * 2);
-				Height = _parentForm.TabRenderer.TabHeight + (DisplayType == DisplayType.Classic && _parentForm.WindowState != FormWindowState.Maximized
+						: _parentForm.TabRenderer.RendersEntireTitleBar 
+                            ? _parentForm.TabRenderer.IsWindows10
+								? SystemInformation.BorderSize.Width
+								: 0
+							: borderPadding);
+				Left = _parentForm.Left + SystemInformation.HorizontalResizeBorderThickness - (_parentForm.TabRenderer.IsWindows10 ? 0 : SystemInformation.BorderSize.Width) + borderPadding;
+				Width = _parentForm.Width - ((SystemInformation.VerticalResizeBorderThickness + borderPadding) * 2) + (_parentForm.TabRenderer.IsWindows10 ? 0 : (SystemInformation.BorderSize.Width * 2));
+				Height = _parentForm.TabRenderer.TabHeight + (DisplayType == DisplayType.Classic && _parentForm.WindowState != FormWindowState.Maximized && !_parentForm.TabRenderer.RendersEntireTitleBar
 					? SystemInformation.CaptionButtonSize.Height
-					: 0);
+					: _parentForm.TabRenderer.IsWindows10
+						? -1 * SystemInformation.BorderSize.Width
+						: _parentForm.WindowState != FormWindowState.Maximized
+							? borderPadding
+							: 0);
 
 				Render();
 			}
@@ -744,10 +830,10 @@ namespace EasyTabs
 
 						// Since classic mode themes draw over the *entire* titlebar, not just the area immediately behind the tabs, we have to offset the tabs
 						// when rendering in the window
-						Point offset = _parentForm.WindowState != FormWindowState.Maximized && DisplayType == DisplayType.Classic
+						Point offset = _parentForm.WindowState != FormWindowState.Maximized && DisplayType == DisplayType.Classic && !_parentForm.TabRenderer.RendersEntireTitleBar
 							? new Point(0, SystemInformation.CaptionButtonSize.Height)
-							: _parentForm.WindowState != FormWindowState.Maximized
-								? new Point(0, SystemInformation.VerticalResizeBorderThickness - SystemInformation.BorderSize.Height)
+							: _parentForm.WindowState != FormWindowState.Maximized && !_parentForm.TabRenderer.RendersEntireTitleBar
+                                ? new Point(0, SystemInformation.VerticalResizeBorderThickness - SystemInformation.BorderSize.Height)
 								: new Point(0, 0);
 
 						// Render the tabs into the bitmap
@@ -901,7 +987,7 @@ namespace EasyTabs
 
 				// We always return HTCAPTION for the hit test message so that the underlying window doesn't have its focus removed
 				case WM.WM_NCHITTEST:
-					m.Result = new IntPtr((int) HT.HTCAPTION);
+					m.Result = new IntPtr((int) _parentForm.TabRenderer.NonClientHitTest(m, GetRelativeCursorPosition(Cursor.Position)));
 					break;
 
 				case WM.WM_LBUTTONUP:
@@ -1035,5 +1121,17 @@ namespace EasyTabs
 				set;
 			}
 		}
-	}
+
+        private void InitializeComponent()
+        {
+            this.SuspendLayout();
+            // 
+            // TitleBarTabsOverlay
+            // 
+            this.ClientSize = new System.Drawing.Size(284, 261);
+            this.Name = "TitleBarTabsOverlay";
+            this.ResumeLayout(false);
+
+        }
+    }
 }
