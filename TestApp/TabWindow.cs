@@ -13,7 +13,84 @@ namespace TestApp
 {
     public partial class TabWindow : Form
     {
-        private readonly ChromiumWebBrowser webBrowser;
+        private class NewTabLifespanHandler : ILifeSpanHandler
+        {
+            private TabWindow _tab;
+
+            public NewTabLifespanHandler(TabWindow tab)
+            {
+                _tab = tab;
+            }
+
+            public bool DoClose(IWebBrowser chromiumWebBrowser, IBrowser browser)
+            {
+                return true;
+            }
+
+            public void OnAfterCreated(IWebBrowser chromiumWebBrowser, IBrowser browser)
+            {
+            }
+
+            public void OnBeforeClose(IWebBrowser chromiumWebBrowser, IBrowser browser)
+            {
+            }
+
+            public bool OnBeforePopup(IWebBrowser chromiumWebBrowser, IBrowser browser, IFrame frame, string targetUrl, string targetFrameName, WindowOpenDisposition targetDisposition, bool userGesture, IPopupFeatures popupFeatures, IWindowInfo windowInfo, IBrowserSettings browserSettings, ref bool noJavascriptAccess, out IWebBrowser newBrowser)
+            {
+                TabWindow newTab = null;
+
+                _tab.ParentTabs.Invoke(new Action(() =>
+                {
+                    _tab.ParentTabs.AddNewTab();
+                    newTab = _tab.ParentTabs.SelectedTab.Content as TabWindow;
+
+                    bool newTabLoaded = false;
+
+                    if (!newTab.WebBrowser.IsBrowserInitialized)
+                    {
+                        newTab.WebBrowser.IsBrowserInitializedChanged += (_, __) =>
+                        {
+                            newTab.WebBrowser.LoadingStateChanged += (___, e) =>
+                            {
+                                if (!newTabLoaded)
+                                {
+                                    if (!e.IsLoading)
+                                    {
+                                        newTabLoaded = true;
+                                        newTab.WebBrowser.Load(targetUrl);
+                                    }
+                                }
+                            };
+                        };
+                    }
+
+                    else
+                    {
+                        newTab.WebBrowser.LoadingStateChanged += (_, e) =>
+                        {
+                            if (!newTabLoaded)
+                            {
+                                if (!e.IsLoading)
+                                {
+                                    newTabLoaded = true;
+                                    newTab.WebBrowser.Load(targetUrl);
+                                }
+                            }
+                        };
+                    }                    
+                }));
+
+                newBrowser = null;
+                return true;
+            }
+
+            private void WebBrowser_LoadingStateChanged(object sender, LoadingStateChangedEventArgs e)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public readonly ChromiumWebBrowser WebBrowser;
         private bool faviconLoaded = false;
 
 	    protected TitleBarTabs ParentTabs
@@ -30,21 +107,22 @@ namespace TestApp
 
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
-            webBrowser = new ChromiumWebBrowser("about:blank")
+            WebBrowser = new ChromiumWebBrowser("about:blank")
             {
                 Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right,
                 Location = new Point(0, 38),
                 MinimumSize = new Size(20, 20),
                 Name = "webBrowser",
                 Size = new Size(326, 251),
-                TabIndex = 6
+                TabIndex = 6,
+                LifeSpanHandler = new NewTabLifespanHandler(this)
             };
 
-            Controls.Add(webBrowser);
+            Controls.Add(WebBrowser);
 
-            webBrowser.TitleChanged += WebBrowser_TitleChanged;
-            webBrowser.AddressChanged += WebBrowser_AddressChanged;
-            webBrowser.LoadingStateChanged += webBrowser_DocumentCompleted;
+            WebBrowser.TitleChanged += WebBrowser_TitleChanged;
+            WebBrowser.AddressChanged += WebBrowser_AddressChanged;
+            WebBrowser.LoadingStateChanged += webBrowser_DocumentCompleted;
         }
 
         private void WebBrowser_AddressChanged(object sender, AddressChangedEventArgs e)
@@ -135,7 +213,7 @@ namespace TestApp
                     fullUrl = "http://" + fullUrl;
 
                 faviconLoaded = false;
-                webBrowser.Load(fullUrl);
+                WebBrowser.Load(fullUrl);
             }
         }
 
@@ -151,12 +229,12 @@ namespace TestApp
 
         private void backButton_Click(object sender, EventArgs e)
         {
-            webBrowser.Back();
+            WebBrowser.Back();
         }
 
         private void forwardButton_Click(object sender, EventArgs e)
         {
-            webBrowser.Forward();
+            WebBrowser.Forward();
         }
 
         private void TabWindow_FormClosing(object sender, FormClosingEventArgs e)
