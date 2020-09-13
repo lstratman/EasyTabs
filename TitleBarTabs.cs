@@ -977,7 +977,10 @@ namespace EasyTabs
 						formClosed = true;
 					};
 
-					tab.Content.Close();
+					Invoke(new Action(() =>
+					{
+						tab.Content.Close();
+					}));
 
 					if (!formClosed)
                     {

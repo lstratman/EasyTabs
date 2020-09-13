@@ -87,6 +87,8 @@ namespace EasyTabs
 		protected bool _firstClick = true;
 		protected Point[] _lastTwoClickCoordinates = new Point[2];
 
+		protected bool _parentFormClosing = false;
+
 		/// <summary>Blank default constructor to ensure that the overlays are only initialized through <see cref="GetInstance" />.</summary>
 		protected TitleBarTabsOverlay()
 		{
@@ -216,6 +218,8 @@ namespace EasyTabs
 		/// </summary>
 		protected void AttachHandlers()
 		{
+            FormClosing += TitleBarTabsOverlay_FormClosing;
+
 			_parentForm.FormClosing += _parentForm_FormClosing;
 			_parentForm.Disposed += _parentForm_Disposed;
 			_parentForm.Deactivate += _parentForm_Deactivate;
@@ -248,16 +252,27 @@ namespace EasyTabs
 			}
 		}
 
-		/// <summary>
-		/// Event handler that is called when <see cref="_parentForm" /> is in the process of closing.  This uninstalls <see cref="_hookproc" /> from the low-
-		/// level hooks list and stops the consumer thread that processes those events.
-		/// </summary>
-		/// <param name="sender">Object from which this event originated, <see cref="_parentForm" /> in this case.</param>
-		/// <param name="e">Arguments associated with this event.</param>
-		private void _parentForm_FormClosing(object sender, CancelEventArgs e)
+        private void TitleBarTabsOverlay_FormClosing(object sender, FormClosingEventArgs e)
+        {
+			if (!_parentFormClosing)
+            {
+				e.Cancel = true;
+				_parentFormClosing = true;
+				_parentForm.Close();
+            }
+        }
+
+        /// <summary>
+        /// Event handler that is called when <see cref="_parentForm" /> is in the process of closing.  This uninstalls <see cref="_hookproc" /> from the low-
+        /// level hooks list and stops the consumer thread that processes those events.
+        /// </summary>
+        /// <param name="sender">Object from which this event originated, <see cref="_parentForm" /> in this case.</param>
+        /// <param name="e">Arguments associated with this event.</param>
+        private void _parentForm_FormClosing(object sender, CancelEventArgs e)
 		{
 			if (e.Cancel)
 			{
+				_parentFormClosing = false;
 				return;
 			}
 
@@ -267,6 +282,8 @@ namespace EasyTabs
 			{
 				return;
 			}
+
+			_parentFormClosing = true;
 
 			if (_parents.ContainsKey(form))
 			{
@@ -951,6 +968,19 @@ namespace EasyTabs
 		{
 			switch ((WM) m.Msg)
 			{
+				case WM.WM_SYSCOMMAND:
+					if (m.WParam == new IntPtr(0xF030) || m.WParam == new IntPtr(0xF120) || m.WParam == new IntPtr(0xF020))
+					{
+						_parentForm.ForwardMessage(ref m);
+					}
+
+					else
+                    {
+						base.WndProc(ref m);
+                    }
+
+					break;
+
 				case WM.WM_NCLBUTTONDOWN:
 				case WM.WM_LBUTTONDOWN:
 					Point relativeCursorPosition = GetRelativeCursorPosition(Cursor.Position);
@@ -1127,16 +1157,16 @@ namespace EasyTabs
 			}
 		}
 
-        private void InitializeComponent()
-        {
-            this.SuspendLayout();
-            // 
-            // TitleBarTabsOverlay
-            // 
-            this.ClientSize = new System.Drawing.Size(284, 261);
-            this.Name = "TitleBarTabsOverlay";
-            this.ResumeLayout(false);
+		private void InitializeComponent()
+		{
+			this.SuspendLayout();
+			// 
+			// TitleBarTabsOverlay
+			// 
+			this.ClientSize = new System.Drawing.Size(284, 261);
+			this.Name = "TitleBarTabsOverlay";
+			this.ResumeLayout(false);
 
-        }
-    }
+		}
+	}
 }
