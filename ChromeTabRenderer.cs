@@ -112,6 +112,16 @@ namespace EasyTabs
             }
         }
 
+        protected override void Render(Graphics graphicsContext, TitleBarTab tab, int index, Rectangle area, Point cursor, Image tabLeftImage, Image tabCenterImage, Image tabRightImage)
+        {
+            if (!IsWindows10 && !tab.Active && index == _parentWindow.Tabs.Count - 1)
+            {
+                tabRightImage = Resources.ChromeInactiveRightNoDivider;
+            }
+
+            base.Render(graphicsContext, tab, index, area, cursor, tabLeftImage, tabCenterImage, tabRightImage);
+        }
+
         protected override int GetMaxTabAreaWidth(List<TitleBarTab> tabs, Point offset)
         {
             return _parentWindow.ClientRectangle.Width - offset.X -

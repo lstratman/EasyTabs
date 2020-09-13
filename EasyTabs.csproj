@@ -193,6 +193,7 @@
     <None Include="Resources\Windows10\Restore.svg" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\Chrome\InactiveRightNoDivider.png" />
     <Content Include="Resources\Windows10\CloseHighlight.svg" />
     <Content Include="Resources\Windows10\Close.svg" />
     <Content Include="Resources\Windows10\Maximize.svg" />

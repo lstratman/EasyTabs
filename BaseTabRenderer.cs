@@ -561,7 +561,7 @@ namespace EasyTabs
 			}
 
 			int i = tabs.Count - 1;
-			List<Tuple<TitleBarTab, Rectangle>> activeTabs = new List<Tuple<TitleBarTab, Rectangle>>();
+			List<Tuple<TitleBarTab, int, Rectangle>> activeTabs = new List<Tuple<TitleBarTab, int, Rectangle>>();
 
 			// Render the background image
 			if (_background != null)
@@ -630,7 +630,7 @@ namespace EasyTabs
 					}
 				}
 
-				activeTabs.Add(new Tuple<TitleBarTab, Rectangle>(tabs[selectedIndex], tabArea));
+				activeTabs.Add(new Tuple<TitleBarTab, int, Rectangle>(tabs[selectedIndex], selectedIndex, tabArea));
 			}
 
 			// Loop through the tabs in reverse order since we need the ones farthest on the left to overlap those to their right
@@ -656,20 +656,20 @@ namespace EasyTabs
 				// In this first pass, we only render the inactive tabs since we need the active tabs to show up on top of everything else
 				if (!tab.Active)
 				{
-					Render(graphicsContext, tab, tabArea, cursor, tabLeftImage, tabCenterImage, tabRightImage);
+					Render(graphicsContext, tab, i, tabArea, cursor, tabLeftImage, tabCenterImage, tabRightImage);
 				}
 
 				i--;
 			}
 
 			// In the second pass, render all of the active tabs identified in the previous pass
-			foreach (Tuple<TitleBarTab, Rectangle> tab in activeTabs)
+			foreach (Tuple<TitleBarTab, int, Rectangle> tab in activeTabs)
 			{
 				Image tabLeftImage = GetTabLeftImage(tab.Item1);
 				tabCenterImage = GetTabCenterImage(tab.Item1);
 				Image tabRightImage = GetTabRightImage(tab.Item1);
 
-				Render(graphicsContext, tab.Item1, tab.Item2, cursor, tabLeftImage, tabCenterImage, tabRightImage);
+				Render(graphicsContext, tab.Item1, tab.Item2, tab.Item3, cursor, tabLeftImage, tabCenterImage, tabRightImage);
 			}
 
 			_previousTabCount = tabs.Count;
@@ -706,7 +706,7 @@ namespace EasyTabs
 		/// <param name="tabLeftImage">Image to use for the left side of the tab.</param>
 		/// <param name="tabCenterImage">Image to use for the center of the tab.</param>
 		/// <param name="tabRightImage">Image to use for the right side of the tab.</param>
-		protected virtual void Render(Graphics graphicsContext, TitleBarTab tab, Rectangle area, Point cursor, Image tabLeftImage, Image tabCenterImage, Image tabRightImage)
+		protected virtual void Render(Graphics graphicsContext, TitleBarTab tab, int index, Rectangle area, Point cursor, Image tabLeftImage, Image tabCenterImage, Image tabRightImage)
 		{
 			if (_suspendRendering)
 			{
