@@ -15,20 +15,14 @@ namespace TestApp
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-			TestApp testApp = new TestApp();
-	        
-			testApp.Tabs.Add(
-		        new TitleBarTab(testApp)
-			        {
-				        Content = new TabWindow
-					                  {
-						                  Text = "New Tab"
-					                  }
-			        });
-			testApp.SelectedTabIndex = 0;
+            TestApp testApp = new TestApp();
 
-			TitleBarTabsApplicationContext applicationContext = new TitleBarTabsApplicationContext();
-			applicationContext.Start(testApp);
+            //Display Welcome To EasyTabs in the default browser
+            testApp.AddNewTab("data:text/html,%3Ch1%3EWelcome%20to%20EasyTabs!%3C%2Fh1%3E");
+            testApp.SelectedTabIndex = 0;
+
+            TitleBarTabsApplicationContext applicationContext = new TitleBarTabsApplicationContext();
+            applicationContext.Start(testApp);
 
             Application.Run(applicationContext);
         }

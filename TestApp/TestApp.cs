@@ -13,11 +13,18 @@ namespace TestApp
             Icon = Resources.DefaultIcon;
         }
 
-        public override TitleBarTab CreateTab()
+        public override TitleBarTab CreateTab(params object[] args)
         {
+            string startUrl = "about:blank";
+
+            if(args != null)
+            {
+                startUrl = (string)args[0];
+            }
+
             return new TitleBarTab(this)
             {
-                Content = new TabWindow
+                Content = new TabWindow(startUrl)
                 {
                     Text = "New Tab"
                 }
