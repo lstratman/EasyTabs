@@ -20,6 +20,7 @@
                 <dependency id="Win32Interop.Kernel32" version="1.0.1" />
                 <dependency id="Win32Interop.User32" version="1.0.1" />
                 <dependency id="Win32Interop.Uxtheme" version="1.0.1" />
+                <dependency id="Svg" version="2.4.3" />
             </group>
         </dependencies>
     </metadata>
