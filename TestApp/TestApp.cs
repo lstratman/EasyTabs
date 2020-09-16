@@ -17,7 +17,8 @@ namespace TestApp
         {
             string startUrl = "about:blank";
 
-            if(args != null)
+            if (args != null)
+
             {
                 startUrl = (string)args[0];
             }

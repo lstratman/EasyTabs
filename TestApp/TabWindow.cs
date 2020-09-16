@@ -42,9 +42,10 @@ namespace TestApp
                     _parentForm.AddNewTab(targetUrl);
                 }));
 
-                //Cancel popup creation and open the targetUrl in a new tab.
-                //This only works for GET urls, those created via javascript
-                //and those that require POST data cannot be used in this fashion.
+                // Cancel popup creation and open the targetUrl in a new tab.
+                // This only works for GET URLs, those created via JavaScript
+                // and those that require POST data cannot be used in this fashion.
+
 
                 newBrowser = null;
                 return true;
@@ -90,7 +91,8 @@ namespace TestApp
         {
             Invoke(new Action(() => urlTextBox.Text = e.Address));
 
-            if ((e.Address != "about.blank" && !e.Address.StartsWith("data:") && !faviconLoaded))
+            if (e.Address != "about.blank" && !e.Address.StartsWith("data:") && !faviconLoaded)
+
             {
                 Uri uri = new Uri(e.Address);
 
