@@ -421,7 +421,7 @@ namespace EasyTabs
 		/// clicked.
 		/// </summary>
 		/// <returns>A newly created tab.</returns>
-		public abstract TitleBarTab CreateTab();
+		public abstract TitleBarTab CreateTab(params object[] args);
 
 		/// <summary>Callback for the <see cref="TabClicked" /> event.</summary>
 		/// <param name="e">Arguments associated with the event.</param>
@@ -841,9 +841,9 @@ namespace EasyTabs
 		}
 
 		/// <summary>Calls <see cref="CreateTab" />, adds the resulting tab to the <see cref="Tabs" /> collection, and activates it.</summary>
-		public virtual void AddNewTab()
+		public virtual void AddNewTab(params object[] args)
 		{
-			TitleBarTab newTab = CreateTab();
+			TitleBarTab newTab = CreateTab(args);
 
 			Tabs.Add(newTab);
 			ResizeTabContents(newTab);

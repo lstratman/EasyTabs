@@ -15,11 +15,11 @@ namespace TestApp
     {
         private class NewTabLifespanHandler : ILifeSpanHandler
         {
-            private TabWindow _tab;
+            private TitleBarTabs _parentForm;
 
-            public NewTabLifespanHandler(TabWindow tab)
+            public NewTabLifespanHandler(TitleBarTabs parentForm)
             {
-                _tab = tab;
+                _parentForm = parentForm;
             }
 
             public bool DoClose(IWebBrowser chromiumWebBrowser, IBrowser browser)
@@ -37,56 +37,18 @@ namespace TestApp
 
             public bool OnBeforePopup(IWebBrowser chromiumWebBrowser, IBrowser browser, IFrame frame, string targetUrl, string targetFrameName, WindowOpenDisposition targetDisposition, bool userGesture, IPopupFeatures popupFeatures, IWindowInfo windowInfo, IBrowserSettings browserSettings, ref bool noJavascriptAccess, out IWebBrowser newBrowser)
             {
-                TabWindow newTab = null;
-
-                _tab.ParentTabs.Invoke(new Action(() =>
+                _parentForm.BeginInvoke(new Action(() =>
                 {
-                    _tab.ParentTabs.AddNewTab();
-                    newTab = _tab.ParentTabs.SelectedTab.Content as TabWindow;
-
-                    bool newTabLoaded = false;
-
-                    if (!newTab.WebBrowser.IsBrowserInitialized)
-                    {
-                        newTab.WebBrowser.IsBrowserInitializedChanged += (_, __) =>
-                        {
-                            newTab.WebBrowser.LoadingStateChanged += (___, e) =>
-                            {
-                                if (!newTabLoaded)
-                                {
-                                    if (!e.IsLoading)
-                                    {
-                                        newTabLoaded = true;
-                                        newTab.WebBrowser.Load(targetUrl);
-                                    }
-                                }
-                            };
-                        };
-                    }
-
-                    else
-                    {
-                        newTab.WebBrowser.LoadingStateChanged += (_, e) =>
-                        {
-                            if (!newTabLoaded)
-                            {
-                                if (!e.IsLoading)
-                                {
-                                    newTabLoaded = true;
-                                    newTab.WebBrowser.Load(targetUrl);
-                                }
-                            }
-                        };
-                    }                    
+                    _parentForm.AddNewTab(targetUrl);
                 }));
+
+                // Cancel popup creation and open the targetUrl in a new tab.
+                // This only works for GET URLs, those created via JavaScript
+                // and those that require POST data cannot be used in this fashion.
+
 
                 newBrowser = null;
                 return true;
-            }
-
-            private void WebBrowser_LoadingStateChanged(object sender, LoadingStateChangedEventArgs e)
-            {
-                throw new NotImplementedException();
             }
         }
 
@@ -101,13 +63,13 @@ namespace TestApp
 		    }
 	    }
 
-        public TabWindow()
+        public TabWindow(string startUrl)
         {
             InitializeComponent();
 
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
-            WebBrowser = new ChromiumWebBrowser("about:blank")
+            WebBrowser = new ChromiumWebBrowser(startUrl)
             {
                 Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right,
                 Location = new Point(0, 38),
@@ -115,7 +77,7 @@ namespace TestApp
                 Name = "webBrowser",
                 Size = new Size(326, 251),
                 TabIndex = 6,
-                LifeSpanHandler = new NewTabLifespanHandler(this)
+                LifeSpanHandler = new NewTabLifespanHandler(ParentTabs)
             };
 
             Controls.Add(WebBrowser);
@@ -129,7 +91,8 @@ namespace TestApp
         {
             Invoke(new Action(() => urlTextBox.Text = e.Address));
 
-            if (e.Address != "about.blank" && !faviconLoaded)
+            if (e.Address != "about.blank" && !e.Address.StartsWith("data:") && !faviconLoaded)
+
             {
                 Uri uri = new Uri(e.Address);
 
