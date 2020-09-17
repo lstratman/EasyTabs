@@ -365,6 +365,11 @@ namespace EasyTabs
 				topPadding = TabRenderer.TabHeight - SystemInformation.CaptionHeight;
 			}
 
+			if (!TabRenderer.IsWindows10 && WindowState == FormWindowState.Maximized)
+            {
+				topPadding += 1;
+            }
+
 			Padding = new Padding(
 				Padding.Left, topPadding > 0
 					? topPadding
