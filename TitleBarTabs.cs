@@ -216,7 +216,7 @@ namespace EasyTabs
 
 					OnTabDeselecting(e);
 
-					// If the subscribers to the event cancelled it, return before we do anything else
+					// If the subscribers to the event canceled it, return before we do anything else
 					if (e.Cancel)
 					{
 						return;
@@ -246,7 +246,7 @@ namespace EasyTabs
 
 					OnTabSelecting(e);
 
-					// If the subscribers to the event cancelled it, return before we do anything else
+					// If the subscribers to the event canceled it, return before we do anything else
 					if (e.Cancel)
 					{
 						return;
