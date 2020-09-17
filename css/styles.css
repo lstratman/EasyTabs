@@ -42,12 +42,12 @@ body {
 }
 
 #screenshots {
-    border-radius: 3px;
+    border-radius: 0px;
     box-shadow: 0 0 3px #777;
 }
 
 #screenshots .carousel-control {
-    border-radius: 3px;
+    border-radius: 0px;
 }
 
 #screenshots .carousel-indicators {
@@ -63,7 +63,7 @@ body {
 }
 
 #screenshots img {
-    border-radius: 5px;
+    border-radius: 0px;
     width: 400px;
     height: 274px;
     background-color: #fff;
@@ -170,18 +170,27 @@ body {
     margin: 10px 0;
 }
 
-pre .type {
+.hljs {
+    background-color: #f5f5f5 !important;
+    color: black;
+}
+
+pre .hljs-type, pre .hljs-title {
     color: #2B91AF;
 }
 
-pre .string {
+pre .hljs-function {
+    color: black;
+}
+
+pre .hljs-string {
     color: #A01714;
 }
 
-pre .keywd {
+pre .hljs-keyword {
     color: #182AFC;
 }
 
-pre .comm {
+pre .hljs-comment {
     color: #319B44;
 }
