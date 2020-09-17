@@ -467,8 +467,7 @@ namespace EasyTabs
 				return;
 			}
 
-			Bitmap bitmap = TabbedThumbnailScreenCapture.GrabWindowBitmap(tab.Content.Handle, tab.Content.Size);
-
+			Bitmap bitmap = tab.GetImage();
 			preview.SetImage(bitmap);
 
 			// If we already had a preview image for the tab, dispose of it

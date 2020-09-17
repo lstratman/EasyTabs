@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.WindowsAPICodePack.Taskbar;
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
@@ -153,12 +154,7 @@ namespace EasyTabs
 		/// <returns>An image of the tab's contents.</returns>
 		public virtual Bitmap GetImage()
 		{
-			Bitmap tabContents = new Bitmap(Content.Size.Width, Content.Size.Height);
-			Graphics contentsGraphics = Graphics.FromImage(tabContents);
-
-			contentsGraphics.CopyFromScreen(Content.PointToScreen(Point.Empty).X, Content.PointToScreen(Point.Empty).Y, 0, 0, Content.Size);
-
-			return tabContents;
+			return TabbedThumbnailScreenCapture.GrabWindowBitmap(Content.Handle, Content.Size);
 		}
 
 		/// <summary>Event that is fired when <see cref="Content" />'s <see cref="Form.Closing" /> event is fired.</summary>
