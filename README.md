@@ -1,3 +1,5 @@
+# EasyTabs
+
 [![Build status](https://ci.appveyor.com/api/projects/status/w3v4642dkec8c8jw?svg=true)](https://ci.appveyor.com/project/lstratman/easytabs-815)
 
 <a href="http://lstratman.github.com/EasyTabs/images/screenshots/tabs.png" target="_blank"><img src="http://lstratman.github.com/EasyTabs/images/screenshots/thumbnails/tabs.png"/></a>
