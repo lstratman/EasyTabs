@@ -1,5 +1,9 @@
-EasyTabs
-========
+[![Build status](https://ci.appveyor.com/api/projects/status/w3v4642dkec8c8jw?svg=true)](https://ci.appveyor.com/project/lstratman/easytabs-815)
+
+<a href="http://lstratman.github.com/EasyTabs/images/screenshots/tabs.png" target="_blank"><img src="http://lstratman.github.com/EasyTabs/images/screenshots/thumbnails/tabs.png"/></a>
+<a href="http://lstratman.github.com/EasyTabs/images/screenshots/repositioning.png" target="_blank"><img src="http://lstratman.github.com/EasyTabs/images/screenshots/thumbnails/repositioning.png"/></a>
+<a href="http://lstratman.github.com/EasyTabs/images/screenshots/tearing.png" target="_blank"><img src="http://lstratman.github.com/EasyTabs/images/screenshots/thumbnails/tearing.png"/></a>
+<a href="http://lstratman.github.com/EasyTabs/images/screenshots/peek.png" target="_blank"><img src="http://lstratman.github.com/EasyTabs/images/screenshots/thumbnails/peek.png"/></a>
 
 EasyTabs is a library that you can add to your .NET WinForms applications (WPF support coming eventually) in order to render a list of tabs in the title bar of the application, similar to Chrome, Firefox, Edge, etc.  Instead of inheriting from `System.Windows.Forms.Form`, you inherit from `EasyTabs.TitleBarTabs` and set the tab renderer that you wish to use:
 
