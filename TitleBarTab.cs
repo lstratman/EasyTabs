@@ -99,21 +99,21 @@ namespace EasyTabs
 		}
 
 		/// <summary>The area in which the tab is rendered in the client window.</summary>
-		internal Rectangle Area
+		public Rectangle Area
 		{
 			get;
 			set;
 		}
 
 		/// <summary>The area of the close button for this tab in the client window.</summary>
-		internal Rectangle CloseButtonArea
+		public Rectangle CloseButtonArea
 		{
 			get;
 			set;
 		}
 
 		/// <summary>Pre-rendered image of the tab's background.</summary>
-		internal Bitmap TabImage
+		public Bitmap TabImage
 		{
 			get;
 			set;
