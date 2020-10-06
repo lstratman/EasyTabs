@@ -55,7 +55,7 @@ namespace EasyTabs
             return _minimizeButtonArea.Contains(cursor) || _maximizeRestoreButtonArea.Contains(cursor) || _closeButtonArea.Contains(cursor);
         }
 
-        public void Render(Graphics graphicsContext, Point cursor)
+        public virtual void Render(Graphics graphicsContext, Point cursor)
         {
             int right = _parentWindow.ClientRectangle.Width;
             bool closeButtonHighlighted = false;
