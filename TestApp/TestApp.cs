@@ -13,6 +13,8 @@ namespace TestApp
             AeroPeekEnabled = true;
             TabRenderer = new ChromeTabRenderer(this);
             Icon = Resources.DefaultIcon;
+            Width = 800;
+            Height = 600;
         }
 
         static TestApp()

@@ -276,7 +276,7 @@ namespace EasyTabs
 				return;
 			}
 
-            TitleBarTabs form = (TitleBarTabs) sender;
+            TitleBarTabs form = (TitleBarTabs)sender;
 
 			if (form == null)
 			{
@@ -604,25 +604,26 @@ namespace EasyTabs
 								new Action(
 									() =>
 									{
-										TitleBarTabs newWindow = (TitleBarTabs) Activator.CreateInstance(_parentForm.GetType());
+										TitleBarTabs newWindow = (TitleBarTabs)Activator.CreateInstance(_parentForm.GetType());
 
-										// Set the initial window position and state properly
-										if (newWindow.WindowState == FormWindowState.Maximized)
+										// Set the initial window position based on the current state of the parent form
+										newWindow.Left = Cursor.Position.X;
+										newWindow.Top = Cursor.Position.Y;
+
+										if (_parentForm.WindowState == FormWindowState.Maximized)
 										{
-											Screen screen = Screen.AllScreens.First(s => s.WorkingArea.Contains(Cursor.Position));
-
+											// afaik there is no straightforward way to get the non-maximized size of the parent form
+											// while the parent form itself is maximized, so the next best thing is to just let the
+											// form maintain its size, whatever that might be
 											newWindow.StartPosition = FormStartPosition.Manual;
-											newWindow.WindowState = FormWindowState.Normal;
-											newWindow.Left = screen.WorkingArea.Left;
-											newWindow.Top = screen.WorkingArea.Top;
-											newWindow.Width = screen.WorkingArea.Width;
-											newWindow.Height = screen.WorkingArea.Height;
+											newWindow.WindowState = FormWindowState.Maximized;
 										}
-
 										else
 										{
-											newWindow.Left = Cursor.Position.X;
-											newWindow.Top = Cursor.Position.Y;
+											newWindow.Width = _parentForm.Width;
+											newWindow.Height = _parentForm.Height;
+											newWindow.StartPosition = FormStartPosition.Manual;
+											newWindow.WindowState = FormWindowState.Normal;
 										}
 
 										tabToRelease.Parent = newWindow;

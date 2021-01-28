@@ -182,7 +182,10 @@ namespace TestApp
 
         private void WebBrowser_TitleChanged(object sender, TitleChangedEventArgs e)
         {
-            Invoke(new Action(() => Text = e.Title));
+            if (!IsDisposed)
+            {
+                Invoke(new Action(() => Text = e.Title));
+            }
         }
 
         void webBrowser_DocumentCompleted(object sender, LoadingStateChangedEventArgs e)
@@ -214,6 +217,9 @@ namespace TestApp
 
                 faviconLoaded = false;
                 WebBrowser.Load(fullUrl);
+
+                e.Handled = true;
+                e.SuppressKeyPress = true;
             }
         }
 
