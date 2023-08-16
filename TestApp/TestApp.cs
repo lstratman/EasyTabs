@@ -1,10 +1,12 @@
-﻿using CefSharp;
+﻿using System.Threading.Tasks;
+using CefSharp;
 using CefSharp.WinForms;
 using EasyTabs;
+using EasyTabs.Drawing;
 
 namespace TestApp
 {
-	public partial class TestApp : TitleBarTabs
+    public partial class TestApp : TitleBarTabs
     {
         public TestApp()
         {
@@ -25,7 +27,7 @@ namespace TestApp
             Cef.Initialize(cefSettings);
         }
 
-        public override TitleBarTab CreateTab()
+        public override Task<TitleBarTab> CreateTab()
         {
             return new TitleBarTab(this)
             {
@@ -33,7 +35,7 @@ namespace TestApp
                 {
                     Text = "New Tab"
                 }
-            };
+            }.FromResult();
         }
     }
 }

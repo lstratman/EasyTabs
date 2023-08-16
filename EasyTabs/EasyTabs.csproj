@@ -1,0 +1,146 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="$(NuGetPackageRoot)nugetutility/$(NuGetUtilityVersion)/build/NuGet.Utility.props" Condition="Exists('$(NuGetPackageRoot)nugetutility/$(NuGetUtilityVersion)/build/NuGet.Utility.props')" />
+	<PropertyGroup>
+		<Version>$(VersionPrefix).$(VersionSuffix)</Version>
+		<TargetFrameworks>net40;net45;net5.0-windows;net6.0-windows</TargetFrameworks>
+		<AssemblyTitle>.NET Title Bar Tabs</AssemblyTitle>
+		<Company>Luke Stratman</Company>
+		<Product>.NET Title Bar Tabs</Product>
+		<Description>
+			Library to enable .NET WinForms apps to easily render a set of tabs in their titlebar space, similar to Chrome, Firefox, Edge, etc.
+		</Description>
+		<Copyright>Copyright © 2020</Copyright>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<PackageId>Net4x.$(AssemblyName)</PackageId>
+		<Title>EasyTabs</Title>
+		<Authors>Luke Stratman</Authors>
+		<PackageProjectUrl>https://github.com/lstratman/EasyTabs.git</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/pieroviano/EasyTabs</RepositoryUrl>
+		<PackageTags>TitleBarTabs</PackageTags>
+		<PackageReleaseNotes>
+			- Updated Chrome tab renderer to match the style and behavior of Chrome v85
+			- Tab opacity now follows parent form opacity
+			- Added the ability to show tooltips on tab hover
+			- Added ForeColor property to BaseTabRenderer to allow you to customize the tab text color
+			- Tab forms can cancel application close through e.Cancel = true in FormClosing
+		</PackageReleaseNotes>
+		<PackageLicenseExpression>BSD-3-Clause</PackageLicenseExpression>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<DocumentationFile>bin\$(Configuration)\EasyTabs.xml</DocumentationFile>
+		<UseWindowsForms>true</UseWindowsForms>
+		<UseWPF>true</UseWPF>
+		<SignAssembly>True</SignAssembly>
+		<AssemblyOriginatorKeyFile>..\StrongName.snk</AssemblyOriginatorKeyFile>
+		<PackageId>Net4x.$(MSBuildProjectName)</PackageId>
+		<PackageOutputPath>$(SolutionDir)Packages\</PackageOutputPath>
+		<AssemblyName>Net4x.$(MSBuildProjectName)</AssemblyName>
+		<LangVersion>latest</LangVersion>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+	<ItemGroup>
+		<None Remove="Resources\Chrome\Add.png" />
+		<None Remove="Resources\Chrome\AddHover.png" />
+		<None Remove="Resources\Chrome\Background.png" />
+		<None Remove="Resources\Chrome\Center.png" />
+		<None Remove="Resources\Chrome\Close.png" />
+		<None Remove="Resources\Chrome\CloseHover.png" />
+		<None Remove="Resources\Chrome\InactiveCenter.png" />
+		<None Remove="Resources\Chrome\InactiveLeft.png" />
+		<None Remove="Resources\Chrome\InactiveRight.png" />
+		<None Remove="Resources\Chrome\InactiveRightNoDivider.png" />
+		<None Remove="Resources\Chrome\Left.png" />
+		<None Remove="Resources\Chrome\Right.png" />
+		<None Remove="Resources\Windows10\Close.svg" />
+		<None Remove="Resources\Windows10\CloseHighlight.svg" />
+		<None Remove="Resources\Windows10\Maximize.svg" />
+		<None Remove="Resources\Windows10\Minimize.svg" />
+		<None Remove="Resources\Windows10\Restore.svg" />
+	</ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="Resources\Chrome\Add.png" />
+		<EmbeddedResource Include="Resources\Chrome\AddHover.png" />
+		<EmbeddedResource Include="Resources\Chrome\Background.png" />
+		<EmbeddedResource Include="Resources\Chrome\Center.png" />
+		<EmbeddedResource Include="Resources\Chrome\Close.png" />
+		<EmbeddedResource Include="Resources\Chrome\CloseHover.png" />
+		<EmbeddedResource Include="Resources\Chrome\InactiveCenter.png" />
+		<EmbeddedResource Include="Resources\Chrome\InactiveLeft.png" />
+		<EmbeddedResource Include="Resources\Chrome\InactiveRight.png" />
+		<EmbeddedResource Include="Resources\Chrome\InactiveRightNoDivider.png" />
+		<EmbeddedResource Include="Resources\Chrome\Left.png" />
+		<EmbeddedResource Include="Resources\Chrome\Right.png" />
+		<EmbeddedResource Include="Resources\Windows10\Close.svg" />
+		<EmbeddedResource Include="Resources\Windows10\CloseHighlight.svg" />
+		<EmbeddedResource Include="Resources\Windows10\Maximize.svg" />
+		<EmbeddedResource Include="Resources\Windows10\Minimize.svg" />
+		<EmbeddedResource Include="Resources\Windows10\Restore.svg" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Net4x.AsyncBridge" Version="$(Net4xAsyncBridgeVersion).$(VersionBuildSuffix)" />
+		<PackageReference Include="Net4x.CoreLibrary.WaitUtility" Version="$(CoreLibrarySerilogLoggerVersion).$(VersionBuildSuffix)" />
+		<PackageReference Include="Net4x.Microsoft-WindowsAPICodePack-Core" Version="$(WindowsAPICodePackVersion).$(VersionBuildSuffix)" />
+		<PackageReference Include="Net4x.Microsoft-WindowsAPICodePack-Shell" Version="$(WindowsAPICodePackVersion).$(VersionBuildSuffix)" />
+		<PackageReference Include="Net4x.ValueTuple" Version="$(Net4xValueTupleVersion).$(VersionBuildSuffix)" />
+		<PackageReference Include="Svg" Version="2.4.3" Condition="'$(TargetFramework)'=='net40' or '$(TargetFramework)'=='net45'" />
+		<PackageReference Include="Svg" Version="3.4.4" Condition="'$(TargetFramework)'=='net5.0-windows' or '$(TargetFramework)'=='net6.0-windows'" />
+		<PackageReference Include="Net4x.Win32Interop.Dwmapi" Version="$(Win32InteropVersion).$(VersionBuildSuffix)" />
+		<PackageReference Include="Net4x.Win32Interop.Gdi32" Version="$(Win32InteropVersion).$(VersionBuildSuffix)" />
+		<PackageReference Include="Net4x.Win32Interop.Kernel32" Version="$(Win32InteropVersion).$(VersionBuildSuffix)" />
+		<PackageReference Include="Net4x.Win32Interop.User32" Version="$(Win32InteropVersion).$(VersionBuildSuffix)" />
+		<PackageReference Include="Net4x.Win32Interop.Uxtheme" Version="$(Win32InteropVersion).$(VersionBuildSuffix)" />
+		<PackageReference Include="System.Resources.Extensions" Version="7.0.0" Condition="'$(TargetFramework)'=='net5.0-windows' or '$(TargetFramework)'=='net6.0-windows'" />
+
+		<PackageReference Include="NuGetUtility" Version="$(NuGetUtilityVersion)" PrivateAssets="All" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)'!='net5.0-windows' and '$(TargetFramework)'!='net6.0-windows'">
+		<Reference Include="PresentationCore" />
+		<Reference Include="System.Web" />
+		<Reference Include="System.Data.DataSetExtensions" />
+		<Reference Include="Microsoft.CSharp" />
+		<Reference Include="System.Deployment" />
+		<Reference Include="System.Windows.Forms" />
+		<Reference Include="WindowsBase" />
+	</ItemGroup>
+	<ItemGroup>
+		<Compile Update="TitleBarTab\AppContainer.cs" />
+		<Compile Update="TitleBarTab\TitleBarTabs.cs">
+			<SubType>Form</SubType>
+		</Compile>
+		<Compile Update="TitleBarTab\TitleBarTabsOverlay.cs">
+			<SubType>Form</SubType>
+		</Compile>
+		<Compile Update="TitleBarTab\TornTabForm.cs">
+			<SubType>Form</SubType>
+		</Compile>
+
+		<Compile Update="TitleBarTab\TitleBarTabs.Designer.cs">
+			<DependentUpon>..\TitleBarTab\TitleBarTabs.cs</DependentUpon>
+		</Compile>
+
+
+		<EmbeddedResource Update="TitleBarTab\TitleBarTabsOverlay.resx">
+			<DependentUpon>..\TitleBarTab\TitleBarTabsOverlay.cs</DependentUpon>
+		</EmbeddedResource>
+
+		<EmbeddedResource Update="TitleBarTab\TitleBarTabs.resx">
+			<DependentUpon>..\TitleBarTab\TitleBarTabs.cs</DependentUpon>
+			<SubType>Designer</SubType>
+		</EmbeddedResource>
+
+		<EmbeddedResource Update="Properties\Resources.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>Resources.Designer.cs</LastGenOutput>
+			<SubType>Designer</SubType>
+			<CustomToolNamespace>EasyTabs.Properties</CustomToolNamespace>
+		</EmbeddedResource>
+		<Compile Update="Properties\Resources.Designer.cs">
+			<AutoGen>True</AutoGen>
+			<DesignTime>True</DesignTime>
+			<DependentUpon>Resources.resx</DependentUpon>
+		</Compile>
+
+		<None Include="..\README.md" Link="README.md" Pack="True" PackagePath="\" />
+	</ItemGroup>
+	<Import Project="$(NuGetPackageRoot)nugetutility/$(NuGetUtilityVersion)/build/NuGet.Utility.targets" Condition="Exists('$(NuGetPackageRoot)nugetutility/$(NuGetUtilityVersion)/build/NuGet.Utility.targets')" />
+</Project>

@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<ItemGroup>
+		<None Include="$(MSBuildThisFileDirectory)\..\build\Microsoft.WindowsAPICodePack.dll" Link="Microsoft.WindowsAPICodePack.dll" CopyToOutputDirectory="PreserveNewest" />
+		<None Include="$(MSBuildThisFileDirectory)\..\build\Microsoft.WindowsAPICodePack.Shell.dll" Link="Microsoft.WindowsAPICodePack.Shell.dll" CopyToOutputDirectory="PreserveNewest" />
+	</ItemGroup>
+</Project>

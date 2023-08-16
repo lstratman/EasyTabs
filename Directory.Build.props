@@ -1,0 +1,8 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<Import Project="Directory.NuGet.props" />
+	<PropertyGroup>
+		<VersionPrefix>$(EasyTabsVersion)</VersionPrefix>
+		<VersionSuffix Condition="'$(Configuration)' != 'Release'">0-at20230511053312</VersionSuffix>
+		<VersionSuffix Condition="'$(Configuration)' == 'Release'">0</VersionSuffix>
+	</PropertyGroup>
+</Project>
