@@ -20,7 +20,7 @@ using Timer = System.Timers.Timer;
 namespace EasyTabs;
 
 /// <summary>
-/// Borderless overlay window that is moved with and rendered on top of the non-client area of a  <see cref="TitleBarTabs" /> instance that's responsible
+/// Border-less overlay window that is moved with and rendered on top of the non-client area of a  <see cref="TitleBarTabs" /> instance that's responsible
 /// for rendering the actual tab content and responding to click events for those tabs.
 /// </summary>
 public class TitleBarTabsOverlay : Form

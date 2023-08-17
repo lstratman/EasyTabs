@@ -104,29 +104,9 @@
 	</ItemGroup>
 	<ItemGroup>
 		<Compile Update="TitleBarTab\AppContainer.cs" />
-		<Compile Update="TitleBarTab\TitleBarTabs.cs">
-			<SubType>Form</SubType>
-		</Compile>
-		<Compile Update="TitleBarTab\TitleBarTabsOverlay.cs">
-			<SubType>Form</SubType>
-		</Compile>
 		<Compile Update="TitleBarTab\TornTabForm.cs">
 			<SubType>Form</SubType>
 		</Compile>
-
-		<Compile Update="TitleBarTab\TitleBarTabs.Designer.cs">
-			<DependentUpon>..\TitleBarTab\TitleBarTabs.cs</DependentUpon>
-		</Compile>
-
-
-		<EmbeddedResource Update="TitleBarTab\TitleBarTabsOverlay.resx">
-			<DependentUpon>..\TitleBarTab\TitleBarTabsOverlay.cs</DependentUpon>
-		</EmbeddedResource>
-
-		<EmbeddedResource Update="TitleBarTab\TitleBarTabs.resx">
-			<DependentUpon>..\TitleBarTab\TitleBarTabs.cs</DependentUpon>
-			<SubType>Designer</SubType>
-		</EmbeddedResource>
 
 		<EmbeddedResource Update="Properties\Resources.resx">
 			<Generator>ResXFileCodeGenerator</Generator>

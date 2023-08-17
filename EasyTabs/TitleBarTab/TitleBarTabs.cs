@@ -23,7 +23,7 @@ namespace EasyTabs;
 /// window (<see cref="_overlay" />) rendered on top of the non-client area at the top of this window.  All an implementing class will need to do is set
 /// the <see cref="TabRenderer" /> property and begin adding tabs to <see cref="Tabs" />.
 /// </summary>
-public abstract partial class TitleBarTabs : Form
+public partial class TitleBarTabs : Form
 {
     /// <summary>
     /// Event delegate for <see cref="TitleBarTabs.TabDeselecting" /> and <see cref="TitleBarTabs.TabSelecting" /> that allows subscribers to cancel the
@@ -88,6 +88,15 @@ public abstract partial class TitleBarTabs : Form
                   };
 
         ShowTooltips = true;
+    }
+
+    /// <summary>
+    /// Gets the screen.
+    /// </summary>
+    /// <returns></returns>
+    public Rectangle GetScreen()
+    {
+        return Screen.FromControl(this).Bounds;
     }
 
     /// <summary>Flag indicating whether composition is enabled on the desktop.</summary>
@@ -320,6 +329,11 @@ public abstract partial class TitleBarTabs : Form
     protected override void OnLoad(EventArgs e)
     {
         base.OnLoad(e);
+        var rectangle = GetScreen();
+        rectangle.Width -= 100;
+        rectangle.Height -= 100;
+        Size = new Size(rectangle.Width, rectangle.Height);
+        CenterToScreen();
         _overlay = TitleBarTabsOverlay.GetInstance(this);
 
         if (TabRenderer != null && _overlay != null)
@@ -414,7 +428,10 @@ public abstract partial class TitleBarTabs : Form
     /// clicked.
     /// </summary>
     /// <returns>A newly created tab.</returns>
-    public abstract Task<TitleBarTab> CreateTab();
+    public virtual Task<TitleBarTab> CreateTab()
+    {
+        throw new EasyTabsException("Creates a class inheriting from this.");
+    }
 
     /// <summary>Callback for the <see cref="TabClicked" /> event.</summary>
     /// <param name="e">Arguments associated with the event.</param>
