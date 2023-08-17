@@ -17,22 +17,22 @@ public static class TabbedApplicationHelper
     /// </summary>
     /// <param name="CreateInitialForm">The Func that creates the initial form.</param>
     /// <returns>A TitleBarTabsApplicationContext</returns>
-    public static TitleBarTabsApplicationContext CreateTabbedApplication(this Func<Form> CreateInitialForm)
+    public static ApplicationContext CreateTabbedApplication(this Func<Form> CreateInitialForm)
     {
         return CreateTabbedApplication(CreateInitialForm, null);
     }
 
     private static void SetupWaitUtility()
     {
-        TaskWaiterContainer.Dispatcher = new DispatcherWrapper((Func<DispatcherFrameWrapper>)(() =>
+        TaskWaiterContainer.Dispatcher = new DispatcherWrapper(() =>
         {
             DispatcherFrame dispatcherFrame = new DispatcherFrame();
-            return new DispatcherFrameWrapper((object)dispatcherFrame)
+            return new DispatcherFrameWrapper(dispatcherFrame)
                    {
-                       GetContinue = (Func<bool>)(() => dispatcherFrame.Continue),
-                       SetContinue = (Action<bool>)(value => dispatcherFrame.Continue = value)
+                       GetContinue = () => dispatcherFrame.Continue,
+                       SetContinue = value => dispatcherFrame.Continue = value
                    };
-        }), (Action<object>)(f => Dispatcher.PushFrame((DispatcherFrame)f)));
+        }, (Action<object>)(f => Dispatcher.PushFrame((DispatcherFrame)f)));
         TaskWaiterContainer.TaskWaiter = TaskWaiter.Instance;
     }
 
@@ -42,7 +42,7 @@ public static class TabbedApplicationHelper
     /// <param name="CreateInitialForm">The Func that creates the initial form.</param>
     /// <param name="CreateForm">The Func that creates the other forms.</param>
     /// <returns>A TitleBarTabsApplicationContext</returns>
-    public static TitleBarTabsApplicationContext CreateTabbedApplication(this Func<Form> CreateInitialForm, Func<Form>? CreateForm)
+    public static ApplicationContext CreateTabbedApplication(this Func<Form> CreateInitialForm, Func<Form>? CreateForm)
     {
         SetupWaitUtility();
         Application.EnableVisualStyles();

@@ -473,7 +473,7 @@ public class TitleBarTabsOverlay : Form
                     else
                     {
                         var parentFormTabRenderer = _parentForm?.TabRenderer;
-                        if ((!parentFormTabRenderer?.IsTabRepositioning)??false)
+                        if (!parentFormTabRenderer?.IsTabRepositioning??false)
                         {
                             StartTooltipTimer();
 
@@ -760,7 +760,7 @@ public class TitleBarTabsOverlay : Form
                     1, Top == 0
                         ? SystemInformation.CaptionHeight - 1
                         : SystemInformation.CaptionHeight + SystemInformation.VerticalResizeBorderThickness - (Top - _parentForm?.Top??0) - 1),
-                new Size(Width - 2, (_parentForm?.Padding.Top??0)));
+                new Size(Width - 2, _parentForm?.Padding.Top??0));
         }
 
         else
@@ -1057,7 +1057,7 @@ public class TitleBarTabsOverlay : Form
                 if (parentFormTabs != null &&
                     parentFormTabRenderer != null &&
                     parentFormTabRenderer.OverTab(parentFormTabs, relativeCursorPosition) == null &&
-                    !(parentFormTabRenderer.IsOverAddButton(relativeCursorPosition)))
+                    !parentFormTabRenderer.IsOverAddButton(relativeCursorPosition))
                 {
                     _parentForm?.ForwardMessage(ref m);
                 }

@@ -98,7 +98,7 @@ namespace TestApp
 	    {
 		    get
 		    {
-			    return (ParentForm as TitleBarTabs);
+			    return ParentForm as TitleBarTabs;
 		    }
 	    }
 

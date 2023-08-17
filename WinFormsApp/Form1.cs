@@ -1,6 +1,7 @@
 // 1. Use Easy Tabs
 
 using EasyTabs;
+using EasyTabs.Model;
 
 namespace WinFormsApp;
 
@@ -11,7 +12,7 @@ public partial class Form1 : Form
     {
         get
         {
-            return (ParentForm as AppContainer);
+            return ParentForm as AppContainer;
         }
     }
 
@@ -31,38 +32,32 @@ public partial class Form1 : Form
         await ParentTabs.AddNewTab();
     }
 
-    private async void button2_Click(object sender, EventArgs e)
+    private void button2_Click(object sender, EventArgs e)
     {
-        ParentTabs.ReplaceCreateFormHandlersOnce(
-            (s, ee) =>
+        ParentTabs.Invoke(
+            async () =>
             {
-                Form? b = null;
-                var thread = new Thread(() =>
-                {
-                    b = new Form();
-                    b.TopLevel = false;
-                    b.Text = $"Button {DateTime.Now}";
-                    var control = new Button()
-                                  {
-                                      Text = "Test",
-                                  };
-                    b.BackColor = Color.White;
-                    control.Click += (s, a) => { MessageBox.Show(DateTime.Now.ToString()); };
-                    b.Controls.Add(control);
-                    b.FormBorderStyle = FormBorderStyle.None;
-                    b.ShowInTaskbar = false;
-                    b.WindowState = FormWindowState.Minimized;
-                    Application.Run(b);
-                });
-                thread.SetApartmentState(ApartmentState.STA);
-                thread.Start();
-                while (b == null)
-                {
-                    Thread.Sleep(10);
-                }
-
-                ee.Form = b;
+                ParentTabs.ReplaceCreateFormHandlersOnce(CreateFormInOtherThread);
+                await ParentTabs.AddNewTab();
             });
-        await ParentTabs.AddNewTab();
+    }
+
+    void CreateFormInOtherThread(object s, FormEventArgs e)
+    {
+        e.Form = FormCreationHelper.CreateFormInOtherThread($"Button {DateTime.Now}", WorkWithForm);
+    }
+
+    private static void WorkWithForm(Form b)
+    {
+        var control = new Button()
+        {
+            Text = "Test",
+        };
+        b.BackColor = Color.White;
+        control.Click += (s, a) =>
+        {
+            MessageBox.Show(DateTime.Now.ToString());
+        };
+        b.Controls.Add(control);
     }
 }

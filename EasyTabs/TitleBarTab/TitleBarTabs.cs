@@ -853,7 +853,7 @@ public partial class TitleBarTabs : Form
 
             // Catch the case where the user is clicking the minimize button and use this opportunity to update the AeroPeek thumbnail for the current tab
             case WM.WM_NCLBUTTONDOWN:
-                if (((HT) m.WParam.ToInt32()) == HT.HTMINBUTTON && AeroPeekEnabled && SelectedTab != null)
+                if ((HT) m.WParam.ToInt32() == HT.HTMINBUTTON && AeroPeekEnabled && SelectedTab != null)
                 {
                     UpdateTabThumbnail(SelectedTab);
                 }
@@ -946,7 +946,7 @@ public partial class TitleBarTabs : Form
         // Determine if we are on the top or bottom border
         if (point.Y >= area.Top && point.Y < area.Top + SystemInformation.VerticalResizeBorderThickness + _nonClientAreaHeight - 2)
         {
-            onResizeBorder = point.Y < (area.Top + SystemInformation.VerticalResizeBorderThickness);
+            onResizeBorder = point.Y < area.Top + SystemInformation.VerticalResizeBorderThickness;
             row = 0;
         }
 
