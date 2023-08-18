@@ -1,6 +1,7 @@
 using EasyTabs;
+using FormLogging.Logging;
 
-namespace WinFormsApp;
+namespace EasyTabsTests;
 
 static class Program
 {
@@ -10,7 +11,7 @@ static class Program
     [STAThread]
     static void Main()
     {
-        Application.Run(TabbedApplicationHelper.CreateTabbedApplication(() => new Form1
+        FormLogger.Instance.RunApplicationWithFormLogging(()=>(ApplicationContext)TabbedApplicationHelper.CreateTabbedApplication(() => new TabbedApplicationForm
                                                                               {
                                                                                   Text = "Test Form"
                                                                               }));

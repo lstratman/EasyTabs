@@ -36,6 +36,7 @@
 		<AssemblyName>Net4x.$(MSBuildProjectName)</AssemblyName>
 		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
+		<NoWarn>CS1574</NoWarn>
 	</PropertyGroup>
 	<ItemGroup>
 		<None Remove="Resources\Chrome\Add.png" />

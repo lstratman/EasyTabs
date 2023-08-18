@@ -428,7 +428,7 @@ public partial class TitleBarTabs : Form
     /// clicked.
     /// </summary>
     /// <returns>A newly created tab.</returns>
-    public virtual Task<TitleBarTab> CreateTab()
+    public virtual Task<TitleBarTab?> CreateTab()
     {
         throw new EasyTabsException("Creates a class inheriting from this.");
     }
@@ -868,14 +868,28 @@ public partial class TitleBarTabs : Form
     }
 
     /// <summary>Calls <see cref="CreateTab" />, adds the resulting tab to the <see cref="Tabs" /> collection, and activates it.</summary>
-    public virtual async Task AddNewTab()
+    public virtual Task<bool> AddNewTab()
     {
-        TitleBarTab? newTab = await CreateTab();
+        return AddNewTab(string.Empty);
+    }
 
-        Tabs.Add(newTab);
-        ResizeTabContents(newTab);
+    /// <summary>Calls <see cref="CreateTab" />, adds the resulting tab to the <see cref="Tabs" /> collection, and activates it.</summary>
+    /// <param name="text">The text.</param>
+    /// <returns></returns>
+    public virtual async Task<bool> AddNewTab(string text)
+    {
+        TitleBarTab? newTab = await CreateTab(text);
 
-        SelectedTabIndex = _tabs.Count - 1;
+        if (newTab != null)
+        {
+            Tabs.Add(newTab);
+            ResizeTabContents(newTab);
+
+            SelectedTabIndex = _tabs.Count - 1;
+            return true;
+        }
+
+        return false;
     }
 
     /// <summary>Removes <paramref name="closingTab" /> from <see cref="Tabs" /> and selects the next applicable tab in the list.</summary>
@@ -1016,5 +1030,16 @@ public partial class TitleBarTabs : Form
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// Creates a new tab.
+    /// </summary>
+    /// <param name="text"></param>
+    /// <returns></returns>
+    /// <exception cref="NotImplementedException"></exception>
+    public virtual Task<TitleBarTab?> CreateTab(string text)
+    {
+        throw new NotImplementedException();
     }
 }

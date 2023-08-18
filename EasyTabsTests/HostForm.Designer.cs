@@ -1,6 +1,6 @@
-﻿namespace WinFormsApp
+﻿namespace EasyTabsTests
 {
-    partial class Form1
+    partial class HostForm
     {
         /// <summary>
         ///  Required designer variable.
@@ -34,17 +34,17 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(333, 155);
+            this.button1.Location = new System.Drawing.Point(83, 187);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
             this.button1.TabIndex = 0;
             this.button1.Text = "button1";
             this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.button1.Click += new System.EventHandler(this.Button1_Click);
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(333, 224);
+            this.button2.Location = new System.Drawing.Point(363, 199);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(75, 23);
             this.button2.TabIndex = 1;
@@ -66,7 +66,6 @@
         }
 
         #endregion
-
         private Button button1;
         private Button button2;
     }

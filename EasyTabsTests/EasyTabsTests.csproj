@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project = "$(NuGetPackageRoot)nugetutility/$(NuGetUtilityVersion)/build/NuGet.Utility.props" Condition="Exists('$(NuGetPackageRoot)nugetutility/$(NuGetUtilityVersion)/build/NuGet.Utility.props')" />
+  <PropertyGroup>
+    <PackageOutputPath>$(SolutionDir)Packages/</PackageOutputPath>
+  </PropertyGroup>
+  <PropertyGroup>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+  </PropertyGroup>
+<PropertyGroup><Version>$(VersionPrefix).$(VersionSuffix)</Version></PropertyGroup>
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net45</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+	  <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+	  <PackageReference Include="Net4x.NunitTests" Version="1.1.0" />
+	  <PackageReference Include="Net4x.ValueTuple" Version="$(Net4xValueTupleVersion).$(VersionBuildSuffix)" />
+	  <PackageReference Include="Net4x.FormLogging.Library" Version="$(FormLoggingVersion).$(VersionBuildSuffix)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EasyTabs\EasyTabs.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Net.Http" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="TabbedApplicationForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+  </ItemGroup>
+  <Import Project = "$(NuGetPackageRoot)nugetutility/$(NuGetUtilityVersion)/build/NuGet.Utility.targets" Condition="Exists('$(NuGetPackageRoot)nugetutility/$(NuGetUtilityVersion)/build/NuGet.Utility.targets')" />
+</Project>
