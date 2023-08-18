@@ -46,7 +46,12 @@ public sealed class ChromeTabRenderer : BaseTabRenderer
         _windowsSizingBoxes = new WindowsSizingBoxes(parentWindow);
         _captionFont = new Font("Segoe UI", 9);
 
-        if (_captionFont.Name != "Segoe UI")
+        if (_captionFont.Name == "Segoe UI")
+        {
+            return;
+        }
+
+        if (SystemFonts.CaptionFont?.Name != null)
         {
             _captionFont = new Font(SystemFonts.CaptionFont.Name, 9);
         }

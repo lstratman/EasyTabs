@@ -43,7 +43,7 @@ public class TitleBarTabsApplicationContext : ApplicationContext
             window.ApplicationContext = this;
 
             _openWindows.Add(window);
-            window.FormClosed += window_FormClosed;
+            window.FormClosed += Window_FormClosed;
         }
     }
 
@@ -53,9 +53,12 @@ public class TitleBarTabsApplicationContext : ApplicationContext
     /// </summary>
     /// <param name="sender">Object from which this event originated.</param>
     /// <param name="e">Arguments associated with the event.</param>
-    protected void window_FormClosed(object sender, FormClosedEventArgs e)
+    protected void Window_FormClosed(object? sender, FormClosedEventArgs e)
     {
-        _openWindows.Remove((TitleBarTabs)sender);
+        if (sender != null)
+        {
+            _openWindows.Remove((TitleBarTabs?)sender);
+        }
 
         if (_openWindows.Count == 0)
         {

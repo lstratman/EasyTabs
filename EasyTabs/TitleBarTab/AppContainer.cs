@@ -119,7 +119,7 @@ public class AppContainer : TitleBarTabs
                         form.Text = contentText;
                     });
             };
-            form.Closed += (s, e) =>
+            form.Closed += (_, _) =>
             {
                 contentCopy.Invoke(
                     () =>

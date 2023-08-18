@@ -171,7 +171,7 @@ public class TitleBarTab
     /// </summary>
     /// <param name="sender">Object from which this event originated (<see cref="Content" /> in this case).</param>
     /// <param name="e">Arguments associated with the event.</param>
-    private void Content_TextChanged(object sender, EventArgs e)
+    private void Content_TextChanged(object? sender, EventArgs e)
     {
         if (TextChanged != null)
         {
@@ -185,7 +185,7 @@ public class TitleBarTab
     /// </summary>
     /// <param name="sender">Object from which this event originated (<see cref="Content" /> in this case).</param>
     /// <param name="e">Arguments associated with the event.</param>
-    protected void Content_Closing(object sender, CancelEventArgs e)
+    protected void Content_Closing(object? sender, CancelEventArgs e)
     {
         if (Closing != null)
         {

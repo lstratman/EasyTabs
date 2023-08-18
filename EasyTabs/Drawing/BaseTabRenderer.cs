@@ -1,6 +1,4 @@
 using EasyTabs.Model;
-
-using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -16,7 +14,17 @@ namespace EasyTabs.Drawing;
 /// </summary>
 public abstract class BaseTabRenderer
 {
-    bool? _isWindows10;
+    /// <summary>
+    /// The Registry wrapper.
+    /// </summary>
+    public virtual IRegistry Registry
+    {
+        get;
+        internal set;
+    } = new RegistryHelper();
+
+
+    internal bool? _isWindows10;
 
     /// <summary>
     /// Background of the content area for the tab when the tab is active; its width also determines how wide the default content area for the tab
@@ -37,7 +45,7 @@ public abstract class BaseTabRenderer
     protected Rectangle _addButtonArea;
 
     /// <summary>Image to display when the user hovers over the add button.</summary>
-    protected Bitmap? _addButtonHoverImage;
+    protected internal Bitmap? _addButtonHoverImage;
 
     /// <summary>Image to display for the add button when the user is not hovering over it.</summary>
     protected Bitmap? _addButtonImage;
@@ -128,7 +136,7 @@ public abstract class BaseTabRenderer
             {
                 if (Registry.LocalMachine != null)
                 {
-                    RegistryKey reg = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion")!;
+                    IRegistryKey? reg = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion");
                     string productName = (string)reg.GetValue("ProductName");
 
                     _isWindows10 = productName.StartsWith("Windows 10");
@@ -314,7 +322,7 @@ public abstract class BaseTabRenderer
     /// <summary>Initialize the <see cref="_dragStart" /> and <see cref="_tabClickOffset" /> fields in case the user starts dragging a tab.</summary>
     /// <param name="sender">Object from which this event originated.</param>
     /// <param name="e">Arguments associated with the event.</param>
-    protected internal virtual void Overlay_MouseDown(object sender, MouseEventArgs e)
+    protected internal virtual void Overlay_MouseDown(object? sender, MouseEventArgs e)
     {
         _wasTabRepositioning = false;
         _dragStart = e.Location;
@@ -335,7 +343,7 @@ public abstract class BaseTabRenderer
     /// </summary>
     /// <param name="sender">Object from which this event originated.</param>
     /// <param name="e">Arguments associated with the event.</param>
-    protected internal virtual void Overlay_MouseUp(object sender, MouseEventArgs e)
+    protected internal virtual void Overlay_MouseUp(object? sender, MouseEventArgs e)
     {
         _dragStart = null;
         _tabClickOffset = null;
@@ -356,7 +364,7 @@ public abstract class BaseTabRenderer
     /// </summary>
     /// <param name="sender">Object from which this event originated.</param>
     /// <param name="e">Arguments associated with the event.</param>
-    protected internal virtual void Overlay_MouseMove(object sender, MouseEventArgs e)
+    protected internal virtual void Overlay_MouseMove(object? sender, MouseEventArgs e)
     {
         if (_dragStart != null && !IsTabRepositioning &&
             (Math.Abs(e.X - _dragStart.Value.X) > TabRepositionDragDistance || Math.Abs(e.Y - _dragStart.Value.Y) > TabRepositionDragDistance))
@@ -371,11 +379,11 @@ public abstract class BaseTabRenderer
     /// </summary>
     /// <param name="sender">List of tabs in the <see cref="_parentWindow" />.</param>
     /// <param name="e">Arguments associated with the event.</param>
-    private void Tabs_CollectionModified(object sender, ListModificationEventArgs e)
+    private void Tabs_CollectionModified(object? sender, ListModificationEventArgs e)
     {
-        ListWithEvents<TitleBarTab?> tabs = (ListWithEvents<TitleBarTab?>)sender;
+        var tabs = (ListWithEvents<TitleBarTab?>?)sender;
 
-        if (tabs.Count == 0)
+        if (tabs == null || tabs.Count == 0)
         {
             return;
         }
@@ -904,26 +912,29 @@ public abstract class BaseTabRenderer
             {
                 if (_closeButtonImage != null)
                 {
-                    graphicsContext.DrawString(
-                        tab.Caption, CaptionFont, new SolidBrush(ForeColor),
-                        new Rectangle(
-                            area.X + OverlapWidth + CaptionMarginLeft + (tab.Content.ShowIcon
-                                ? IconMarginLeft +
-                                  16 +
-                                  IconMarginRight
-                                : 0),
-                            CaptionMarginTop + area.Y,
-                            _tabContentWidth - (tab.Content.ShowIcon
-                                ? IconMarginLeft + 16 + IconMarginRight
-                                : 0) - (tab.ShowCloseButton
-                                ? _closeButtonImage.Width +
-                                  CloseButtonMarginRight +
-                                  CloseButtonMarginLeft
-                                : 0), tab.TabImage.Height),
-                        new StringFormat(StringFormatFlags.NoWrap)
-                        {
-                            Trimming = StringTrimming.EllipsisCharacter
-                        });
+                    if (CaptionFont != null)
+                    {
+                        graphicsContext.DrawString(
+                            tab.Caption, CaptionFont, new SolidBrush(ForeColor),
+                            new Rectangle(
+                                area.X + OverlapWidth + CaptionMarginLeft + (tab.Content.ShowIcon
+                                    ? IconMarginLeft +
+                                      16 +
+                                      IconMarginRight
+                                    : 0),
+                                CaptionMarginTop + area.Y,
+                                _tabContentWidth - (tab.Content.ShowIcon
+                                    ? IconMarginLeft + 16 + IconMarginRight
+                                    : 0) - (tab.ShowCloseButton
+                                    ? _closeButtonImage.Width +
+                                      CloseButtonMarginRight +
+                                      CloseButtonMarginLeft
+                                    : 0), tab.TabImage.Height),
+                            new StringFormat(StringFormatFlags.NoWrap)
+                            {
+                                Trimming = StringTrimming.EllipsisCharacter
+                            });
+                    }
                 }
             }
         }

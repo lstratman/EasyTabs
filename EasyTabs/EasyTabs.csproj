@@ -38,25 +38,7 @@
 		<Nullable>enable</Nullable>
 		<NoWarn>CS1574</NoWarn>
 	</PropertyGroup>
-	<ItemGroup>
-		<None Remove="Resources\Chrome\Add.png" />
-		<None Remove="Resources\Chrome\AddHover.png" />
-		<None Remove="Resources\Chrome\Background.png" />
-		<None Remove="Resources\Chrome\Center.png" />
-		<None Remove="Resources\Chrome\Close.png" />
-		<None Remove="Resources\Chrome\CloseHover.png" />
-		<None Remove="Resources\Chrome\InactiveCenter.png" />
-		<None Remove="Resources\Chrome\InactiveLeft.png" />
-		<None Remove="Resources\Chrome\InactiveRight.png" />
-		<None Remove="Resources\Chrome\InactiveRightNoDivider.png" />
-		<None Remove="Resources\Chrome\Left.png" />
-		<None Remove="Resources\Chrome\Right.png" />
-		<None Remove="Resources\Windows10\Close.svg" />
-		<None Remove="Resources\Windows10\CloseHighlight.svg" />
-		<None Remove="Resources\Windows10\Maximize.svg" />
-		<None Remove="Resources\Windows10\Minimize.svg" />
-		<None Remove="Resources\Windows10\Restore.svg" />
-	</ItemGroup>
+
 	<ItemGroup>
 		<EmbeddedResource Include="Resources\Chrome\Add.png" />
 		<EmbeddedResource Include="Resources\Chrome\AddHover.png" />

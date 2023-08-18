@@ -52,7 +52,6 @@ public sealed class FormCreationHelper
     /// <summary>
     /// Creates a Form in other thread
     /// </summary>
-    /// <param name="text">The text.</param>
     /// <param name="createForm">A function that creates a new Form</param>
     /// <returns>The created form.</returns>
     public Form CreateFormInOtherThread(Func<Form>? createForm)

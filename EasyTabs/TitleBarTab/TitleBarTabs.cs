@@ -48,7 +48,7 @@ public partial class TitleBarTabs : Form
     protected internal TitleBarTabsOverlay? _overlay;
 
     /// <summary>The preview images for each tab used to display each tab when Aero Peek is activated.</summary>
-    protected Dictionary<Form?, Bitmap?> _previews = new();
+    protected Dictionary<Form, Bitmap?> _previews = new();
 
     /// <summary>
     /// When switching between tabs, this keeps track of the tab that was previously active so that, when it is switched away from, we can generate a fresh
@@ -75,7 +75,7 @@ public partial class TitleBarTabs : Form
         InitializeComponent();
         SetWindowThemeAttributes(WTNCA.NODRAWCAPTION | WTNCA.NODRAWICON);
 
-        _tabs.CollectionModified += _tabs_CollectionModified;
+        _tabs.CollectionModified += Tabs_CollectionModified;
 
         // Set the window style so that we take care of painting the non-client area, a redraw is triggered when the size of the window changes, and the 
         // window itself has a transparent background color (otherwise the non-client area will simply be black when the window is maximized)
@@ -478,12 +478,15 @@ public partial class TitleBarTabs : Form
             preview.SetImage(bitmap);
 
             // If we already had a preview image for the tab, dispose of it
-            if (_previews.ContainsKey(tab.Content) && _previews[tab.Content] != null)
+            if (tab.Content != null && _previews.ContainsKey(tab.Content) && _previews[tab.Content] != null)
             {
                 _previews[tab.Content]?.Dispose();
             }
 
-            _previews[tab.Content] = bitmap;
+            if (tab.Content != null)
+            {
+                _previews[tab.Content] = bitmap;
+            }
         }
     }
 
@@ -516,7 +519,7 @@ public partial class TitleBarTabs : Form
     /// <param name="e">Arguments associated with the event.</param>
     protected void OnTabSelected(TitleBarTabEventArgs e)
     {
-        if (SelectedTabIndex != -1 && _previews.ContainsKey(SelectedTab?.Content) && AeroPeekEnabled)
+        if (SelectedTab?.Content != null && SelectedTabIndex != -1 && _previews.ContainsKey(SelectedTab.Content) && AeroPeekEnabled)
         {
             TaskbarManager.Instance.TabbedThumbnail.SetActiveTab(SelectedTab?.Content);
         }
@@ -535,13 +538,16 @@ public partial class TitleBarTabs : Form
     /// </summary>
     /// <param name="sender">Object from which this event originated.</param>
     /// <param name="e">Arguments associated with this event.</param>
-    private void preview_TabbedThumbnailBitmapRequested(object sender, TabbedThumbnailBitmapRequestedEventArgs e)
+    private void preview_TabbedThumbnailBitmapRequested(object? sender, TabbedThumbnailBitmapRequestedEventArgs e)
     {
         foreach (
             TitleBarTab? rdcWindow in Tabs.Where(rdcWindow => rdcWindow != null && rdcWindow.Content != null && rdcWindow.Content.Handle == e.WindowHandle && _previews.ContainsKey(rdcWindow.Content)))
         {
             TabbedThumbnail preview = TaskbarManager.Instance.TabbedThumbnail.GetThumbnailPreview(rdcWindow?.Content);
-            preview.SetImage(_previews[rdcWindow?.Content]);
+            if (rdcWindow?.Content != null)
+            {
+                preview.SetImage(_previews[rdcWindow.Content]);
+            }
 
             break;
         }
@@ -595,7 +601,7 @@ public partial class TitleBarTabs : Form
     /// </summary>
     /// <param name="sender">Object from which this event originated.</param>
     /// <param name="e">Arguments associated with this event.</param>
-    private void preview_TabbedThumbnailActivated(object sender, TabbedThumbnailEventArgs e)
+    private void preview_TabbedThumbnailActivated(object? sender, TabbedThumbnailEventArgs e)
     {
         foreach (TitleBarTab? tab in Tabs.Where(tab => tab != null && tab.Content != null && tab.Content.Handle == e.WindowHandle))
         {
@@ -623,7 +629,7 @@ public partial class TitleBarTabs : Form
     /// </summary>
     /// <param name="sender">Object from which this event originated.</param>
     /// <param name="e">Arguments associated with this event.</param>
-    private void preview_TabbedThumbnailClosed(object sender, TabbedThumbnailEventArgs e)
+    private void preview_TabbedThumbnailClosed(object? sender, TabbedThumbnailEventArgs e)
     {
         foreach (TitleBarTab? tab in Tabs.Where(tab => tab?.Content != null && tab.Content.Handle == e.WindowHandle))
         {
@@ -636,7 +642,7 @@ public partial class TitleBarTabs : Form
     /// <summary>Callback that is invoked whenever anything is added or removed from <see cref="Tabs" /> so that we can trigger a redraw of the tabs.</summary>
     /// <param name="sender">Object for which this event was raised.</param>
     /// <param name="e">Arguments associated with the event.</param>
-    private void _tabs_CollectionModified(object sender, ListModificationEventArgs e)
+    private void Tabs_CollectionModified(object? sender, ListModificationEventArgs e)
     {
         SetFrameSize();
 
@@ -744,11 +750,11 @@ public partial class TitleBarTabs : Form
     /// </summary>
     /// <param name="sender">Object from which this event originated (the <see cref="TitleBarTab.Content" /> object in this case).</param>
     /// <param name="e">Arguments associated with the event.</param>
-    private void Content_TextChanged(object sender, EventArgs e)
+    private void Content_TextChanged(object? sender, EventArgs e)
     {
         if (AeroPeekEnabled)
         {
-            TabbedThumbnail preview = TaskbarManager.Instance.TabbedThumbnail.GetThumbnailPreview((Form) sender);
+            TabbedThumbnail preview = TaskbarManager.Instance.TabbedThumbnail.GetThumbnailPreview((Form?) sender);
 
             if (preview != null)
             {
@@ -916,10 +922,13 @@ public partial class TitleBarTabs : Form
             SelectedTabIndex = selectedTabIndex;
         }
 
-        if (_previews.ContainsKey(closingTab?.Content))
+        if (closingTab?.Content != null && _previews.ContainsKey(closingTab.Content))
         {
-            _previews[closingTab?.Content]?.Dispose();
-            _previews.Remove(closingTab?.Content);
+            if (closingTab.Content != null)
+            {
+                _previews[closingTab.Content]?.Dispose();
+                _previews.Remove(closingTab.Content);
+            }
         }
 
         if (_previousActiveTab != null && closingTab?.Content == _previousActiveTab.Content)
@@ -1005,7 +1014,7 @@ public partial class TitleBarTabs : Form
         return hitTests[row, column];
     }
 
-    private void ApplicationFormClosing(object sender, FormClosingEventArgs e)
+    private void ApplicationFormClosing(object? sender, FormClosingEventArgs e)
     {
         foreach (TitleBarTab? tab in Tabs.ToArray())
         {

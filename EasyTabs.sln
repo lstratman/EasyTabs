@@ -8,7 +8,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestApp", "TestApp\TestApp.
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGet", "NuGet", "{4FD84DA5-723C-4B44-B5BC-E6D70DFB0E69}"
 	ProjectSection(SolutionItems) = preProject
-		.nuget\NuGet.Config = .nuget\NuGet.Config
+		Nuget.Config = Nuget.Config
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ReSharper Settings", "ReSharper Settings", "{FD0ECAF1-69C2-4868-9AF4-13CDF3CA23AB}"
@@ -31,6 +31,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EasyTabsTests", "EasyTabsTests\EasyTabsTests.csproj", "{222B92A0-E07C-44C1-A8A3-C06E89AE056F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{58FBB402-363B-4220-A9D7-A3961CF2BB1E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyTabsPoC", "EasyTabsPoC\EasyTabsPoC.csproj", "{63EB876C-D5CC-480F-99F9-444737735977}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -78,6 +80,18 @@ Global
 		{222B92A0-E07C-44C1-A8A3-C06E89AE056F}.Release|x64.Build.0 = Release|Any CPU
 		{222B92A0-E07C-44C1-A8A3-C06E89AE056F}.Release|x86.ActiveCfg = Release|Any CPU
 		{222B92A0-E07C-44C1-A8A3-C06E89AE056F}.Release|x86.Build.0 = Release|Any CPU
+		{63EB876C-D5CC-480F-99F9-444737735977}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{63EB876C-D5CC-480F-99F9-444737735977}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{63EB876C-D5CC-480F-99F9-444737735977}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{63EB876C-D5CC-480F-99F9-444737735977}.Debug|x64.Build.0 = Debug|Any CPU
+		{63EB876C-D5CC-480F-99F9-444737735977}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{63EB876C-D5CC-480F-99F9-444737735977}.Debug|x86.Build.0 = Debug|Any CPU
+		{63EB876C-D5CC-480F-99F9-444737735977}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{63EB876C-D5CC-480F-99F9-444737735977}.Release|Any CPU.Build.0 = Release|Any CPU
+		{63EB876C-D5CC-480F-99F9-444737735977}.Release|x64.ActiveCfg = Release|Any CPU
+		{63EB876C-D5CC-480F-99F9-444737735977}.Release|x64.Build.0 = Release|Any CPU
+		{63EB876C-D5CC-480F-99F9-444737735977}.Release|x86.ActiveCfg = Release|Any CPU
+		{63EB876C-D5CC-480F-99F9-444737735977}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -85,6 +99,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{5BACEE82-6D1F-403B-BF39-C212B07A6CA8} = {58FBB402-363B-4220-A9D7-A3961CF2BB1E}
 		{222B92A0-E07C-44C1-A8A3-C06E89AE056F} = {58FBB402-363B-4220-A9D7-A3961CF2BB1E}
+		{63EB876C-D5CC-480F-99F9-444737735977} = {58FBB402-363B-4220-A9D7-A3961CF2BB1E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {02B1BCF6-A6B8-49E2-B338-70028C854DC5}

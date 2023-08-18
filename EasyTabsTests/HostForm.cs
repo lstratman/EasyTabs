@@ -28,7 +28,7 @@ public partial class HostForm : Form
                                   Text = "Test",
                               };
                 b.BackColor = Color.White;
-                control.Click += (s, a) =>
+                control.Click += (_, _) =>
                 {
                     MessageBox.Show(DateTime.Now.ToString());
                 };

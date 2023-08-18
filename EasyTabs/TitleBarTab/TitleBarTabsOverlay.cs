@@ -31,7 +31,7 @@ public class TitleBarTabsOverlay : Form
     protected Timer? showTooltipTimer;
 
     /// <summary>All of the parent forms and their overlays so that we don't create duplicate overlays across the application domain.</summary>
-    protected static Dictionary<TitleBarTabs?, TitleBarTabsOverlay?> _parents = new();
+    protected static Dictionary<TitleBarTabs, TitleBarTabsOverlay?> _parents = new();
 
     /// <summary>Tab that has been torn off from this window and is being dragged.</summary>
     protected static TitleBarTab? _tornTab;
@@ -226,12 +226,17 @@ public class TitleBarTabsOverlay : Form
     /// <returns>Newly-created or previously existing overlay for <paramref name="parentForm" />.</returns>
     public static TitleBarTabsOverlay? GetInstance(TitleBarTabs? parentForm)
     {
-        if (!_parents.ContainsKey(parentForm))
+        if (parentForm != null && !_parents.ContainsKey(parentForm))
         {
             _parents.Add(parentForm, new TitleBarTabsOverlay(parentForm));
         }
 
-        return _parents[parentForm];
+        if (parentForm != null)
+        {
+            return _parents[parentForm];
+        }
+
+        return null;
     }
 
     /// <summary>
@@ -279,7 +284,7 @@ public class TitleBarTabsOverlay : Form
         }
     }
 
-    private void TitleBarTabsOverlay_FormClosing(object sender, FormClosingEventArgs e)
+    private void TitleBarTabsOverlay_FormClosing(object? sender, FormClosingEventArgs e)
     {
         if (!_parentFormClosing)
         {
@@ -295,7 +300,7 @@ public class TitleBarTabsOverlay : Form
     /// </summary>
     /// <param name="sender">Object from which this event originated, <see cref="_parentForm" /> in this case.</param>
     /// <param name="e">Arguments associated with this event.</param>
-    private void _parentForm_FormClosing(object sender, CancelEventArgs e)
+    private void _parentForm_FormClosing(object? sender, CancelEventArgs e)
     {
         if (e.Cancel)
         {
@@ -322,7 +327,7 @@ public class TitleBarTabsOverlay : Form
 
         // Kill the mouse events processing thread
         _mouseEvents.CompleteAdding();
-        _mouseEventsThread?.Abort();
+        _mouseEventsThread?.Interrupt();
     }
 
     private void HideTooltip()
@@ -655,10 +660,10 @@ public class TitleBarTabsOverlay : Form
                                 var type = _parentForm?.GetType();
                                 if (type != null)
                                 {
-                                    TitleBarTabs? newWindow = (TitleBarTabs)Activator.CreateInstance(type);
+                                    TitleBarTabs? newWindow = (TitleBarTabs?)Activator.CreateInstance(type);
 
                                     // Set the initial window position and state properly
-                                    if (newWindow.WindowState == FormWindowState.Maximized)
+                                    if (newWindow?.WindowState == FormWindowState.Maximized)
                                     {
                                         Screen screen = Screen.AllScreens.First(s => s.WorkingArea.Contains(Cursor.Position));
 
@@ -672,17 +677,23 @@ public class TitleBarTabsOverlay : Form
 
                                     else
                                     {
-                                        newWindow.Left = Cursor.Position.X;
-                                        newWindow.Top = Cursor.Position.Y;
+                                        if (newWindow != null)
+                                        {
+                                            newWindow.Left = Cursor.Position.X;
+                                            newWindow.Top = Cursor.Position.Y;
+                                        }
                                     }
 
                                     tabToRelease.Parent = newWindow;
                                     _parentForm?.ApplicationContext?.OpenWindow(newWindow);
 
-                                    newWindow.Show();
-                                    newWindow.Tabs.Add(tabToRelease);
-                                    newWindow.SelectedTabIndex = 0;
-                                    newWindow.ResizeTabContents();
+                                    if (newWindow != null)
+                                    {
+                                        newWindow.Show();
+                                        newWindow.Tabs.Add(tabToRelease);
+                                        newWindow.SelectedTabIndex = 0;
+                                        newWindow.ResizeTabContents();
+                                    }
                                 }
 
                                 _tornTabForm?.Close();
@@ -717,7 +728,7 @@ public class TitleBarTabsOverlay : Form
 
         if (nCode >= 0 && (int)WM.WM_MOUSEMOVE == (int)wParam)
         {
-            mouseEvent.MouseData = (MSLLHOOKSTRUCT)Marshal.PtrToStructure(lParam, typeof(MSLLHOOKSTRUCT));
+            mouseEvent.MouseData = (MSLLHOOKSTRUCT?)Marshal.PtrToStructure(lParam, typeof(MSLLHOOKSTRUCT));
         }
 
         _mouseEvents.Add(mouseEvent);
@@ -812,7 +823,7 @@ public class TitleBarTabsOverlay : Form
     /// </summary>
     /// <param name="sender">Object from which the event originated.</param>
     /// <param name="e">Arguments associated with the event.</param>
-    private void _parentForm_SystemColorsChanged(object sender, EventArgs e)
+    private void _parentForm_SystemColorsChanged(object? sender, EventArgs e)
     {
         if (_parentForm != null)
         {
@@ -828,7 +839,7 @@ public class TitleBarTabsOverlay : Form
     /// </summary>
     /// <param name="sender">Object from which the event originated.</param>
     /// <param name="e">Arguments associated with the event.</param>
-    private void _parentForm_Refresh(object sender, EventArgs e)
+    private void _parentForm_Refresh(object? sender, EventArgs e)
     {
         if (_parentForm != null && _parentForm.WindowState == FormWindowState.Minimized)
         {
@@ -1181,7 +1192,7 @@ public class TitleBarTabsOverlay : Form
     /// <summary>Event handler that is called when <see cref="_parentForm" />'s <see cref="Form.Activated" /> event is fired.</summary>
     /// <param name="sender">Object from which this event originated.</param>
     /// <param name="e">Arguments associated with the event.</param>
-    private void _parentForm_Activated(object sender, EventArgs e)
+    private void _parentForm_Activated(object? sender, EventArgs e)
     {
         _active = true;
         Render();
@@ -1190,7 +1201,7 @@ public class TitleBarTabsOverlay : Form
     /// <summary>Event handler that is called when <see cref="_parentForm" />'s <see cref="Form.Deactivate" /> event is fired.</summary>
     /// <param name="sender">Object from which this event originated.</param>
     /// <param name="e">Arguments associated with the event.</param>
-    private void _parentForm_Deactivate(object sender, EventArgs e)
+    private void _parentForm_Deactivate(object? sender, EventArgs e)
     {
         _active = false;
         Render();
@@ -1199,7 +1210,7 @@ public class TitleBarTabsOverlay : Form
     /// <summary>Event handler that is called when <see cref="_parentForm" />'s <see cref="Component.Disposed" /> event is fired.</summary>
     /// <param name="sender">Object from which this event originated.</param>
     /// <param name="e">Arguments associated with the event.</param>
-    private void _parentForm_Disposed(object sender, EventArgs e)
+    private void _parentForm_Disposed(object? sender, EventArgs e)
     {
     }
 

@@ -115,7 +115,7 @@ public class TornTabForm : Form
     /// </summary>
     /// <param name="sender">Object from which this event originated.</param>
     /// <param name="e">Arguments associated with this event.</param>
-    private void TornTabForm_Disposed(object sender, EventArgs e)
+    private void TornTabForm_Disposed(object? sender, EventArgs e)
     {
         User32.UnhookWindowsHookEx(_hookId);
     }
@@ -129,7 +129,7 @@ public class TornTabForm : Form
     {
         if (nCode >= 0 && (int)WM.WM_MOUSEMOVE == (int)wParam)
         {
-            MSLLHOOKSTRUCT hookStruct = (MSLLHOOKSTRUCT)Marshal.PtrToStructure(lParam, typeof(MSLLHOOKSTRUCT));
+            MSLLHOOKSTRUCT hookStruct = (MSLLHOOKSTRUCT)Marshal.PtrToStructure(lParam, typeof(MSLLHOOKSTRUCT))!;
             Point cursorPosition = new Point(hookStruct.pt.x, hookStruct.pt.y);
 
             SetWindowPosition(cursorPosition);
