@@ -62,4 +62,14 @@ public class TitleBarTabsApplicationContext : ApplicationContext
             ExitThread();
         }
     }
+
+    /// <inheritdoc />
+    protected override void Dispose(bool disposing)
+    {
+        foreach (var openWindow in OpenWindows)
+        {
+            openWindow?.Close();
+        }
+        base.Dispose(disposing);
+    }
 }

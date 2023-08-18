@@ -79,15 +79,8 @@ public class TabbedApplicationFormTests
             }).Run();
         form = await mainForm.Button2OnClick();
         await TimeSpan.FromSeconds(1).Delay();
-        _ = new Action(
-            () =>
-            {
-                form.Invoke(
-                    () =>
-                    {
-                        form.Close();
-                    });
-            }).Run();
-        mainForm.Dispose();
+        form.Close();
+        mainForm.Close();
+        _createTabbedApplication.Dispose();
     }
 }
