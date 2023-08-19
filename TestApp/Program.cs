@@ -14,8 +14,8 @@ namespace TestApp
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-
-			TestApp testApp = new TestApp();
+            TabbedApplicationHelper.SetupWaitUtility();
+            TestApp testApp = new TestApp();
 	        
 			testApp.Tabs.Add(
 		        new TitleBarTab(testApp)

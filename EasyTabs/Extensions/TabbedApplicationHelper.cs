@@ -74,7 +74,7 @@ public static class TabbedApplicationHelper
 
         createForm ??= createInitialForm;
 
-        AppContainer container = new AppContainer();
+        TitleBarTabs container = new TitleBarTabs();
         container.CreatingForm += async (_, e) =>
         {
             var eForm = createForm();
@@ -97,7 +97,10 @@ public static class TabbedApplicationHelper
         return applicationContext;
     }
 
-    private static void SetupWaitUtility()
+    /// <summary>
+    /// Setups the WaitUtility.
+    /// </summary>
+    public static void SetupWaitUtility()
     {
         TaskWaiterContainer.Dispatcher = new DispatcherWrapper(() =>
         {

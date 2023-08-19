@@ -4,29 +4,17 @@ using System.Diagnostics;
 using CoreLibrary.Logging;
 using EasyTabs;
 using EasyTabs.Model;
-using WindowsFormsLibrary.Utility;
 
 namespace EasyTabsTests;
 
 public partial class TabbedApplicationForm : Form
 {
     // 2. Important: Declare ParentTabs
-    protected AppContainer? ParentTabs
-    {
-        get
-        {
-            return ParentForm as AppContainer;
-        }
-    }
+    protected TitleBarTabs? ParentTabs => ParentForm as TitleBarTabs;
 
     public TabbedApplicationForm()
     {
         InitializeComponent();
-    }
-
-    private void Form1_Load(object sender, EventArgs e)
-    {
-
     }
 
     private async void button1_Click(object sender, EventArgs e)

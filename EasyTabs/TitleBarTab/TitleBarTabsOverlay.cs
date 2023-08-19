@@ -707,7 +707,17 @@ public class TitleBarTabsOverlay : Form
                     }
                 }
 
-                Invoke(() => OnMouseUp(new MouseEventArgs(MouseButtons.Left, 1, Cursor.Position.X, Cursor.Position.Y, 0)));
+                Invoke(() =>
+                {
+                    try
+                    {
+                        OnMouseUp(new MouseEventArgs(MouseButtons.Left, 1, Cursor.Position.X, Cursor.Position.Y, 0));
+                    }
+                    catch (ThreadInterruptedException e)
+                    {
+                        Trace.Write(e);
+                    }
+                });
             }
         }
     }

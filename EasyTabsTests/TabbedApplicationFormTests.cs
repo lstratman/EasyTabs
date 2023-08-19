@@ -1,6 +1,4 @@
-﻿using System.Windows.Documents;
-using CoreLibrary.Extensions.WaitUtility;
-using EasyTabs;
+﻿using EasyTabs;
 using NUnit.Framework;
 
 namespace EasyTabsTests;

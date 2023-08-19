@@ -14,10 +14,10 @@ public static class ProcessExtension
     /// </summary>
     /// <param name="process">The process.</param>
     /// <returns>The AppContainer of a process</returns>
-    public static AppContainer? GetAppContainer(this Process process)
+    public static TitleBarTabs? GetAppContainer(this Process process)
     {
         var myHandle = process.MainWindowHandle;
-        var fromHandle = Control.FromHandle(myHandle) as AppContainer;
+        var fromHandle = Control.FromHandle(myHandle) as TitleBarTabs;
         return fromHandle;
     }
 

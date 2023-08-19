@@ -27,15 +27,24 @@ namespace TestApp
             Cef.Initialize(cefSettings);
         }
 
+        public override Task<TitleBarTab> CreateTab(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+            {
+                text = "New Tab";
+            }
+            return new TitleBarTab(this)
+                   {
+                       Content = new TabWindow
+                                 {
+                                     Text = text
+                                 }
+                   }.FromResult();
+        }
+
         public override Task<TitleBarTab> CreateTab()
         {
-            return new TitleBarTab(this)
-            {
-                Content = new TabWindow
-                {
-                    Text = "New Tab"
-                }
-            }.FromResult();
+            return CreateTab(null);
         }
     }
 }

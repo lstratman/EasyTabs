@@ -94,13 +94,7 @@ namespace TestApp
         public readonly ChromiumWebBrowser WebBrowser;
         private bool faviconLoaded = false;
 
-	    protected TitleBarTabs ParentTabs
-	    {
-		    get
-		    {
-			    return ParentForm as TitleBarTabs;
-		    }
-	    }
+	    protected TitleBarTabs ParentTabs => ParentForm as TitleBarTabs;
 
         public TabWindow()
         {
