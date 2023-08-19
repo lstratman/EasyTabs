@@ -36,7 +36,7 @@ public abstract class BaseTabRenderer
     protected Color ForeColor = Color.Black;
 
     /// <summary>Image to display on the left side of an active tab.</summary>
-    protected Image? _activeLeftSideImage;
+    protected internal Image? _activeLeftSideImage;
 
     /// <summary>Image to display on the right side of an active tab.</summary>
     protected Image? _activeRightSideImage;
@@ -66,7 +66,7 @@ public abstract class BaseTabRenderer
     /// Background of the content area for the tab when the tab is inactive; its width also determines how wide the default content area for the tab
     /// is.
     /// </summary>
-    protected Image? _inactiveCenterImage;
+    protected internal Image? _inactiveCenterImage;
 
     /// <summary>Image to display on the left side of an inactive tab.</summary>
     protected Image? _inactiveLeftSideImage;
@@ -137,9 +137,9 @@ public abstract class BaseTabRenderer
                 if (Registry.LocalMachine != null)
                 {
                     IRegistryKey? reg = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion");
-                    string productName = (string)reg.GetValue("ProductName");
+                    var productName = (string?)reg?.GetValue("ProductName");
 
-                    _isWindows10 = productName.StartsWith("Windows 10");
+                    _isWindows10 = productName?.StartsWith("Windows 10");
                 }
             }
 
@@ -945,7 +945,7 @@ public abstract class BaseTabRenderer
     /// </summary>
     /// <param name="tab">Tab that we are retrieving the image for.</param>
     /// <returns>The image for the left side of <paramref name="tab"/>.</returns>
-    protected virtual Image? GetTabLeftImage(TitleBarTab? tab)
+    protected internal virtual Image? GetTabLeftImage(TitleBarTab? tab)
     {
         return tab != null && tab.Active
             ? _activeLeftSideImage
@@ -957,7 +957,7 @@ public abstract class BaseTabRenderer
     /// </summary>
     /// <param name="tab">Tab that we are retrieving the image for.</param>
     /// <returns>The image for the center of <paramref name="tab"/>.</returns>
-    protected virtual Image? GetTabCenterImage(TitleBarTab? tab)
+    protected internal virtual Image? GetTabCenterImage(TitleBarTab? tab)
     {
         return tab != null && tab.Active
             ? _activeCenterImage
@@ -969,7 +969,7 @@ public abstract class BaseTabRenderer
     /// </summary>
     /// <param name="tab">Tab that we are retrieving the image for.</param>
     /// <returns>The image for the right side of <paramref name="tab"/>.</returns>
-    protected virtual Image? GetTabRightImage(TitleBarTab? tab)
+    protected internal virtual Image? GetTabRightImage(TitleBarTab? tab)
     {
         return tab != null && tab.Active
             ? _activeRightSideImage

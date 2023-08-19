@@ -1,4 +1,7 @@
 ﻿using EasyTabs;
+using EasyTabs.Drawing;
+using Microsoft.Win32;
+using MS.WindowsAPICodePack.Internal;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -128,6 +131,129 @@ public class BaseTabRendererTests
         Assert.IsFalse(result);
     }
 
-    // More tests for other methods and properties
+    [Test]
+    public void GetTabLeftImage_WhenActiveTab_ReturnsActiveLeftSideImage()
+    {
+        // Arrange
+        var renderer = new TestableBaseTabRenderer(null);
+        var tab = new TitleBarTab(null);
+        tab.Active = true;
+        renderer._activeLeftSideImage=(new Bitmap(20, 10)); // Set a sample image
+
+        // Act
+        Image? result = renderer.GetTabLeftImage(tab);
+
+        // Assert
+        Assert.AreEqual(renderer._activeLeftSideImage, result);
+    }
+
+    [Test]
+    public void GetTabCenterImage_WhenInactiveTab_ReturnsInactiveCenterImage()
+    {
+        // Arrange
+        var renderer = new TestableBaseTabRenderer(null);
+        var tab = new TitleBarTab(null);
+        renderer.SetActiveCenterImage(new Bitmap(30, 15)); // Set a sample image
+
+        // Act
+        Image? result = renderer.GetTabCenterImage(tab);
+
+        // Assert
+        Assert.AreEqual(renderer._inactiveCenterImage, result);
+    }
+
+    [Test]
+    public void GetTabRightImage_WhenNoTab_ReturnsNull()
+    {
+        // Arrange
+        var renderer = new TestableBaseTabRenderer(null);
+
+        // Act
+        Image? result = renderer.GetTabRightImage(null);
+
+        // Assert
+        Assert.IsNull(result);
+    }
+
+    [Test]
+    public void IsWindows10_WhenRegistryKeyIsNull_ThrowsException()
+    {
+        // Arrange
+        var renderer = new TestableBaseTabRenderer(null);
+        renderer.Registry=(null); // Set a null registry for testing
+
+        // Assert
+        Assert.Throws<NullReferenceException>(
+            () =>
+            {
+                bool result = renderer.IsWindows10;
+            });
+    }
+
+    [Test]
+    public void IsWindows10_WhenRegistryKeyIsValid_ReturnsTrue()
+    {
+        // Arrange
+        var renderer = new TestableBaseTabRenderer(null);
+        var mockRegistry = Substitute.For<IRegistry>();
+        var registryKey = Substitute.For<IRegistryKey>();
+        mockRegistry.LocalMachine.Returns(registryKey);
+        registryKey.OpenSubKey(Arg.Any<string>()).Returns(registryKey);
+        registryKey.GetValue(Arg.Any<string>()).Returns("Windows 10");
+        renderer.Registry=(mockRegistry); // Set a mock registry for testing
+
+        // Act
+        bool result = renderer.IsWindows10;
+
+        // Assert
+        Assert.IsTrue(result);
+    }
+
+    [Test]
+    public void IsWindows10_WhenRegistryKeyIsInvalid_ReturnsFalse()
+    {
+        // Arrange
+        var renderer = new TestableBaseTabRenderer(null);
+        var mockRegistry = Substitute.For<IRegistry>();
+        mockRegistry.GetValue("ProductName").Returns("Windows 7");
+        renderer.Registry=(mockRegistry); // Set a mock registry for testing
+
+        // Act
+        bool result = renderer.IsWindows10;
+
+        // Assert
+        Assert.IsFalse(result);
+    }
+
+    [Test]
+    public void IsOverSizingBox_WhenCursorIsNotOver_ReturnsFalse()
+    {
+        // Arrange
+        var renderer = new TestableBaseTabRenderer(null);
+        Point cursor = new Point(100, 100);
+
+        // Act
+        bool result = renderer.IsOverSizingBox(cursor);
+
+        // Assert
+        Assert.IsFalse(result);
+    }
+
+    [Test]
+    public void Overlay_MouseUp_ClearsDragStartAndTabClickOffset()
+    {
+        // Arrange
+        var renderer = new TestableBaseTabRenderer(null);
+        renderer.SetDragStart(new Point(10, 10));
+        renderer.SetTabClickOffset(10);
+
+        // Act
+        renderer.InvokeOverlay_MouseUp(renderer, null);
+
+        // Assert
+        Assert.IsNull(renderer.GetDragStart());
+        Assert.IsNull(renderer.GetTabClickOffset());
+    }
+
 }
 

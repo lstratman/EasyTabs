@@ -29,5 +29,44 @@ public class TestableBaseTabRenderer : BaseTabRenderer
         _isTabRepositioning = value;
     }
 
+    public Point? GetDragStart()
+    {
+        return _dragStart;
+    }
 
+    public int? GetTabClickOffset()
+    {
+        return _tabClickOffset;
+    }
+
+    public bool GetIsTabRepositioning()
+    {
+        return _isTabRepositioning;
+    }
+
+    public void SetDragStart(Point? point)
+    {
+        _dragStart = point;
+    }
+
+    public void SetTabClickOffset(int offset)
+    {
+        _tabClickOffset = offset;
+    }
+
+    // Override the protected methods to make them accessible for testing
+    public void InvokeOverlay_MouseDown(object sender, MouseEventArgs e)
+    {
+        Overlay_MouseDown(sender, e);
+    }
+
+    public void InvokeOverlay_MouseUp(object sender, MouseEventArgs e)
+    {
+        Overlay_MouseUp(sender, e);
+    }
+
+    public void InvokeOverlay_MouseMove(object sender, MouseEventArgs e)
+    {
+        Overlay_MouseMove(sender, e);
+    }
 }
