@@ -195,7 +195,7 @@ public partial class TitleBarTabs : Form
     }
 
     /// <summary>The tab that is currently selected by the user.</summary>
-    public TitleBarTab? SelectedTab
+    public virtual TitleBarTab? SelectedTab
     {
         get
         {

@@ -255,5 +255,99 @@ public class BaseTabRendererTests
         Assert.IsNull(renderer.GetTabClickOffset());
     }
 
+    [Test]
+    public void OverTab_WhenCursorIsOverActiveTab_ReturnsActiveTab()
+    {
+        // Arrange
+        var renderer = new TestableBaseTabRenderer(null);
+        var activeTab = new TitleBarTab(null);
+        activeTab.TabImage = Properties.Resources.TestImage;
+        var tabs = new List<TitleBarTab?> { null, activeTab, null };
+        Point cursor = new Point(10, 10);
+
+        renderer.SetIsOverTab(activeTab, true);
+
+        // Act
+        var result = renderer.OverTab(tabs, cursor);
+
+        // Assert
+        Assert.AreEqual(activeTab, result);
+    }
+
+    [Test]
+    public void OverTab_WhenCursorIsOverInactiveTab_ReturnsInactiveTab()
+    {
+        // Arrange
+        var renderer = new TestableBaseTabRenderer(null);
+        var inactiveTab = new TitleBarTab(null);
+        inactiveTab.TabImage = Properties.Resources.TestImage;
+        var tabs = new List<TitleBarTab?> { null, inactiveTab, null };
+        Point cursor = new Point(10, 10);
+
+        renderer.SetIsOverTab(inactiveTab, true);
+
+        // Act
+        var result = renderer.OverTab(tabs, cursor);
+
+        // Assert
+        Assert.AreEqual(inactiveTab, result);
+    }
+
+    [Test]
+    public void OverTab_WhenCursorIsNotOverAnyTab_ReturnsNull()
+    {
+        // Arrange
+        var renderer = new TestableBaseTabRenderer(null);
+        var tabs = new List<TitleBarTab?> { null, null, null };
+        Point cursor = new Point(100, 100);
+
+        // Act
+        var result = renderer.OverTab(tabs, cursor);
+
+        // Assert
+        Assert.IsNull(result);
+    }
+
+    [Test]
+    public void Overlay_MouseDown_WhenSelectedTabIsNull_DoesNotChangeState()
+    {
+        // Arrange
+        var titleBarTabs = new TitleBarTabs();
+        var selectedTab = new TitleBarTab(null);
+        selectedTab.Active = true;
+        titleBarTabs.SelectedTab = selectedTab;
+        var renderer = new TestableBaseTabRenderer(titleBarTabs);
+        var overlay = new Label();
+        var e = new MouseEventArgs(MouseButtons.Left, 1, 10, 10, 0);
+
+        // Act
+        renderer.Overlay_MouseDown(overlay, e);
+
+        // Assert
+        Assert.IsFalse(renderer._wasTabRepositioning);
+    }
+
+    [Test]
+    public void Overlay_MouseDown_WhenSelectedTabIsNotNull_SetsDragStartAndTabClickOffset()
+    {
+        // Arrange
+        var titleBarTabs = new TitleBarTabs();
+        var selectedTab = new TitleBarTab(null);
+        selectedTab.Active = true;
+        titleBarTabs.SelectedTab = selectedTab;
+        var renderer = new TestableBaseTabRenderer(titleBarTabs);
+        var overlay = new Label();
+        renderer.SetParentWindowWithSelectedTab(selectedTab);
+        var e = new MouseEventArgs(MouseButtons.Left, 1, 10, 10, 0);
+
+        // Act
+        renderer.Overlay_MouseDown(overlay, e);
+
+        // Assert
+        Assert.IsFalse(renderer._wasTabRepositioning);
+        Assert.AreEqual(new Point(10, 10), renderer._dragStart);
+    }
+
+
 }
 

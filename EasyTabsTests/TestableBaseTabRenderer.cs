@@ -5,13 +5,12 @@ namespace EasyTabsTests;
 
 public class TestableBaseTabRenderer : BaseTabRenderer
 {
+    private Dictionary<TitleBarTab, bool> _overTabStates = new Dictionary<TitleBarTab, bool>();
+
+    private TitleBarTab _selectedTab;
+
     public TestableBaseTabRenderer(TitleBarTabs parentWindow) : base(parentWindow)
     {
-    }
-
-    protected IRegistry CreateRegistry()
-    {
-        return Registry;
     }
 
     public void SetActiveCenterImage(Image image)
@@ -39,11 +38,6 @@ public class TestableBaseTabRenderer : BaseTabRenderer
         return _tabClickOffset;
     }
 
-    public bool GetIsTabRepositioning()
-    {
-        return _isTabRepositioning;
-    }
-
     public void SetDragStart(Point? point)
     {
         _dragStart = point;
@@ -54,19 +48,32 @@ public class TestableBaseTabRenderer : BaseTabRenderer
         _tabClickOffset = offset;
     }
 
-    // Override the protected methods to make them accessible for testing
-    public void InvokeOverlay_MouseDown(object sender, MouseEventArgs e)
-    {
-        Overlay_MouseDown(sender, e);
-    }
-
     public void InvokeOverlay_MouseUp(object sender, MouseEventArgs e)
     {
         Overlay_MouseUp(sender, e);
     }
 
-    public void InvokeOverlay_MouseMove(object sender, MouseEventArgs e)
+    public void SetIsOverTab(TitleBarTab tab, bool isOver)
     {
-        Overlay_MouseMove(sender, e);
+        _overTabStates[tab] = isOver;
+    }
+
+    protected override bool IsOverTab(TitleBarTab? tab, Point cursor)
+    {
+        if (tab != null && _overTabStates.ContainsKey(tab))
+        {
+            return _overTabStates[tab];
+        }
+        return base.IsOverTab(tab, cursor);
+    }
+
+    public void SetParentWindowWithSelectedTab(TitleBarTab selectedTab)
+    {
+        _selectedTab = selectedTab;
+    }
+
+    protected override TitleBarTab? GetSelectedTab()
+    {
+        return _selectedTab;
     }
 }

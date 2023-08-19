@@ -60,7 +60,7 @@ public abstract class BaseTabRenderer
     protected Image? _closeButtonImage;
 
     /// <summary>When the user is dragging a tab, this represents the point where the user first clicked to start the drag operation.</summary>
-    protected Point? _dragStart;
+    protected internal Point? _dragStart;
 
     /// <summary>
     /// Background of the content area for the tab when the tab is inactive; its width also determines how wide the default content area for the tab
@@ -90,13 +90,13 @@ public abstract class BaseTabRenderer
     protected bool _suspendRendering;
 
     /// <summary>When the user is dragging a tab, this represents the horizontal offset within the tab where the user clicked to start the drag operation.</summary>
-    protected int? _tabClickOffset;
+    protected internal int? _tabClickOffset;
 
     /// <summary>The width of the content area that we should use for each tab.</summary>
     protected int _tabContentWidth;
 
     /// <summary>Flag indicating whether or not a tab was being repositioned.</summary>
-    protected bool _wasTabRepositioning;
+    protected internal bool _wasTabRepositioning;
 
     /// <summary>Default constructor that initializes the <see cref="_parentWindow" /> and <see cref="ShowAddButton" /> properties.</summary>
     /// <param name="parentWindow">The parent window that this renderer instance belongs to.</param>
@@ -335,6 +335,15 @@ public abstract class BaseTabRenderer
         {
             _tabClickOffset = _parentWindow._overlay.GetRelativeCursorPosition(e.Location).X - _parentWindow.SelectedTab.Area.Location.X;
         }
+    }
+
+    /// <summary>
+    /// Gets the selected tab.
+    /// </summary>
+    /// <returns></returns>
+    protected virtual TitleBarTab? GetSelectedTab()
+    {
+        return _parentWindow?.SelectedTab;
     }
 
     /// <summary>
