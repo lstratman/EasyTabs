@@ -7,7 +7,6 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using CefSharp;
 using CefSharp.WinForms;
-using CoreLibrary.Extensions.WaitUtility;
 using EasyTabs;
 
 namespace TestApp
@@ -42,7 +41,7 @@ namespace TestApp
 
                 _tab.ParentTabs.Invoke(new Action(() =>
                 {
-                    _tab.ParentTabs.AddNewTab().WaitForTask();
+                    _tab.ParentTabs.AddNewTab().Wait();
                     newTab = _tab.ParentTabs.SelectedTab.Content as TabWindow;
 
                     bool newTabLoaded = false;

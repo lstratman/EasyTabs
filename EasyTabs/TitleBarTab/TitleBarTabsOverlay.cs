@@ -10,7 +10,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
-using CoreLibrary.Extensions.WaitUtility;
 using EasyTabs.Model;
 using Win32Interop.Enums;
 using Win32Interop.Methods;
@@ -1181,7 +1180,7 @@ public class TitleBarTabsOverlay : Form
                         // Otherwise, if the user clicked the add button, call CreateTab to add a new tab to the list and select it
                         else if (formTabRenderer != null && formTabRenderer.IsOverAddButton(relativeCursorPosition2))
                         {
-                            _parentForm.AddNewTab().WaitForTask();
+                            _parentForm.AddNewTab().Wait();
                         }
                     }
 

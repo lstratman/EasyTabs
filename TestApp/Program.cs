@@ -14,7 +14,6 @@ namespace TestApp
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            TabbedApplicationHelper.SetupWaitUtility();
             TestApp testApp = new TestApp();
 	        
 			testApp.Tabs.Add(

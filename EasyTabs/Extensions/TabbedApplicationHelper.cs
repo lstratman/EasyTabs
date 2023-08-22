@@ -2,9 +2,6 @@ using System;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Threading;
-using CoreLibrary.Model.Utility.Wait;
-using CoreLibrary.Utility.Wait;
-using CoreLibrary.WaitUtility;
 
 namespace EasyTabs;
 
@@ -68,7 +65,6 @@ public static class TabbedApplicationHelper
     public static ApplicationContext CreateTabbedApplication<T>(Func<Form> createInitialForm, Func<Form>? createForm, Func<T?, Task>? initialize)
         where T : Form
     {
-        SetupWaitUtility();
         Application.EnableVisualStyles();
         Application.SetCompatibleTextRenderingDefault(false);
 
@@ -95,22 +91,5 @@ public static class TabbedApplicationHelper
         TitleBarTabsApplicationContext applicationContext = new TitleBarTabsApplicationContext();
         applicationContext.Start(container);
         return applicationContext;
-    }
-
-    /// <summary>
-    /// Setups the WaitUtility.
-    /// </summary>
-    public static void SetupWaitUtility()
-    {
-        TaskWaiterContainer.Dispatcher = new DispatcherWrapper(() =>
-        {
-            DispatcherFrame dispatcherFrame = new DispatcherFrame();
-            return new DispatcherFrameWrapper(dispatcherFrame)
-                   {
-                       GetContinue = () => dispatcherFrame.Continue,
-                       SetContinue = value => dispatcherFrame.Continue = value
-                   };
-        }, f => Dispatcher.PushFrame((DispatcherFrame)f));
-        TaskWaiterContainer.TaskWaiter = TaskWaiter.Instance;
     }
 }
