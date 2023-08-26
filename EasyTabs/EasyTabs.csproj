@@ -79,7 +79,6 @@
 		<Reference Include="PresentationCore" />
 		<Reference Include="System.Web" />
 		<Reference Include="System.Data.DataSetExtensions" />
-		<Reference Include="Microsoft.CSharp" />
 		<Reference Include="System.Deployment" />
 		<Reference Include="System.Windows.Forms" />
 		<Reference Include="WindowsBase" />

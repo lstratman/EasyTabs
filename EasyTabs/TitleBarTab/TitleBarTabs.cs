@@ -537,6 +537,11 @@ public partial class TitleBarTabs : Form
         {
             TabSelected(this, e);
         }
+
+        if (SelectedTab != null)
+        {
+            Icon = SelectedTab.Icon;
+        }
     }
 
     /// <summary>

@@ -24,11 +24,6 @@ namespace EasyTabs;
 /// </summary>
 public partial class TitleBarTabsOverlay : Form
 {
-    /// <summary>
-    /// The showTooltipTimer.
-    /// </summary>
-    protected Timer? showTooltipTimer;
-
     /// <summary>All of the parent forms and their overlays so that we don't create duplicate overlays across the application domain.</summary>
     protected internal static Dictionary<TitleBarTabs, TitleBarTabsOverlay?> Parents
     {
@@ -136,6 +131,11 @@ public partial class TitleBarTabsOverlay : Form
     /// </summary>
     protected long _lastLeftButtonClickTicks;
 
+    internal TooltipHelper? TooltipHelper
+    {
+        get;
+    }
+
     /// <summary>
     /// Says if first click.
     /// </summary>
@@ -183,12 +183,16 @@ public partial class TitleBarTabsOverlay : Form
         Show(ParentFormValue);
         AttachHandlers();
 
-        showTooltipTimer = new Timer
-        {
-            AutoReset = false
-        };
+        TooltipHelper = new TooltipHelper(this);
+        parentForm.TabSelected += ParentForm_TabSelected;
+    }
 
-        showTooltipTimer.Elapsed += ShowTooltipTimerOnElapsed;
+    private void ParentForm_TabSelected(object sender, TitleBarTabEventArgs e)
+    {
+        if (e.Tab is { Content: not null })
+        {
+            Icon = e.Tab.Content.Icon;
+        }
     }
 
     /// <summary>
@@ -332,86 +336,6 @@ public partial class TitleBarTabsOverlay : Form
             e.Cancel = true;
             ParentFormClosing = true;
             ParentFormValue?.Close();
-        }
-    }
-
-    internal void HideTooltip()
-    {
-        showTooltipTimer?.Stop();
-
-        if (ParentFormValue != null && ParentFormValue.InvokeRequired)
-        {
-            ParentFormValue.Invoke(() =>
-            {
-                ParentFormValue.Tooltip.Hide(ParentFormValue);
-            });
-        }
-
-        else
-        {
-            ParentFormValue?.Tooltip.Hide(ParentFormValue);
-        }
-    }
-
-    private void ShowTooltip(TitleBarTabs? tabsForm, string caption)
-    {
-        Point tooltipLocation = new Point(Cursor.Position.X + 7, Cursor.Position.Y + 55);
-        if (tabsForm != null)
-        {
-            tabsForm.Tooltip.Show(caption, tabsForm, tabsForm.PointToClient(tooltipLocation), tabsForm.Tooltip.AutoPopDelay);
-        }
-    }
-
-    private void ShowTooltipTimerOnElapsed(object sender, System.Timers.ElapsedEventArgs e)
-    {
-        if (!ParentFormValue?.ShowTooltips??true)
-        {
-            return;
-        }
-
-        Point relativeCursorPosition = GetRelativeCursorPosition(Cursor.Position);
-        TitleBarTab? hoverTab = ParentFormValue.TabRenderer?.OverTab(ParentFormValue.Tabs, relativeCursorPosition);
-
-        if (hoverTab != null)
-        {
-            TitleBarTabs? hoverTabForm = hoverTab.Parent;
-
-            if (hoverTabForm?.InvokeRequired??false)
-            {
-                hoverTabForm.Invoke(() =>
-                {
-                    ShowTooltip(hoverTabForm, hoverTab.Caption);
-                });
-            }
-
-            else
-            {
-                ShowTooltip(hoverTabForm, hoverTab.Caption);
-            }
-        }
-    }
-
-    internal void StartTooltipTimer()
-    {
-        if (!(ParentFormValue?.ShowTooltips??false))
-        {
-            return;
-        }
-
-        Point relativeCursorPosition = GetRelativeCursorPosition(Cursor.Position);
-        TitleBarTab? hoverTab = ParentFormValue.TabRenderer?.OverTab(ParentFormValue.Tabs, relativeCursorPosition);
-
-        if (hoverTab != null)
-        {
-            if (showTooltipTimer != null)
-            {
-                if (hoverTab.Parent != null)
-                {
-                    showTooltipTimer.Interval = hoverTab.Parent.Tooltip.AutomaticDelay;
-                }
-
-                showTooltipTimer.Start();
-            }
         }
     }
 

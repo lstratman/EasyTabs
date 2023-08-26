@@ -207,7 +207,7 @@ namespace EasyTabs
 
         private void HandleMouseMove(MSLLHOOKSTRUCT? hookStruct)
         {
-            _parent.HideTooltip();
+            _parent.TooltipHelper.HideTooltip();
 
             if (hookStruct == null)
             {
@@ -264,7 +264,7 @@ namespace EasyTabs
                 var parentFormTabRenderer = _parent.ParentFormValue?.TabRenderer;
                 if (!parentFormTabRenderer?.IsTabRepositioning ?? false)
                 {
-                    _parent.StartTooltipTimer();
+                    _parent.TooltipHelper.StartTooltipTimer();
 
                     Point relativeCursorPosition = _parent.GetRelativeCursorPosition(cursorPosition);
 
