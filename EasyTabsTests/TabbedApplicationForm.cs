@@ -15,6 +15,7 @@ public partial class TabbedApplicationForm : Form
     public TabbedApplicationForm()
     {
         InitializeComponent();
+        Icon = Properties.Resources.tabs;
     }
 
     private async void button1_Click(object sender, EventArgs e)
@@ -42,10 +43,10 @@ public partial class TabbedApplicationForm : Form
     {
         if (ParentTabs != null)
         {
-            ParentTabs.Invoke(
+            await ParentTabs.Invoke(
                 async () =>
                 {
-                    ParentTabs.ReplaceCreateFormHandlersOnce(CreateFormInOtherThread);
+                    ParentTabs.ReplaceCreateFormHandlersOnce(CreateFormInOtherThread!);
                     await ParentTabs.AddNewTab();
                 });
         }
@@ -59,17 +60,28 @@ public partial class TabbedApplicationForm : Form
         e.Form = FormCreationHelper.Instance.CreateFormInOtherThread($"Button {DateTime.Now} - Initial Tab: {Process.GetCurrentProcess().GetInitialContentText()}", WorkWithForm);
     }
 
-    private static void WorkWithForm(Form b)
+    private static void WorkWithForm(Form form)
     {
         var control = new Button()
         {
-            Text = "Test",
+            Text = "Show MessageBox",
         };
-        b.BackColor = Color.White;
+        form.BackColor = Color.White;
         control.Click += (_, _) =>
         {
             MessageBox.Show(DateTime.Now.ToString());
         };
-        b.Controls.Add(control);
+        form.Controls.Add(control);
+        control = new Button
+        {
+            Text = "Close",
+        };
+        control.Top = 100;
+        form.BackColor = Color.White;
+        control.Click += (_, _) =>
+        {
+            form.Close();
+        };
+        form.Controls.Add(control);
     }
 }

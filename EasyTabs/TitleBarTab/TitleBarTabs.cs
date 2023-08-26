@@ -92,10 +92,10 @@ public partial class TitleBarTabs : Form
         SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw, true);
 
         Tooltip = new ToolTip
-                  {
-                      AutoPopDelay = 5000,
-                      AutomaticDelay = 500
-                  };
+        {
+            AutoPopDelay = 5000,
+            AutomaticDelay = 500
+        };
 
         ShowTooltips = true;
         AeroPeekEnabled = true;
@@ -230,11 +230,11 @@ public partial class TitleBarTabs : Form
             {
                 // Raise the TabDeselecting event
                 TitleBarTabCancelEventArgs e = new TitleBarTabCancelEventArgs
-                                               {
-                                                   Action = TabControlAction.Deselecting,
-                                                   Tab = selectedTab,
-                                                   TabIndex = selectedTabIndex
-                                               };
+                {
+                    Action = TabControlAction.Deselecting,
+                    Tab = selectedTab,
+                    TabIndex = selectedTabIndex
+                };
 
                 OnTabDeselecting(e);
 
@@ -260,11 +260,11 @@ public partial class TitleBarTabs : Form
             {
                 // Raise the TabSelecting event
                 TitleBarTabCancelEventArgs e = new TitleBarTabCancelEventArgs
-                                               {
-                                                   Action = TabControlAction.Selecting,
-                                                   Tab = Tabs[value],
-                                                   TabIndex = value
-                                               };
+                {
+                    Action = TabControlAction.Selecting,
+                    Tab = Tabs[value],
+                    TabIndex = value
+                };
 
                 OnTabSelecting(e);
 
@@ -322,20 +322,20 @@ public partial class TitleBarTabs : Form
     public int NonClientAreaHeight => _nonClientAreaHeight;
 
     /// <summary>Area of the screen in which tabs can be dropped for this window.</summary>
-    public Rectangle TabDropArea => _overlay?.TabDropArea??default;
+    public Rectangle TabDropArea => _overlay?.TabDropArea ?? default;
 
     /// <summary>Calls <see cref="Uxtheme.SetWindowThemeAttribute" /> to set various attributes on the window.</summary>
     /// <param name="attributes">Attributes to set on the window.</param>
     private void SetWindowThemeAttributes(WTNCA attributes)
     {
         WTA_OPTIONS options = new WTA_OPTIONS
-                              {
-                                  dwFlags = attributes,
-                                  dwMask = WTNCA.VALIDBITS
-                              };
+        {
+            dwFlags = attributes,
+            dwMask = WTNCA.VALIDBITS
+        };
 
         // The SetWindowThemeAttribute API call takes care of everything
-        Uxtheme.SetWindowThemeAttribute(Handle, WINDOWTHEMEATTRIBUTETYPE.WTA_NONCLIENT, ref options, (uint) Marshal.SizeOf(typeof (WTA_OPTIONS)));
+        Uxtheme.SetWindowThemeAttribute(Handle, WINDOWTHEMEATTRIBUTETYPE.WTA_NONCLIENT, ref options, (uint)Marshal.SizeOf(typeof(WTA_OPTIONS)));
     }
 
     /// <summary>
@@ -398,14 +398,14 @@ public partial class TitleBarTabs : Form
         {
             // Set the margins and extend the frame into the client area
             MARGINS margins = new MARGINS
-                              {
-                                  cxLeftWidth = 1,
-                                  cxRightWidth = 1,
-                                  cyBottomHeight = 1,
-                                  cyTopHeight = topPadding > 0
+            {
+                cxLeftWidth = 1,
+                cxRightWidth = 1,
+                cyBottomHeight = 1,
+                cyTopHeight = topPadding > 0
                                       ? topPadding
                                       : 0
-                              };
+            };
 
             Dwmapi.DwmExtendFrameIntoClientArea(Handle, ref margins);
         }
@@ -700,10 +700,10 @@ public partial class TitleBarTabs : Form
         }
 
         preview = new TabbedThumbnail(Handle, tab?.Content)
-                  {
-                      Title = tab?.Content?.Text,
-                      Tooltip = tab?.Content?.Text
-                  };
+        {
+            Title = tab?.Content?.Text,
+            Tooltip = tab?.Content?.Text
+        };
 
         if (tab?.Content?.Icon != null)
         {
@@ -761,7 +761,7 @@ public partial class TitleBarTabs : Form
     {
         if (AeroPeekEnabled)
         {
-            TabbedThumbnail preview = TaskbarManager.Instance.TabbedThumbnail.GetThumbnailPreview((Form?) sender);
+            TabbedThumbnail preview = TaskbarManager.Instance.TabbedThumbnail.GetThumbnailPreview((Form?)sender);
 
             if (preview != null)
             {
@@ -785,10 +785,10 @@ public partial class TitleBarTabs : Form
     {
         if (e.Cancel) return;
 
-        TitleBarTab tab = (TitleBarTab) sender;
+        TitleBarTab tab = (TitleBarTab)sender;
         CloseTab(tab);
 
-        if (!(tab.Content?.IsDisposed??true) && AeroPeekEnabled)
+        if (!(tab.Content?.IsDisposed ?? true) && AeroPeekEnabled)
         {
             TaskbarManager.Instance.TabbedThumbnail.RemoveThumbnailPreview(tab.Content);
         }
@@ -834,7 +834,7 @@ public partial class TitleBarTabs : Form
     {
         bool callDwp = true;
 
-        switch ((WM) m.Msg)
+        switch ((WM)m.Msg)
         {
             // When the window is activated, set the size of the non-client area appropriately
             case WM.WM_ACTIVATE:
@@ -851,13 +851,13 @@ public partial class TitleBarTabs : Form
                 // Call the base message handler to see where the user clicked in the window
                 base.WndProc(ref m);
 
-                HT hitResult = (HT) m.Result.ToInt32();
+                HT hitResult = (HT)m.Result.ToInt32();
 
                 // If they were over the minimize/maximize/close buttons or the system menu, let the message pass
                 if (!(hitResult == HT.HTCLOSE || hitResult == HT.HTMINBUTTON || hitResult == HT.HTMAXBUTTON || hitResult == HT.HTMENU ||
                       hitResult == HT.HTSYSMENU))
                 {
-                    m.Result = new IntPtr((int) HitTest(m));
+                    m.Result = new IntPtr((int)HitTest(m));
                 }
 
                 callDwp = false;
@@ -866,7 +866,7 @@ public partial class TitleBarTabs : Form
 
             // Catch the case where the user is clicking the minimize button and use this opportunity to update the AeroPeek thumbnail for the current tab
             case WM.WM_NCLBUTTONDOWN:
-                if ((HT) m.WParam.ToInt32() == HT.HTMINBUTTON && AeroPeekEnabled && SelectedTab != null)
+                if ((HT)m.WParam.ToInt32() == HT.HTMINBUTTON && AeroPeekEnabled && SelectedTab != null)
                 {
                     UpdateTabThumbnail(SelectedTab);
                 }
@@ -952,7 +952,7 @@ public partial class TitleBarTabs : Form
     private HT HitTest(Message m)
     {
         // Get the point that the user clicked
-        int lParam = (int) m.LParam;
+        int lParam = (int)m.LParam;
         Point point = new Point(lParam & 0xffff, lParam >> 16);
 
         return HitTest(point, m.HWnd);
@@ -1036,7 +1036,10 @@ public partial class TitleBarTabs : Form
 
                 Invoke(() =>
                 {
-                    tab.Content.Close();
+                    if (!tab.Content.IsDisposed)
+                    {
+                        tab.Content.Close();
+                    }
                 });
 
                 if (!formClosed)
@@ -1080,25 +1083,52 @@ public partial class TitleBarTabs : Form
                         form.Text = contentText;
                     });
             };
-            form.Closed += (_, _) =>
+            form.Icon = contentCopy.Icon;
+
+            void OnContentCopyOnClosing(object o, CancelEventArgs cancelEventArgs)
             {
-                contentCopy.Invoke(
-                    () =>
-                    {
-                        contentCopy.Close();
-                    });
-            };
-            await form.HostFormInParentForm(contentCopy);
+                if (!contentCopy.IsDisposed)
+                {
+                    contentCopy.Dispose();
+                }
+
+                if (!form.IsDisposed)
+                {
+                    form.Invoke(
+                        () =>
+                        {
+                            form.Close();
+                        });
+                }
+            }
+
+            contentCopy.Closing += OnContentCopyOnClosing;
+
+            void OnFormOnClosing(object o, CancelEventArgs cancelEventArgs)
+            {
+                if (!contentCopy.IsDisposed)
+                {
+                    contentCopy.Invoke(
+                        () =>
+                        {
+                            contentCopy.Dispose();
+                        });
+                }
+            }
+
+            form.Closing += OnFormOnClosing;
+            _ = form.HostFormInParentForm(contentCopy);
             content = form;
         }
 
         titleBarTab = new TitleBarTab(this)
-                      {
-                          // The content will be an instance of another Form
-                          // In our example, we will create a new instance of the Form1
+        {
+            // The content will be an instance of another Form
+            // In our example, we will create a new instance of the Form1
 
-                          Content = content
-                      };
+            Content = content
+        };
+        titleBarTab.Icon=content.Icon;
         return titleBarTab;
     }
 
@@ -1107,9 +1137,9 @@ public partial class TitleBarTabs : Form
     public Form? CreateForm(string text)
     {
         var defaultCreateForm = new Form
-                                {
-                                    Text = text
-                                };
+        {
+            Text = text
+        };
         var formEventArgs = new FormEventArgs(defaultCreateForm);
         allEventsHandlerImplementation.RaiseEventWithDelegates(this, formEventArgs);
         defaultCreateForm = formEventArgs.Form;

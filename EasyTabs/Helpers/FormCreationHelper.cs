@@ -80,6 +80,7 @@ public sealed class FormCreationHelper
     public Form CreateFormInOtherThread(string? text, Action<Form>? workWithForm, Func<Form>? createForm)
     {
         Form? form = null;
+        bool b = false;
         var thread = new Thread(
             () =>
             {
@@ -94,12 +95,16 @@ public sealed class FormCreationHelper
                 form.FormBorderStyle = FormBorderStyle.None;
                 form.ShowInTaskbar = false;
                 form.WindowState = FormWindowState.Minimized;
+                form.Load += (_, _) =>
+                {
+                    b = true;
+                };
                 Application.Run(form);
             });
         ThreadCreated?.Invoke(this, new ThreadEventArgs(thread));
         thread.SetApartmentState(ApartmentState.STA);
         thread.Start();
-        while (form == null)
+        while (form == null || !b)
         {
             Thread.Sleep(10);
         }

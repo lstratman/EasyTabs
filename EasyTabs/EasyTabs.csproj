@@ -2,7 +2,7 @@
 	<Import Project="$(NuGetPackageRoot)nugetutility/$(NuGetUtilityVersion)/build/NuGet.Utility.props" Condition="Exists('$(NuGetPackageRoot)nugetutility/$(NuGetUtilityVersion)/build/NuGet.Utility.props')" />
 	<PropertyGroup>
 		<Version>$(VersionPrefix).$(VersionSuffix)</Version>
-		<TargetFrameworks>net40;net45;net5.0-windows;net6.0-windows</TargetFrameworks>
+		<TargetFrameworks>net35;net40;net45;net5.0-windows;net6.0-windows</TargetFrameworks>
 		<AssemblyTitle>.NET Title Bar Tabs</AssemblyTitle>
 		<Company>Luke Stratman</Company>
 		<Product>.NET Title Bar Tabs</Product>
@@ -64,7 +64,7 @@
 		<PackageReference Include="Net4x.Microsoft-WindowsAPICodePack-Core" Version="$(WindowsAPICodePackVersion).$(VersionBuildSuffix)" />
 		<PackageReference Include="Net4x.Microsoft-WindowsAPICodePack-Shell" Version="$(WindowsAPICodePackVersion).$(VersionBuildSuffix)" />
 		<PackageReference Include="Net4x.ValueTuple" Version="$(Net4xValueTupleVersion).$(VersionBuildSuffix)" />
-		<PackageReference Include="Svg" Version="2.4.3" Condition="'$(TargetFramework)'=='net40' or '$(TargetFramework)'=='net45'" />
+		<PackageReference Include="Svg" Version="2.4.3" Condition="'$(TargetFramework)'=='net35' or '$(TargetFramework)'=='net40' or '$(TargetFramework)'=='net45'" />
 		<PackageReference Include="Svg" Version="3.4.4" Condition="'$(TargetFramework)'=='net5.0-windows' or '$(TargetFramework)'=='net6.0-windows'" />
 		<PackageReference Include="Net4x.Win32Interop.Dwmapi" Version="$(Win32InteropVersion).$(VersionBuildSuffix)" />
 		<PackageReference Include="Net4x.Win32Interop.Gdi32" Version="$(Win32InteropVersion).$(VersionBuildSuffix)" />
@@ -85,7 +85,6 @@
 		<Reference Include="WindowsBase" />
 	</ItemGroup>
 	<ItemGroup>
-		<Compile Update="TitleBarTab\AppContainer.cs" />
 		<Compile Update="TitleBarTab\TornTabForm.cs">
 			<SubType>Form</SubType>
 		</Compile>
@@ -100,6 +99,9 @@
 			<AutoGen>True</AutoGen>
 			<DesignTime>True</DesignTime>
 			<DependentUpon>Resources.resx</DependentUpon>
+		</Compile>
+		<Compile Update="TitleBarTab\TitleBarTabsOverlay.Designer.cs">
+			<DependentUpon>TitleBarTabsOverlay.cs</DependentUpon>
 		</Compile>
 
 		<None Include="..\README.md" Link="README.md" Pack="True" PackagePath="\" />

@@ -48,9 +48,9 @@ namespace TestApp
 
                     if (!newTab.WebBrowser.IsBrowserInitialized)
                     {
-                        newTab.WebBrowser.IsBrowserInitializedChanged += (_, __) =>
+                        newTab.WebBrowser.IsBrowserInitializedChanged += (_, _) =>
                         {
-                            newTab.WebBrowser.LoadingStateChanged += (___, e) =>
+                            newTab.WebBrowser.LoadingStateChanged += (_, e) =>
                             {
                                 if (!newTabLoaded)
                                 {

@@ -12,10 +12,10 @@ static class Program
     [STAThread]
     public static int Main(string[] args)
     {
-        FormLogger.Instance.RunApplicationWithFormLogging(()=>(ApplicationContext)TabbedApplicationHelper.CreateTabbedApplication(() => new TabbedApplicationForm
-                                                                              {
-                                                                                  Text = "Test Form"
-                                                                              }));
+        FormLogger.Instance.RunApplicationWithFormLogging(() => TabbedApplicationHelper.CreateTabbedApplication(() => new TabbedApplicationForm
+            {
+                Text = "Test Form with a title very very long"
+            }));
         return 0;
     }
 }

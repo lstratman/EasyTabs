@@ -51,17 +51,20 @@ public static class FormExtension
                 tuple.Form.Invoke(
                     () =>
                     {
-                        tuple.Form.WindowState= FormWindowState.Normal;
+                        tuple.Form.WindowState = FormWindowState.Normal;
                         tuple.Form.Width = clientSizeWidth;
                         tuple.Form.Height = clientSizeHeight;
                     });
                 parentForm.Closed += (_, _) =>
                 {
-                    tuple.Form.Invoke(
+                    if (!tuple.Form.IsDisposed)
+                    {
+                        tuple.Form.Invoke(
                         () =>
                         {
                             tuple.Form.Dispose();
                         });
+                    }
                 };
                 parentForm.SizeChanged += (_, _) =>
                 {
