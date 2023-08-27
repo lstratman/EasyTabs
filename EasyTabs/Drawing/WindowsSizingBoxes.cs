@@ -117,7 +117,7 @@ public class WindowsSizingBoxes
     /// </summary>
     /// <param name="graphicsContext"></param>
     /// <param name="cursor"></param>
-    public void Render(Graphics graphicsContext, Point cursor)
+    public virtual void Render(Graphics graphicsContext, Point cursor)
     {
         if (_parentWindow != null)
         {
