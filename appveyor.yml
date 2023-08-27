@@ -3,15 +3,12 @@ configuration: Release
 platform: Any CPU
 before_build:
 - cmd: .nuget\NuGet.exe restore
-- ps: .\SetAssemblyVersion.ps1 ${env:APPVEYOR_BUILD_VERSION}
 build:
   project: EasyTabs.sln
   verbosity: minimal
 environment:
   NUGET_PACKAGE_VERSION: 2.0.0
 after_build:
-- cmd: .nuget\NuGet.exe pack %APPVEYOR_BUILD_FOLDER%\NuGet\EasyTabs.nuspec -Version %NUGET_PACKAGE_VERSION% -OutputDirectory %APPVEYOR_BUILD_FOLDER%
 - cmd: 7z a TestApp.zip %APPVEYOR_BUILD_FOLDER%\TestApp\bin\%CONFIGURATION%\*.*
 artifacts:
-- path: '*.nupkg'
 - path: TestApp.zip
